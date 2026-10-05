@@ -53,6 +53,8 @@ raw actor/zone GUCs. Never accept a numeric impersonation context from a body/he
 FORCE RLS where applicable. Migration/seed and worker
 roles have separate privileges; the worker has only the routines/tables it needs.
 An authenticated session itself is not proof of verified role eligibility.
+P03 implements separate auth/runtime login pools and fail-closed connection checks;
+see [identity protocol](IDENTITY.md) for local setup, CSRF and approval behavior.
 
 ## Operational boundaries
 

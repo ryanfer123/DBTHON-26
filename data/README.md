@@ -23,8 +23,9 @@ offsets let the same fixture remain meaningful months later. Status consistency 
 defined at that anchor; live actions naturally change it afterward.
 
 No login passwords, session values, notifications marked as sent, or invented ledger
-hashes are supplied. P02 imports disabled account hashes; P03 must provide explicit
-local demo-password setup before any fixture account can log in. Avoid storing raw
+hashes are supplied. P02 imports disabled account hashes; P03 provides interactive
+`scripts/demo_password.py --user <id>` setup before fixture accounts can log in.
+See [identity guide](../docs/IDENTITY.md). Avoid storing raw
 values in Git. The importer generates labelled fixture events through the real
 append routine, preserves explicit IDs and advances identity sequences safely.
 The same fixture hash and anchor is a no-op; changed anchors fail explicitly, and

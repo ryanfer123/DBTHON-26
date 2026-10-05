@@ -18,7 +18,8 @@ children: list[subprocess.Popen] = []
 try:
     children.append(subprocess.Popen(
         [str(uvicorn), "app.main:app", "--app-dir", str(ROOT / "apps/api"),
-         "--reload", "--host", "127.0.0.1", "--port", "8000"],
+         "--reload", "--reload-dir", str(ROOT / "apps/api/app"),
+         "--host", "127.0.0.1", "--port", "8000"],
         cwd=ROOT, start_new_session=True,
     ))
     children.append(subprocess.Popen(

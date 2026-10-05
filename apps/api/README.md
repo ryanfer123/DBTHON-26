@@ -13,10 +13,13 @@ uv run mypy app
 ```
 
 Root `.env` configures connectivity. Run `make migrate` from the repo root to apply
-revision 0001, `make seed ANCHOR=<UTC ISO timestamp>` to import synthetic data,
+revisions 0001/0002, then `make db-access` for separate restricted pools.
+Use `make seed ANCHOR=<UTC ISO timestamp>` to import synthetic data,
 `make ledger-verify` to check hashes, and `make db-test` for real PostgreSQL tests.
-Database writes are currently guarded SQL routines; no authenticated HTTP workflow
-is implemented yet. Seeded account logins are disabled.
+Registration/session/profile/admin APIs are implemented, backed by guarded SQL
+routines. Seeded account logins are initially disabled; use the interactive
+`scripts/demo_password.py` setup described in [identity](../../docs/IDENTITY.md).
+Listing/delivery APIs and account screens remain unfinished.
 Target [architecture](../../docs/ARCHITECTURE.md), [database](../../docs/DATABASE.md)
 and [API](../../docs/API.md) remain authoritative for unfinished domain features.
 Use real PostgreSQL for integration tests; SQLite is not supported.

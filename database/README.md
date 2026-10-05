@@ -5,12 +5,15 @@ It preserves all eight source entities plus the documented extensions. PostgreSQ
 17/PostGIS 3.5 is required; migration bootstrap needs extension/role-creation rights.
 Runtime has restricted column SELECT and guarded-function EXECUTE, without generic
 DML. `dbthon_guard` is a private NOLOGIN/BYPASSRLS function owner; never grant its
-membership to an application login. Auth/worker role capabilities arrive in P03/P07.
+membership to an application login. Revision `0002` adds identity routines and CSRF;
+auth and runtime login accounts are provisioned separately with `make db-access`.
+Worker role capabilities remain P07.
 
 `make migrate`, `make seed ANCHOR=2026-10-05T12:00:00Z`, `make ledger-verify` apply,
 import and independently check the fixture. Seeding requires empty application
 tables on its first run; the same hash/anchor is a no-op. A changed anchor is an
-explicit conflict. Seeded account hashes are disabled, with no shared login password.
+explicit conflict. Seeded account hashes are disabled; [interactive local setup](../docs/IDENTITY.md)
+enables selected fixture logins without a shared password in Git.
 Synthetic historical records are labelled by one fixture-import event per user;
 they are not evidence of real deliveries or stakeholder use.
 

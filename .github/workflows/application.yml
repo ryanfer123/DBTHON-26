@@ -64,6 +64,7 @@ jobs:
       - run: uv sync --project apps/api --locked
       - run: npm ci --prefix apps/web
       - run: uv run --project apps/api --locked python scripts/database.py migrate
+      - run: uv run --project apps/api --locked python scripts/provision_access.py
       - run: uv run --project apps/api --locked pytest apps/api/tests --db
       - run: npx playwright install --with-deps chromium
         working-directory: apps/web

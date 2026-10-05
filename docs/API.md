@@ -1,8 +1,10 @@
 # REST API contract to implement
 
 Base path `/api/v1`. Most of this is a target contract. P01 implements the two health
-endpoints and public `GET /community` introduction; all domain/auth routes below
-remain unimplemented. The actual generated contract is [openapi.json](openapi.json).
+endpoints and public `GET /community` introduction. P03 implements all identity and
+administration routes in the first table; listing/delivery/report routes remain
+targets. Actual generated contract: [openapi.json](openapi.json).
+Identity request headers, envelopes and session policy: [IDENTITY.md](IDENTITY.md).
 IDs are integers; mass is a decimal string in kg; distance is metres; timestamps are
 RFC3339 UTC strings. Session auth and CSRF behavior: [architecture](ARCHITECTURE.md).
 All endpoints validate approved roles, zone and object ownership server-side.
@@ -36,10 +38,10 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | POST `/auth/register` | name, email, phone, password, roles (Donor/Receiver/Volunteer), zone_id, latitude, longitude, capacity_kg if Receiver | 201 unverified user; never accept approved/admin flags |
 | POST `/auth/login` | email, password | 200 safe user DTO + Set-Cookie session; rate-limit failures |
 | POST `/auth/logout` | CSRF token | 204 revoke session and clear cookie |
-| GET `/auth/me` | none | Safe self profile, verification, roles, capabilities and CSRF token |
+| GET `/auth/me` | session cookie | `data.user` self profile + `data.csrf_token`; private/no-store |
 | PATCH `/auth/me` | name, phone, latitude, longitude, capacity_kg | Self; zone/role changes require verification workflow; ledger event |
 | GET `/admin/users` | zone_id, verification filter, cursor | Approved zone Admin only |
-| POST `/admin/users/{id}/verify` | roles to approve, verified boolean, reason | Scoped Admin; 200 updated safe profile; no public self-verification |
+| POST `/admin/users/{id}/verify` | requested public roles to approve, verified boolean, reason | Scoped Admin; replace public-role approvals; revocation uses empty roles; 200 safe profile; no Admin grants |
 
 ## Listings and matching
 

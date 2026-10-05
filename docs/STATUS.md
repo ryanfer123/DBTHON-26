@@ -1,8 +1,8 @@
 # Implementation status and session handoff
 
-Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P02 foundations complete.
-Public apps, schema, guarded SQL claims and audit verification run. Authentication
-and user-facing redistribution workflows remain unfinished.
+Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P03 complete.
+Public apps, schema/claims/audit foundation and identity/admin APIs run. Listing,
+delivery and connected account/workflow screens remain unfinished.
 
 Publication authorization: on 2026-10-05 the user explicitly approved pushing the
 complete handoff to GitHub, including the original PDF, extracted brief, student
@@ -104,14 +104,48 @@ Implementation commit: `f36fdde`.
 Database tests reset only `dbthon_test`; the seeded local `dbthon` is preserved.
 Historical synthetic transactions are bootstrap records, labelled by fixture-import
 events rather than claimed real-world activity. Full T01-T12 remain incomplete.
-The HTTP contract still has only public/health routes; auth, idempotency/cancellation,
-delivery, worker, reports and connected role screens remain later milestones.
+At the P02 checkpoint the HTTP contract had only public/health routes. P03 extends
+it below; idempotency/cancellation, delivery, worker, reports and connected role
+screens remain later milestones.
+
+## P03 implementation and observed checks
+
+- Revision `0002` adds session CSRF hashes, private auth-rate buckets/verification
+  reviews and identity SQL routines; baseline `0001` is unchanged.
+- Separate real non-owner LOGIN roles/pools for auth/runtime, with fail-closed
+  membership/ownership checks and transaction-local role/session/CSRF context.
+- Argon2id registration and rehash, normalized unique contacts, pending/multiple
+  public roles, positive receiver capacity and self-profile updates.
+- Opaque hashed sessions, rotation/12-hour expiry/five-session bound, server-side
+  logout revocation, private/no-store responses, CSRF/custom-header/origin protection.
+- Scoped Admin lists/verification/revocation, requested-role validation, private
+  review reasons, safe DTOs and atomic identity ledger/notification writes.
+- Repeatable local login provisioning and interactive synthetic password setup,
+  neither printing nor committing credentials; `.env` permission observed as 0600.
+
+| Check | Observed result |
+| --- | --- |
+| `pytest apps/api/tests --db -q` | 65 passed: 9 unit + 56 real PostgreSQL/API checks |
+| Revision upgrade/downgrade/reset | Disposable dbthon_test reset and both revisions reapplied successfully; original local demo data preserved |
+| Identity security cases | Admin/self-approval flags rejected, private inputs omitted from 422/errors, wrong/unknown/disabled credentials use safe 401, persistent throttle returns 429 |
+| Session cases | Hash-only storage, cookie flags, expiry/inactive/revoked denial, rotation, five-session bound, logout and local password setup revoke old cookies |
+| CSRF/origin cases | Missing/wrong token, missing custom header and cross-site origin/metadata denied without profile/audit changes |
+| Admin/role cases | Same-zone only, ID/filter cross-zone 404, no new Admin or unrequested grants, multi-role subset replacement and immediate revocation |
+| Actual restricted login roles | Runtime cannot SET ROLE auth, read credentials/sessions, or execute credential lookup; pool contexts clear; bootstrap URL rejected |
+| Migration/access/live probes | Existing login config preserved; local ready and zones HTTP 200; original 20-entry demo ledger independently verifies |
+| Ruff / strict mypy / OpenAPI | Passed; generated contract includes only implemented public/identity routes |
+| Web lint/types/unit/build and desktop/mobile browser regression | Passed; 4 web + 4 browser tests |
+
+Current UI remains the welcome/community screen. These checks complete P03/T01 and
+the identity portion of T02; permissions on future redistribution/report endpoints
+and full T12 browser workflow remain to implement. Hosted CI remains unverified.
+Reproduction and header/session policy: [IDENTITY.md](IDENTITY.md).
 
 ## Next work
 
-**P03 is the first unfinished task:** Argon2id registration, sessions/revocation,
-CSRF, receiver capacity, zone-admin verification and restricted request connections.
-The local PostGIS service and schema run; no owner decision blocks implementation.
+**P04 is the first unfinished task:** guarded listing CRUD, geo-temporal/capacity
+feed, safe donor projection, urgency/distance ranking, server countdown and warnings.
+Use the P03 session context and sorted lock/audit/outbox conventions.
 Use [START_HERE.md](START_HERE.md) as the handoff prompt.
 
 ## Outstanding decisions / evidence

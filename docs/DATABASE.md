@@ -1,7 +1,9 @@
 # Database implementation specification
 
 Source schema: PDF pp. 8-11; examples pp. 11-13. Baseline revision `0001` implements
-the schema and guarded claim foundation; later workflows remain specified below.
+the schema and guarded claim foundation. Revision `0002` adds identity/session/CSRF
+routines, private throttles/reviews and the guarded claim's CSRF wrapper.
+Later workflows remain specified below.
 Executable SQL and course examples: [database/README.md](../database/README.md).
 Use snake_case identifiers, BIGINT identity keys, NUMERIC for
 mass, and TIMESTAMPTZ for times. Preserve the original eight entities; extensions
@@ -26,6 +28,8 @@ erDiagram
     USERS ||--o{ TRUST_LEDGER : chains
     USERS ||--o{ SESSIONS : authenticates
     USERS ||--o{ IDEMPOTENCY_KEYS : retries
+    USERS ||--o{ VERIFICATION_REVIEWS : receives_review
+    USERS ||--o{ VERIFICATION_REVIEWS : administers_review
     NOTIFICATIONS ||--o{ NOTIFICATION_OUTBOX : transports
 ```
 
@@ -48,9 +52,11 @@ evidence. Sessions/outbox maintenance can use targeted cleanup rules.
 | `trust_ledger` | `ledger_id` PK, `user_id` FK users, `sequence` bigint, `action_type` varchar(40), `ref_table` varchar(40), `ref_id` bigint, `claim_id` nullable FK claims, `occurred_at`, `payload` jsonb, `payload_version` integer, `prev_hash` char(64), `curr_hash` char(64); UNIQUE(user_id,sequence) |
 | `notifications` | `notification_id` PK, `user_id` FK users, `event_id` text, `message` varchar(200), `type` varchar(30), `created_at`, `sent_at` nullable, `read_at` nullable; UNIQUE(user_id,event_id) |
 | `notification_outbox` | `outbox_id` PK, `notification_id` FK notifications, `channel` InApp/SMS/Push, `status` Pending/Processing/Sent/Failed, `attempts` integer, `next_attempt_at`, `locked_until` nullable, `last_error` nullable (redacted); UNIQUE(notification_id,channel) |
-| `sessions` | `session_hash` PK, `user_id` FK users, `created_at`, `expires_at`, `revoked_at` nullable; no raw session value persisted |
+| `sessions` | `session_hash` PK, `user_id` FK users, `csrf_hash` nullable for old sessions, `created_at`, `expires_at`, `revoked_at` nullable; no raw session/CSRF values persisted; old sessions without CSRF digest cannot write |
 | `idempotency_keys` | `(actor_id, operation, key)` composite PK, actor FK users, `request_hash`, `response_status`, `response_body` jsonb, `created_at`, `expires_at`; same key/body returns original result; mismatched body conflicts |
 | `seed_runs` | `seed_name` PK, fixture SHA-256, UTC anchor, `created_at`; records repeatable synthetic imports |
+| `auth_rate_limits` | hashed bucket PK, `window_start`, positive attempt count; private auth helper only |
+| `verification_reviews` | review PK, target/admin FK users, verified flag, approved roles JSON, private reason, `created_at`; self/scoped Admin RLS |
 
 ## Constraints and indexes
 
@@ -153,11 +159,14 @@ requires an approved scoped role. Test both direct SQL and API denial.
 
 The database resolves `app.session_hash` through the private sessions table. It
 ignores raw actor/zone settings, preventing runtime callers from impersonating a
-zone admin by setting a numeric ID. Auth issuance remains P03. Definer helpers
+zone admin by setting a numeric ID. P03 issues/revokes sessions through the separate
+auth role and guards runtime writes with a stored CSRF digest. Definer helpers
 belong to private NOLOGIN/BYPASSRLS `dbthon_guard`, with fixed search paths; runtime
 has no membership in that role or EXECUTE on private append/notification helpers.
 FORCE RLS can therefore query user/session data without recursive row policies.
-Never grant the guard role to a login. Restricted application logins remain P03.
+Never grant the guard role to a login. P03 uses separate restricted auth/runtime
+LOGIN accounts with only their own NOLOGIN group membership; transaction context
+rejects an owner/superuser/BYPASSRLS/guard-member or dual-purpose login.
 
 RLS context must use `SET LOCAL`/transaction-local `set_config` on every request so
 pooled connections cannot leak identities. Do not run permission tests as a superuser
@@ -177,7 +186,9 @@ with left joins. Group by zone_id/city/name, not name alone.
 composite attempt key. 3NF: user contact and zone metadata are referenced, not copied
 across transactional rows. Listing zone is an intentional historical snapshot,
 independent of the donor's mutable current profile. Ratings/ledger records reference
-their transaction. Derived trust scores and report estimates are views, not manually
+their transaction. Verification review approved_roles is an intentional immutable-
+at-creation audit snapshot, separate from normalized current role approvals.
+Derived trust scores and report estimates are views, not manually
 maintained counters. Describe any later denormalization with measured justification.
 
 Technical references: [locks](https://www.postgresql.org/docs/17/explicit-locking.html),

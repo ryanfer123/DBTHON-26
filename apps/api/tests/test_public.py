@@ -39,4 +39,15 @@ def test_openapi_lists_only_implemented_endpoints():
         create_app(Settings(_env_file=None, postgres_password=None, database_url=None))
     ) as client:
         paths = client.get("/api/openapi.json").json()["paths"]
-        assert set(paths) == {"/api/v1/health/live", "/api/v1/health/ready", "/api/v1/community"}
+        assert set(paths) == {
+            "/api/v1/health/live",
+            "/api/v1/health/ready",
+            "/api/v1/community",
+            "/api/v1/zones",
+            "/api/v1/auth/register",
+            "/api/v1/auth/login",
+            "/api/v1/auth/me",
+            "/api/v1/auth/logout",
+            "/api/v1/admin/users",
+            "/api/v1/admin/users/{user_id}/verify",
+        }

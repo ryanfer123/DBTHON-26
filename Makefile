@@ -1,4 +1,4 @@
-.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test
+.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access
 
 check:
 	python3 scripts/validate_handoff.py
@@ -14,7 +14,7 @@ dev:
 	python3 scripts/dev.py
 
 api-dev:
-	uv run --project apps/api --locked uvicorn app.main:app --app-dir apps/api --reload --host 127.0.0.1 --port 8000
+	uv run --project apps/api --locked uvicorn app.main:app --app-dir apps/api --reload --reload-dir apps/api/app --host 127.0.0.1 --port 8000
 
 web-dev:
 	npm run dev --prefix apps/web
@@ -42,6 +42,9 @@ openapi:
 
 migrate:
 	uv run --project apps/api --locked python scripts/database.py migrate
+
+db-access:
+	uv run --project apps/api --locked python scripts/provision_access.py
 
 seed:
 	uv run --project apps/api --locked python scripts/database.py seed $(if $(ANCHOR),--anchor $(ANCHOR),--anchor-now)

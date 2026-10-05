@@ -18,11 +18,11 @@ Copy this prompt into the coding session with this repository open:
 
 ## First concrete task
 
-P01-P02 are complete: public apps, migrations, scoped database access, guarded claims,
-fixture importer and ledger verifier pass real PostgreSQL checks. Start P03:
-Argon2id registration, session issuance/revocation, CSRF, capacity profiles, scoped
-admin verification and transaction-local runtime context. The database derives
-actor identity from a private session hash, never a client-supplied actor/zone ID.
+P01-P03 are complete: public apps, migrations, scoped database access, guarded claims,
+fixtures/verifier and identity/admin APIs pass real PostgreSQL checks. Start P04:
+listing CRUD, geo-temporal/capacity feed, safe donor projections, urgency ordering and
+deadline fields. Use `app.routes.identity.context` and the existing restricted pools;
+preserve session-derived identity, CSRF, sorted locks and atomic audit/outbox writes.
 
 ## Resume a later session
 

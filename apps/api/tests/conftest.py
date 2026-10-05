@@ -7,9 +7,12 @@ from datetime import UTC, datetime
 import pytest
 from alembic import command
 from alembic.config import Config
+from pydantic import SecretStr
 from sqlalchemy import create_engine, text
 
 from app.core.config import ROOT, Settings
+from app.core.provision import provision_login
+from app.identity.security import digest
 from app.seed import import_demo
 
 
@@ -50,7 +53,8 @@ def seeded_db(db_engine):
     with db_engine.begin() as c:
         c.execute(
             text("""
-          TRUNCATE seed_runs,idempotency_keys,sessions,notification_outbox,notifications,
+          TRUNCATE verification_reviews,auth_rate_limits,seed_runs,idempotency_keys,sessions,
+            notification_outbox,notifications,
             trust_ledger,ratings,pickups,claims,food_listings,receiver_profiles,user_roles,
             users,zones RESTART IDENTITY
         """)
@@ -62,13 +66,14 @@ def seeded_db(db_engine):
 @contextmanager
 def actor(engine, uid, session_seconds=3600):
     session_hash = secrets.token_hex(32)
+    csrf_hash = digest(secrets.token_urlsafe(32))
     with engine.begin() as c:
         c.execute(
             text("""
-          INSERT INTO sessions(session_hash,user_id,expires_at)
-          VALUES(:session,:uid,clock_timestamp()+make_interval(secs=>:seconds))
+          INSERT INTO sessions(session_hash,user_id,expires_at,csrf_hash)
+          VALUES(:session,:uid,clock_timestamp()+make_interval(secs=>:seconds),:csrf)
         """),
-            {"session": session_hash, "uid": uid, "seconds": session_seconds},
+            {"session": session_hash, "uid": uid, "seconds": session_seconds, "csrf": csrf_hash},
         )
     with engine.begin() as c:
         c.execute(text("SET LOCAL ROLE dbthon_runtime"))
@@ -76,5 +81,24 @@ def actor(engine, uid, session_seconds=3600):
             text("SELECT set_config('app.session_hash',:session,true)"), {"session": session_hash}
         )
         c.execute(text("SET LOCAL lock_timeout='5s'"))
+        c.execute(text("SELECT set_config('app.csrf_hash',:csrf,true)"), {"csrf": csrf_hash})
         c.execute(text("SET LOCAL statement_timeout='8s'"))
         yield c
+
+
+@pytest.fixture(scope="session")
+def identity_settings(db_engine):
+    urls = {}
+    with db_engine.begin() as c:
+        for purpose, name in [("runtime", "dbthon_test_runtime"), ("auth", "dbthon_test_auth")]:
+            password = secrets.token_urlsafe(36)
+            provision_login(c.connection.driver_connection, name, purpose, password)
+            urls[purpose] = db_engine.url.set(username=name, password=password)
+    return Settings(
+        _env_file=None,
+        app_env="test",
+        postgres_password=None,
+        database_url=SecretStr(db_engine.url.render_as_string(hide_password=False)),
+        app_database_url=SecretStr(urls["runtime"].render_as_string(hide_password=False)),
+        auth_database_url=SecretStr(urls["auth"].render_as_string(hide_password=False)),
+    )

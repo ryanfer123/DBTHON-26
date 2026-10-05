@@ -8,7 +8,7 @@ class Database:
     """Own the connection pool, with a bounded, truthful readiness probe."""
 
     def __init__(self, settings: Settings):
-        url = settings.connection_url()
+        url = settings.restricted_url("runtime") or settings.connection_url()
         self.engine: Engine | None = (
             create_engine(
                 url,

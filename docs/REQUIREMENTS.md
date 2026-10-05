@@ -2,7 +2,9 @@
 
 Source requirements: PDF section 4.2 (physical p. 6). IDs are assigned here for
 traceability. Implementation refinements are identified in ADR 0001. All FRs are
-currently **not implemented**. Machine-readable mapping: [requirements.json](requirements.json).
+tracked in [requirements.json](requirements.json): FR01 is implemented; foundation
+coverage of several database/security requirements is partial. Full redistribution
+and connected browser workflows remain unfinished. Observed checks: [STATUS.md](STATUS.md).
 
 | ID | Source requirement | Prototype acceptance gate | Tasks / tests |
 | --- | --- | --- | --- |

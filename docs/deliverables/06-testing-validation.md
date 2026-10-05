@@ -5,6 +5,7 @@ Canonical plan: [T01-T12](../TESTING.md). This file records observed results onl
 | Run date | Commit | Environment | Command | Actual result | Evidence path / limitation |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-05 | P01 62d7cda; P02 see Git history | Python 3.13.15, Node 22.19.0, PostgreSQL 17.5/PostGIS 3.5 | `make test`; `make db-test`; `make e2e` | 7 backend unit + 33 DB + 4 web + 4 browser checks passed | [STATUS.md](../STATUS.md); foundation evidence only, full T01-T12 pending |
+| 2026-10-05 | P03 see Git history | Same local environment | `pytest apps/api/tests --db -q`; lint/types/build; browser regression | 9 unit + 56 DB/API + 4 web + 4 browser passed | [Identity](../IDENTITY.md), [STATUS.md](../STATUS.md); T01/identity T02 complete, future workflows pending |
 
 Append concurrency winner/loser proof, expiry-without-write demonstration, RLS
 negative tests, rollback/ledger verification, E2E screenshots and benchmark hardware/

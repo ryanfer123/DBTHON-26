@@ -24,8 +24,9 @@ design decisions differ, preserve the source and document the reason for the cha
 ## Authorized scope and current state
 
 The repository has a runnable API/public welcome foundation (P01) and tested
-database/seed/claim/ledger foundation (P02). Account, listing and redistribution
-workflows still need implementation. When asked to
+database/seed/claim/ledger foundation (P02), and tested identity/admin APIs (P03).
+Listing/delivery APIs and connected account/workflow screens still need implementation.
+When asked to
 implement, take the first unfinished task in
 the plan, complete its acceptance criteria, and continue within the requested scope.
 Use the documented defaults without asking again about routine technical choices.

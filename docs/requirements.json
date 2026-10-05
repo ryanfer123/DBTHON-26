@@ -7,7 +7,7 @@
       "title": "Registration, roles and verification",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P03"
       ],
@@ -15,7 +15,9 @@
         "T01",
         "T02"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "P03 registration, Argon2id, sessions/CSRF, receiver capacity, requested public roles and zone-admin verification pass real API/PostgreSQL checks.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR02",
@@ -189,7 +191,7 @@
       "source_pdf_page": 6,
       "status": "partial",
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "Database RLS, column grants and session-derived actor checks verified; HTTP authentication/CSRF remain P03.",
+      "implementation_note": "P03 uses distinct non-owner auth/runtime pools, Argon2id, CSRF/origin guards, input redaction, SQL/API zone permissions and pool isolation; full workflow permissions remain later milestones.",
       "evidence": "docs/STATUS.md"
     },
     {

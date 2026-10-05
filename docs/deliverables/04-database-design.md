@@ -14,6 +14,7 @@ commit ID, screenshots where useful and differences from the illustrative PDF SQ
 Implemented foundation: Alembic `0001`, executable DDL/routines/guards/views/RLS in
 `database/0001_initial.sql`, importer in `apps/api/app/seed.py`, course queries in
 `database/examples.sql` and independent verifier in `apps/api/app/trust/verify.py`.
-PostgreSQL 17.5/PostGIS 3.5: migration/fixture totals and 33 real database checks pass;
+Revision `0002` adds private auth/verification routines and session CSRF fields.
+PostgreSQL 17.5/PostGIS 3.5: migration/fixture totals and 56 real DB/API checks pass;
 see [STATUS.md](../STATUS.md) for commands and limitations. Remaining authenticated
-workflows, worker and performance benchmark stay pending.
+listing/delivery workflows, worker and performance benchmark stay pending.

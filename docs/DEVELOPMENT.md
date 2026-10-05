@@ -1,6 +1,6 @@
 # Developer setup and working commands
 
-P01-P02 are implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
+P01-P03 are implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
 uv, Node 22.13+ and npm, Docker Engine/Desktop with Compose v2.
 
 ## Start locally
@@ -10,6 +10,7 @@ make setup
 make install
 make db-up
 make migrate
+make db-access
 make dev
 ```
 
@@ -22,8 +23,9 @@ The frontend is `http://127.0.0.1:5173`; API docs are
 To start each process independently use `make api-dev` and `make web-dev`.
 `make db-down` stops PostgreSQL without deleting its named volume. Changing local
 credentials does not update an already initialized volume; preserve the existing
-configuration. Compose installs PostgreSQL/PostGIS; `make migrate` applies revision 0001.
-The Compose bootstrap owner is not the future restricted API runtime identity.
+configuration. Compose installs PostgreSQL/PostGIS; `make migrate` applies revisions
+0001 and 0002. `make db-access` creates separate restricted auth/runtime logins and
+saves their URLs locally without printing credentials. Existing URLs are preserved.
 
 ## Verification
 
@@ -34,7 +36,7 @@ make openapi
 make db-test
 ```
 
-Backend checks: Ruff, strict mypy, seven unit tests and 33 opt-in PostgreSQL checks.
+Backend checks: Ruff, strict mypy, nine unit tests and 56 opt-in PostgreSQL checks.
 Frontend checks: ESLint,
 TypeScript, four Vitest tests, production build. Browser tests exercise the real
 API and DB readiness, role selection/keyboard/refresh, failure/retry and no horizontal
@@ -44,12 +46,14 @@ Playwright Chromium and runs a disposable PostGIS service.
 
 The Browser plugin was not available in this session, so verification used Playwright
 with installed Chrome. Native concept viewport: 1505x1045; mobile: 390x844. Current
-screen is a public introduction; auth/listing/delivery workflows are not implemented.
+screen is a public introduction; identity APIs work, while connected account screens
+and listing/delivery workflows remain unfinished.
 
 `docs/openapi.json` describes only implemented routes. `make openapi` regenerates
 it; `uv run --project apps/api python scripts/export_openapi.py --check` detects drift.
 `GET /api/v1/health/live` returns 200 when the process is alive.
-`GET /api/v1/health/ready` requires a real PostgreSQL/PostGIS response and returns
+`GET /api/v1/health/ready` requires PostgreSQL/PostGIS and both restricted pools with
+their migration-provided routines. It returns
 503 with a safe error and request ID if configuration/dependency is unavailable.
 
 ## Database commands and test isolation
@@ -64,7 +68,10 @@ make db-test
 Seed supports an explicit UTC anchor, or `make seed` selects the current time.
 Retain that timestamp for repeat imports: same anchor/hash is a no-op; a different
 anchor fails without changing existing records. Import requires empty application
-tables. Synthetic account hashes are disabled; login setup arrives in P03.
+tables. Synthetic account hashes are initially disabled; enable a local fixture
+account using `uv run --project apps/api python scripts/demo_password.py --user 104`.
+Password entry is interactive and never stored in Git. See [IDENTITY.md](IDENTITY.md)
+for request headers, session/CSRF protocol and admin bootstrap.
 
 `make db-test` creates/uses the fixed `dbthon_test` database, migrates it and clears
 only its application tables for each case. It leaves the local demo DB untouched.
@@ -73,8 +80,10 @@ only its application tables for each case. It leaves the local demo DB untouched
 configure POSTGRES_DB=dbthon_test only for a disposable test resource. It downgrades
 and upgrades application artifacts, preserving extensions and cluster roles.
 
-The API still uses bootstrap connectivity for health only. P03 adds restricted
-auth/runtime request connections. Do not deploy using the Compose owner account.
+HTTP requests use separate restricted auth/runtime pools. A URL pointing at the
+owner fails closed; health prefers the restricted runtime URL as well. Bootstrap
+credentials are only for migration, synthetic import and local password provisioning.
+Do not deploy using the Compose owner account.
 Notification/expiry worker invocation and user-facing domain routes remain to add.
 
 Use dedicated disposable test resources; never run resets against a deployment DB.

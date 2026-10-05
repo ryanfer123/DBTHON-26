@@ -1,7 +1,7 @@
 # Ordered implementation plan
 
-P01-P02 foundations are complete; P03-P12 remain unfinished. Guarded SQL claims
-work, while user-facing transaction workflows await authentication and APIs.
+P01-P03 are complete; P04-P12 remain unfinished. Identity/admin APIs and guarded SQL
+claims work; listing/delivery APIs and connected workflow screens remain unfinished.
 Execute dependencies in order; use [STATUS.md](STATUS.md)
 to resume. Each task must update requirement coverage and record actual checks.
 
@@ -22,7 +22,7 @@ to resume. Each task must update requirement coverage and record actual checks.
   Gate: migrate empty PostgreSQL, run constraint tests, seed twice without duplicates,
   verify extensions/indexes, enforce runtime grants, reconcile hand-calculated totals.
   Tests T03/T05/T09/T11 begin here; do not substitute SQLite.
-- [ ] **P03 - Identity, roles and verification.** Depends P02. Registration, Argon2id,
+- [x] **P03 - Identity, roles and verification.** Depends P02. Registration, Argon2id,
   session auth/revocation, CSRF, capacity profile, scoped admin verification and safe
   DTOs. Implement authentication transaction context/RLS plumbing and audit events.
   Gate: T01/T02 pass including privilege escalation and pooled-connection isolation;

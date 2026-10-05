@@ -9,7 +9,8 @@ collect and deliver it, and administrators inspect accountability and impact.
 
 The public application and database foundation run: FastAPI, React, versioned
 PostgreSQL/PostGIS schema, synthetic seeding, guarded claims and independent ledger
-verification. **Registration and user-facing redistribution workflows remain unfinished.**
+verification. Registration, sessions and admin verification APIs work.
+**Listing/delivery APIs and connected account/workflow screens remain unfinished.**
 See [current status](docs/STATUS.md).
 
 ## Begin implementation
@@ -18,7 +19,7 @@ See [current status](docs/STATUS.md).
 2. Read the [project brief](docs/PROJECT_BRIEF.md), [requirements](docs/REQUIREMENTS.md),
    and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 3. Use [START_HERE.md](docs/START_HERE.md) as the next coding-session prompt.
-4. Start at task P03; acceptance criteria and dependencies are already documented.
+4. Start at task P04; acceptance criteria and dependencies are already documented.
 
 ## What is included
 
@@ -43,6 +44,7 @@ make setup
 make install
 make db-up
 make migrate
+make db-access
 make dev
 ```
 
@@ -62,7 +64,9 @@ make db-test
 Compose starts PostgreSQL/PostGIS; `make migrate` installs the application schema.
 Optional synthetic import: `make seed ANCHOR=2026-10-05T12:00:00Z`, then
 `make ledger-verify`. Use a current UTC anchor for live claim examples and retain it
-for repeat imports. Seeded accounts have disabled logins until P03 account setup.
+for repeat imports. Enable a synthetic account with a locally entered password:
+`uv run --project apps/api python scripts/demo_password.py --user 104` (zone-1 admin).
+See [identity setup and API headers](docs/IDENTITY.md); no shared password is in Git.
 Local startup and real API readiness have been verified.
 The selected image is amd64, so Compose explicitly requests emulation on Apple
 Silicon; see the [upstream image documentation](https://github.com/postgis/docker-postgis).
@@ -74,7 +78,8 @@ explicitly labelled in the decision record. Fixtures are synthetic, not collecte
 donor/NGO data. The supplied brief contains research claims that need source
 verification before public presentation. No real interviews, pilot, notification-provider
 integration, or TRL validation has been completed here. Foundation/database checks
-pass; full authentication, delivery, worker and browser-workflow tests remain.
+pass, including identity API coverage; delivery, worker and full browser-workflow
+acceptance remains unfinished.
 
 Repository: [ryanfer123/DBTHON-26](https://github.com/ryanfer123/DBTHON-26).
 No software license was supplied; adding one is an owner decision.
