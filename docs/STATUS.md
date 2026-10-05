@@ -3,6 +3,11 @@
 Updated: 2026-10-05 (Asia/Kolkata). Stage: repository initialized; implementation
 context prepared. No working application or application database schema exists.
 
+Publication status: committed locally; **not pushed to GitHub**. Automatic approval
+review rejected the initial push because the original PDF/extraction contains student
+names and registration numbers and repository privacy/ownership was not verified.
+Explicit user approval to publish this material is pending. Local setup is complete.
+
 ## Completed initialization
 
 - Cloned the initially empty `ryanfer123/DBTHON-26` repository into this workspace.
