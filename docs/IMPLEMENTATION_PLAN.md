@@ -1,8 +1,8 @@
 # Ordered implementation plan
 
-P01-P03 are complete; P04-P12 remain unfinished. Identity/admin APIs and guarded SQL
-claims work; account/admin screens are connected. Listing/delivery APIs and their
-workflow screens remain unfinished.
+P01-P10 core workflows are implemented and connected. P11-P12 evidence work remains;
+FR08 external SMS/push is explicitly partial. The longer homepage and dark mode
+extend the functional role screens.
 Execute dependencies in order; use [STATUS.md](STATUS.md)
 to resume. Each task must update requirement coverage and record actual checks.
 
@@ -31,43 +31,42 @@ to resume. Each task must update requirement coverage and record actual checks.
 
 ## Milestone 2: one real claim-to-delivery vertical slice
 
-- [ ] **P04 - Listing service and geo-temporal feed.** Depends P03. CRUD, time-relative
+- [x] **P04 - Listing service and geo-temporal feed.** Depends P03. CRUD, time-relative
   validation, immutable zone snapshot, generated geography, GiST, live/capacity/zone
   filters, urgency/distance ordering and countdown fields. Gate: T03/T04/T05 pass;
   EXPLAIN captured; terminal or claimed edits denied. FR02/FR03/FR04.
-- [ ] **P05 - Atomic claims, ledger and cancellation.** Depends P04. Implement listing
+- [x] **P05 - Atomic claims, ledger and cancellation.** Depends P04. Implement listing
   locks, database-time recheck after wait, unique allocation index, idempotency storage,
   coordinated cancellations, per-user canonical chain append/verifier and outbox
   commit. Gate: T06/T09 pass on real concurrent PostgreSQL sessions, rollback leaves
   no domain/ledger/outbox debris, duplicate retries reuse the same claim. FR04/FR07.
-- [ ] **P06 - Volunteer acceptance and delivery.** Depends P05. Task query, one active
+- [x] **P06 - Volunteer acceptance and delivery.** Depends P05. Task query, one active
   composite-key attempt, scheduled acceptance, pickup, timely delivery and failure
   paths, missed/replacement history. Gate: T07 plus T06/T09 regressions pass; delivered
   states remain permanently unallocatable. FR05.
-- [ ] **P07 - Expiry worker and durable in-app notifications.** Depends P06. Minute
+- [x] **P07 - Expiry worker and durable in-app notifications.** Depends P06. Minute
   sweeps, missed-pickup grace, overdue-delivery failure, notification leases/backoff,
   deduplicated inbox and read events. Gate: T04/T10 and rollback/ledger regression
   tests pass; state expires without a user update and a crashed worker recovers leases.
   FR03/FR07; FR08 in-app portion only.
-- [ ] **P08 - Participant ratings and trust score.** Depends P06. Completion-only
+- [x] **P08 - Participant ratings and trust score.** Depends P06. Completion-only
   reciprocal ratings, unique directions, score validation, average/count view, ledger
   event verification. Gate: T08/T09 pass with stranger/self/duplicate/early-rating
   denials. FR06/FR07.
 
 ## Milestone 3: complete role workflows and reports
 
-- [ ] **P09 - Frontend integration and channel adapter.** Depends P03-P08. Implement
+- [x] **P09 - Frontend integration and channel adapter.** Depends P03-P08. Implement
   docs/UX.md screens against actual endpoints, cookie/CSRF flow, loading/error/empty
   states, race handling, countdown and accessible mobile layout. Add notification
   adapter interface and one push/SMS implementation only if separately configured;
   otherwise document FR08 external delivery as blocked/partial. Gate: T12 end-to-end
   browser workflow plus lint/typecheck/build; T10 adapter/retry tests. No claim of
   external delivery without provider receipt/observed device evidence.
-  Account portion implemented ahead of dependency completion at the user's request:
-  registration/sign-in, profiles, verification review/revocation and responsive
-  error/retry states use P03 APIs. P09 stays unchecked until redistribution and
-  notification acceptance gates pass; see STATUS.md for observed browser checks.
-- [ ] **P10 - Admin analytics and export.** Depends P06/P08/P09. Scoped zone/city/date
+  Core P09 is complete: domain/account/inbox/trust screens and durable in-app
+  delivery work. External SMS/push remains explicitly partial/unconfigured; no
+  provider receipt or device delivery is claimed. See STATUS.md for browser evidence.
+- [x] **P10 - Admin analytics and export.** Depends P06/P08/P09. Scoped zone/city/date
   dashboards, picked-up/delivered distinction, factor-labelled estimates, exports
   and latency/participation counts. Gate: T11/T02 pass; source/fixture totals reconcile;
   CSV and screen filters match; missing CO2e factor stays null. FR09/FR10.

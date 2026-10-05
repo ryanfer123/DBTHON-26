@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { PageShell } from '../../components/PageShell'
 import { api, ApiError, type Page, type PublicRole, type User } from '../../lib/identity'
 import { useAuth } from './AuthContext'
+import { WorkspaceNav } from '../workflows/Workspace'
 
 function ReviewForm({ user, onComplete }: { user: User; onComplete: () => void }) {
   const auth = useAuth()
@@ -64,6 +65,7 @@ export function AdminPage() {
   const reload = () => { setState({ loading: true, error: '', page: null }); setReviewing(null); setAttempt(value => value + 1) }
   return <PageShell><main id="main" className="container account-page">
     <div className="page-heading"><div><h1>Community members</h1><p>Review requested roles in your community area.</p></div><Link className="text-link" to="/account">Back to your account</Link></div>
+    <WorkspaceNav />
     <div className="admin-toolbar"><div className="field"><label htmlFor="member-filter">Show members</label><select id="member-filter" value={filter} onChange={event => {
       setFilter(event.target.value); setCursor(0); setReviewing(null); setNotice(''); setState({ loading: true, error: '', page: null })
     }}><option value="pending">Awaiting verification</option><option value="verified">Verified</option><option value="all">All members</option></select></div>
@@ -73,7 +75,7 @@ export function AdminPage() {
     {state.loading ? <p role="status" className="list-message">Loading members…</p> : state.error ? <div className="notice notice-error" role="alert"><p>{state.error}</p><button className="button button-small" onClick={reload}>Try again</button></div> :
       <><ul className="member-list">{state.page?.data.map(user => <li key={user.user_id} className="member-row">
         <div className="member-info"><h2>{user.name}</h2><p>{user.email}</p><p>{user.phone}</p><p className="field-help">{user.roles.map(item => `${item.role}: ${item.approved ? 'approved' : 'pending'}`).join(' · ')}{user.capacity_kg ? ` · Capacity: ${user.capacity_kg} kg` : ''}</p></div>
-        <span className="member-status">{user.verified_status ? 'Verified' : 'Awaiting review'}</span>
+        <span className="member-status">{user.verified_status ? 'Verified' : 'Awaiting review'}<br /><Link className="text-link" to={`/admin/users/${user.user_id}/audit`}>Audit history</Link></span>
         {user.roles.some(item => item.role !== 'Admin') && <button className="button button-outline button-small" aria-expanded={reviewing === user.user_id} aria-controls={`review-${user.user_id}`}
           onClick={() => setReviewing(current => current === user.user_id ? null : user.user_id)}>{reviewing === user.user_id ? 'Close review' : 'Review member'}</button>}
         {reviewing === user.user_id && <div id={`review-${user.user_id}`} className="review-panel"><h3>Review {user.name}</h3><ReviewForm user={user} onComplete={() => { setNotice(`Review saved for ${user.name}.`); reload() }} /></div>}

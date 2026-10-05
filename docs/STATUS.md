@@ -1,9 +1,11 @@
 # Implementation status and session handoff
 
-Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P03 complete.
-Public apps, schema/claims/audit foundation and identity/admin APIs run. Listing,
-delivery and their workflow screens remain unfinished. Connected account/admin
-screens now work, implementing the identity portion of P09 ahead of its other gates.
+Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P10 core prototype implemented.
+Donor listings, receiver feed/claims, volunteer delivery, expiry/inbox worker,
+ratings/trust/audit and scoped admin reporting are connected. The longer homepage,
+dark-mode preference and share-link behavior were added at the user's request.
+FR08 external SMS/push remains partial. P11 controlled-demo/performance evidence
+and P12 genuine stakeholder/pilot evidence remain outstanding.
 
 Publication authorization: on 2026-10-05 the user explicitly approved pushing the
 complete handoff to GitHub, including the original PDF, extracted brief, student
@@ -202,11 +204,77 @@ be implemented against completed domain APIs yet. The UI renders working account
 actions without inactive controls, seeded food counters or simulated success.
 Full T12 claim-to-delivery and external notification evidence remain outstanding.
 
+## Redistribution workflows and current checks
+
+Revision `0003_workflows.py` / `database/0003_workflows.sql` adds guarded commands,
+private worker routines, restricted trust summaries, task visibility, pickup
+accepted_at and outbox UUID leases. Prior revisions are unchanged. New backend
+modules: `app/workflows`, `app/routes/workflows.py`; frontend: `features/workflows`.
+Worker/provisioning/test harness and OpenAPI are updated together.
+
+- Donor create/edit/cancel, live ranked feed with capacity/5 km/same-zone filters,
+  safe food detail, deadline warnings and whole-quantity idempotent claims.
+- Coordinated donor/receiver cancellation, assignment races, composite attempt
+  history, cancellation/replacement, server-time pickup/delivery and admin terminal
+  failures. Delivered/picked-up food is never silently reallocated.
+- Completion-only reciprocal ratings, average/count with null unrated score,
+  participant contacts restricted to the exchange and per-user audit history.
+- Real InApp delivery after commit, 30-second leases, crash recovery, bounded
+  exponential retries/five attempts and owner-only read state. Repeat reads do not
+  create extra state-change ledger entries. External channels remain unconfigured.
+- Admin own-zone exchange review, member audit, UTC bounded day/zone/city reports,
+  separate picked-up/delivered kg, labelled 0.4 kg estimates, null unsupported CO2e,
+  participation/claim latency and filter-matched formula-safe CSV.
+- Role-capability navigation, pending-role guidance, CSRF writes and retry-stable
+  command keys. Dark mode and share links do not bypass existing authorization.
+
+| Reproduction/check | Observed result |
+| --- | --- |
+| `apps/api/.venv/bin/python -m pytest apps/api/tests --db -q` | 79 passed in 60.90 s: 12 unit + 67 real PostgreSQL/API checks |
+| Additional explicit-zone feed regression | Passed; ranking, filtering, pagination, privacy and server clock |
+| Ruff / strict mypy / exported OpenAPI drift | Passed |
+| Web ESLint / TypeScript / Vite build | Passed |
+| Vitest | Eight passed, including retry key reuse after an ambiguous network failure |
+| Final combined desktop/mobile Playwright | 16 passed in 2.0 min; homepage/theme/sharing and complete workflow/report regressions included |
+| Restricted live feed EXPLAIN | [Captured plan](evidence/feed-plan.txt): 5 eligible synthetic rows, 7.736 ms execution; no planner hints. Small data only |
+| Local migration and worker | Applied 0003; processed nine expired/missed listings and delivered 17 in-app updates; no retry failure |
+| Independent local ledger verification after worker | 47 valid entries; existing registered users/profile/credentials preserved |
+
+Integrated the explicitly approved concurrent deployment changes: exact-origin
+credentialed CORS, production Secure/SameSite=None cookies, production PostgreSQL
+TLS and configured browser API URL. Writes still require CSRF and idempotency
+headers. CSV export uses the same configured URL/credentials; CORS exposes safe
+Retry-After/request-ID headers. Four origin-policy unit checks pass, including
+rejection of an untrusted origin and originless cross-site writes. The production
+cookie database test substitutes the local non-TLS transport only; a separate
+configuration assertion verifies production TLS remains required. Worker startup
+accepts either a restricted URL or the deployment's component configuration.
+
+The first combined browser report check hit its five-second UI wait. The report
+query now materializes scoped RLS inputs once rather than repeatedly scanning them
+per metric/bin. A same-data restricted-role diagnostic observed 136.876 ms execution
+after this change (eight UTC bins, synthetic data); no global planner/JIT setting was
+changed. The browser allows ten seconds for report rendering and verifies actual
+data and matching CSV. This is small-data verification, not the P11 10k benchmark.
+
+The first mobile run found touch hit-testing problems on the long form. Limited
+smooth scrolling to section navigation and stacked native date/time controls at
+narrow widths. Fresh mobile flow then passed without forced clicks. The browser
+login helper honors actual Retry-After when account-switch tests reach the real
+rate limit. Main/demo DB is preserved by all resettable tests; browser checks use
+only dbthon_browser_test, including its isolated worker and ephemeral passwords.
+Hosted CI remains unverified. The old checkpoint counts above are historical.
+
+Homepage design/QA and final combined browser results are recorded in
+[HOME_REFRESH.md](design/HOME_REFRESH.md). The handover image is illustrative,
+not evidence of real users or impact. Temporary screenshots stay outside Git.
+
 ## Next work
 
-**P04 is the first unfinished task:** guarded listing CRUD, geo-temporal/capacity
-feed, safe donor projection, urgency/distance ranking, server countdown and warnings.
-Use the P03 session context and sorted lock/audit/outbox conventions.
+**P11 is the first unfinished task:** controlled four-zone week simulation, measured
+10k-listing API benchmark, expanded clean-clone reproduction and course demo artifacts.
+P12 requires actual donor/NGO interviews and pilot evidence. FR08 SMS/push and an
+emissions factor need separate configuration/source evidence before completion.
 Use [START_HERE.md](START_HERE.md) as the handoff prompt.
 
 ## Outstanding decisions / evidence
@@ -222,3 +290,23 @@ setup does not authorize paid deployment or contacting participants.
 Record date/commit, completed plan gates, changed modules/migration IDs, exact commands
 and outcomes, partial requirements/known failures, and the next concrete task. Keep
 requirements.json statuses and implementation-plan checkboxes aligned with evidence.
+
+## Render website hosting preparation (2026-10-05)
+
+Added root `render.yaml` for a Render static site built from `apps/web`, with SPA
+fallback and `VITE_API_BASE_URL`. The frontend now supports an explicit API base URL
+and credentialed requests. The AWS API now supports exact-origin credentialed CORS,
+production cross-site session cookies and existing CSRF checks. Render service
+`srv-db1u54ks728c73ab1bi0` is live at https://dbthon-26.onrender.com from GitHub
+commit `324773bb734bd9329fca07e12543a35660026eca`. The homepage loads, but its
+community API call fails: this deployed commit predates the API-base support, and no
+AWS API URL/origin has been connected yet. The AWS public API URL is still required.
+
+Observed checks: `npm run build` passed; `apps/api/.venv/bin/python -m pytest
+apps/api/tests/test_identity_security.py -q` passed (4); `python3
+scripts/validate_handoff.py` passed; `render.yaml` parsed with PyYAML; `git diff
+--check` passed using the direct Command Line Tools git binary. The general `git`
+launcher remains blocked by the Xcode license prompt. Render build logs showed two
+moderate npm audit findings. Next: publish the reviewed frontend/API changes, set
+`VITE_API_BASE_URL` and the AWS exact-origin allowlist, then verify community data,
+deep-link refresh and sign-in against the live AWS API.

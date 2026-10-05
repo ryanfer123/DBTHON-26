@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
@@ -22,6 +23,7 @@ from app.core.errors import (
 )
 from app.routes.identity import router as identity_router
 from app.routes.public import router as public_router
+from app.routes.workflows import router as workflow_router
 
 
 class HealthData(BaseModel):
@@ -49,12 +51,25 @@ def create_app(
 
     application = FastAPI(
         title="Second Table API",
-        description="Zone-based surplus food redistribution. Public and identity APIs.",
+        description="Zone-based food redistribution, accounts, delivery and impact reporting.",
         version="0.1.0",
         docs_url="/api/docs",
         redoc_url=None,
         openapi_url="/api/openapi.json",
         lifespan=lifespan,
+    )
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=configured.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+        allow_headers=[
+            "Content-Type",
+            "X-Requested-With",
+            "X-CSRF-Token",
+            "Idempotency-Key",
+        ],
+        expose_headers=["Retry-After", "X-Request-ID"],
     )
     application.state.database = db
     application.state.access = permissions
@@ -69,7 +84,12 @@ def create_app(
         response = await call_next(request)
         response.headers["X-Request-ID"] = request.state.request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
-        if request.url.path.startswith(("/api/v1/auth", "/api/v1/admin")):
+        if request.url.path.startswith("/api/v1") and request.url.path not in (
+            "/api/v1/community",
+            "/api/v1/zones",
+            "/api/v1/health/live",
+            "/api/v1/health/ready",
+        ):
             response.headers["Cache-Control"] = "private, no-store"
         return response
 
@@ -101,6 +121,7 @@ def create_app(
 
     application.include_router(public_router, prefix="/api/v1")
     application.include_router(identity_router, prefix="/api/v1")
+    application.include_router(workflow_router, prefix="/api/v1")
     return application
 
 

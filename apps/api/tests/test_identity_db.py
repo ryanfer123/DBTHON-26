@@ -10,7 +10,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
 from app.core.access import Access
-from app.core.config import ROOT
+from app.core.config import ROOT, Settings
 from app.core.errors import DomainError
 from app.identity.security import HASHER, SESSION_COOKIE, csrf_token, digest
 from app.main import create_app
@@ -175,7 +175,7 @@ def test_missing_wrong_csrf_and_cross_origin_writes_leave_no_events(identity):
         {"X-CSRF-Token": "wrong"},
         {"Origin": "https://evil.example"},
         {"X-Requested-With": ""},
-        {"Sec-Fetch-Site": "cross-site"},
+        {"Origin": "", "Sec-Fetch-Site": "cross-site"},
     ]:
         result = client.patch("/api/v1/auth/me", json={"name": "Changed"}, headers=headers)
         assert result.status_code == 403, result.text
@@ -381,8 +381,16 @@ def test_actual_login_roles_pool_isolation_and_no_auth_escalation(identity):
         access.close()
 
 
-def test_secure_production_cookie_and_rotation(identity):
+def test_secure_production_cookie_and_rotation(identity, monkeypatch):
     _, password, make, settings = identity
+    # This local disposable Postgres service has no TLS listener. Keep this test
+    # focused on HTTPS cookies; production database TLS is checked separately.
+    driver_url = Settings._driver_url
+    monkeypatch.setattr(
+        Settings,
+        "_driver_url",
+        lambda self, url: driver_url(self, url).update_query_dict({"sslmode": "disable"}),
+    )
     production = settings.model_copy(
         update={"app_env": "production", "allowed_origins": ["https://app.example.com"]}
     )
@@ -390,6 +398,7 @@ def test_secure_production_cookie_and_rotation(identity):
     client.headers["Origin"] = "https://app.example.com"
     result = sign_in(client, password)
     assert "Secure" in result.headers["set-cookie"]
+    assert "SameSite=none" in result.headers["set-cookie"]
     old = client.cookies.get(SESSION_COOKIE)
     sign_in(client, password)
     assert client.cookies.get(SESSION_COOKIE) != old

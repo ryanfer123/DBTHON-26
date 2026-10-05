@@ -1,0 +1,77 @@
+Disposable dbthon_test; runtime role, real RLS and synthetic Receiver 102.
+Returned 5 live capacity/radius-eligible listings. No planner hints.
+Limit  (cost=2321.49..2321.50 rows=1 width=242) (actual time=7.446..7.452 rows=5 loops=1)
+  Buffers: shared hit=568
+  InitPlan 3
+    ->  Index Scan using receiver_profiles_pkey on receiver_profiles  (cost=0.40..18.09 rows=1 width=5) (actual time=0.151..0.152 rows=1 loops=1)
+          Index Cond: (user_id = dbthon_actor_id())
+          Filter: ((user_id = dbthon_actor_id()) OR EXISTS(SubPlan 1))
+          Buffers: shared hit=12
+          SubPlan 1
+            ->  Index Scan using users_pkey on users u_1  (cost=0.15..9.42 rows=1 width=0) (never executed)
+                  Index Cond: (user_id = receiver_profiles.user_id)
+                  Filter: (((user_id = dbthon_actor_id()) OR ((zone_id = dbthon_actor_zone()) AND ((verified_status AND active AND dbthon_verified_actor()) OR dbthon_zone_admin(zone_id)))) AND dbthon_zone_admin(zone_id))
+  InitPlan 4
+    ->  Index Scan using users_pkey on users  (cost=0.40..9.56 rows=1 width=32) (actual time=0.214..0.215 rows=1 loops=1)
+          Index Cond: (user_id = dbthon_actor_id())
+          Filter: ((user_id = dbthon_actor_id()) OR ((zone_id = dbthon_actor_zone()) AND ((verified_status AND active AND dbthon_verified_actor()) OR dbthon_zone_admin(zone_id))))
+          Buffers: shared hit=12
+  ->  Sort  (cost=2293.85..2293.85 rows=1 width=242) (actual time=7.445..7.449 rows=5 loops=1)
+        Sort Key: l.expiry_window_end, (st_distance(l.pickup_location, '0101000020E6100000925CFE43FAC9534000917EFB3AF02940'::geography, true)), l.listing_id
+        Sort Method: quicksort  Memory: 26kB
+        Buffers: shared hit=568
+        ->  Nested Loop Left Join  (cost=942.30..2293.84 rows=1 width=242) (actual time=5.261..7.438 rows=5 loops=1)
+              Buffers: shared hit=568
+              ->  Nested Loop  (cost=942.15..2271.91 rows=1 width=152) (actual time=4.414..5.627 rows=5 loops=1)
+                    Buffers: shared hit=421
+                    ->  HashAggregate  (cost=934.94..935.21 rows=27 width=16) (actual time=3.313..3.316 rows=1 loops=1)
+                          Group Key: donor.user_id
+                          Batches: 1  Memory Usage: 24kB
+                          Buffers: shared hit=240
+                          ->  Nested Loop  (cost=10.07..934.88 rows=27 width=16) (actual time=1.888..3.311 rows=1 loops=1)
+                                Buffers: shared hit=240
+                                ->  Bitmap Heap Scan on users donor  (cost=9.92..167.09 rows=75 width=8) (actual time=1.111..2.517 rows=7 loops=1)
+                                      Recheck Cond: ((user_id = dbthon_actor_id()) OR (zone_id = dbthon_actor_zone()))
+                                      Filter: (active AND verified_status AND ((user_id = dbthon_actor_id()) OR ((zone_id = dbthon_actor_zone()) AND ((verified_status AND active AND dbthon_verified_actor()) OR dbthon_zone_admin(zone_id)))))
+                                      Rows Removed by Filter: 1
+                                      Heap Blocks: exact=1
+                                      Buffers: shared hit=184
+                                      ->  BitmapOr  (cost=9.92..9.92 rows=145 width=0) (actual time=0.378..0.379 rows=0 loops=1)
+                                            Buffers: shared hit=19
+                                            ->  Bitmap Index Scan on users_pkey  (cost=0.00..4.41 rows=1 width=0) (actual time=0.179..0.179 rows=1 loops=1)
+                                                  Index Cond: (user_id = dbthon_actor_id())
+                                                  Buffers: shared hit=6
+                                            ->  Bitmap Index Scan on ix_users_zone  (cost=0.00..5.48 rows=144 width=0) (actual time=0.197..0.197 rows=8 loops=1)
+                                                  Index Cond: (zone_id = dbthon_actor_zone())
+                                                  Buffers: shared hit=13
+                                ->  Index Scan using user_roles_pkey on user_roles dr  (cost=0.15..10.24 rows=1 width=8) (actual time=0.112..0.112 rows=0 loops=7)
+                                      Index Cond: ((user_id = donor.user_id) AND ((role)::text = 'Donor'::text))
+                                      Filter: ((approved_at IS NOT NULL) AND ((user_id = dbthon_actor_id()) OR EXISTS(SubPlan 5)))
+                                      Buffers: shared hit=56
+                                      SubPlan 5
+                                        ->  Index Scan using users_pkey on users u_2  (cost=0.15..9.17 rows=1 width=0) (actual time=0.690..0.691 rows=1 loops=1)
+                                              Index Cond: (user_id = dr.user_id)
+                                              Filter: ((user_id = dbthon_actor_id()) OR ((zone_id = dbthon_actor_zone()) AND ((verified_status AND active AND dbthon_verified_actor()) OR dbthon_zone_admin(zone_id))))
+                                              Buffers: shared hit=43
+                    ->  Bitmap Heap Scan on food_listings l  (cost=7.21..49.50 rows=1 width=152) (actual time=1.100..2.307 rows=5 loops=1)
+                          Recheck Cond: ((donor.user_id = donor_id) AND (zone_id = dbthon_actor_zone()) AND ((status)::text = 'Available'::text) AND (expiry_window_end > '2026-10-05 17:28:44.439409+00'::timestamp with time zone))
+                          Filter: ((expiry_window_start <= '2026-10-05 17:28:44.439409+00'::timestamp with time zone) AND dbthon_verified_actor() AND (quantity_kg <= (InitPlan 3).col1) AND (donor_id <> dbthon_actor_id()) AND st_dwithin(pickup_location, (InitPlan 4).col1, '5000'::double precision, true) AND st_dwithin(pickup_location, '0101000020E6100000925CFE43FAC9534000917EFB3AF02940'::geography, '5000'::double precision, true) AND (ROW(expiry_window_end, st_distance(pickup_location, '0101000020E6100000925CFE43FAC9534000917EFB3AF02940'::geography, true), listing_id) > ROW('0001-01-01 00:00:00+00'::timestamp with time zone, '-1'::double precision, '0'::smallint)))
+                          Rows Removed by Filter: 5
+                          Heap Blocks: exact=1
+                          Buffers: shared hit=181
+                          ->  BitmapAnd  (cost=7.21..7.21 rows=1 width=0) (actual time=0.009..0.010 rows=0 loops=1)
+                                Buffers: shared hit=2
+                                ->  Bitmap Index Scan on ix_listings_donor  (cost=0.00..0.28 rows=3 width=0) (actual time=0.002..0.003 rows=14 loops=1)
+                                      Index Cond: (donor_id = donor.user_id)
+                                      Buffers: shared hit=1
+                                ->  Bitmap Index Scan on ix_listings_live_zone  (cost=0.00..6.68 rows=183 width=0) (actual time=0.005..0.005 rows=10 loops=1)
+                                      Index Cond: ((zone_id = dbthon_actor_zone()) AND ((status)::text = 'Available'::text) AND (expiry_window_end > '2026-10-05 17:28:44.439409+00'::timestamp with time zone))
+                                      Buffers: shared hit=1
+              ->  Index Scan using users_pkey on users u  (cost=0.15..9.17 rows=1 width=25) (actual time=0.355..0.355 rows=1 loops=5)
+                    Index Cond: (user_id = l.donor_id)
+                    Filter: ((user_id = dbthon_actor_id()) OR ((zone_id = dbthon_actor_zone()) AND ((verified_status AND active AND dbthon_verified_actor()) OR dbthon_zone_admin(zone_id))))
+                    Buffers: shared hit=147
+Planning:
+  Buffers: shared hit=176
+Planning Time: 3.822 ms
+Execution Time: 7.736 ms

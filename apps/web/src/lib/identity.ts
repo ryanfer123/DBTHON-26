@@ -13,16 +13,23 @@ export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message) }
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api/v1').replace(/\/+$/, '')
+
+export function apiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`
+}
+
 export async function api<T>(path: string, options: {
-  method?: 'POST' | 'PATCH'; body?: unknown; csrf?: string; signal?: AbortSignal
+  method?: 'POST' | 'PATCH'; body?: unknown; csrf?: string; key?: string; signal?: AbortSignal
 } = {}): Promise<T> {
   let response: Response
   try {
-    response = await fetch(`/api/v1${path}`, {
-      method: options.method ?? 'GET', credentials: 'same-origin', signal: options.signal,
+    response = await fetch(apiUrl(path), {
+      method: options.method ?? 'GET', credentials: 'include', signal: options.signal,
       headers: options.method ? {
         'Content-Type': 'application/json', 'X-Requested-With': 'SecondTable',
         ...(options.csrf ? { 'X-CSRF-Token': options.csrf } : {}),
+        ...(options.key ? { 'Idempotency-Key': options.key } : {}),
       } : undefined,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     })

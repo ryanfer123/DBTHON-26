@@ -2,9 +2,10 @@
 
 Source requirements: PDF section 4.2 (physical p. 6). IDs are assigned here for
 traceability. Implementation refinements are identified in ADR 0001. All FRs are
-tracked in [requirements.json](requirements.json): FR01 is implemented; foundation
-coverage of several database/security requirements is partial. Full redistribution
-and connected browser workflows remain unfinished. Observed checks: [STATUS.md](STATUS.md).
+tracked in [requirements.json](requirements.json). FR01-FR07 and FR09-FR10 have
+implemented API/browser workflows. FR08 is partial: durable in-app delivery works;
+external SMS/push remains unconfigured. Performance/pilot evidence remains P11/P12.
+Observed checks: [STATUS.md](STATUS.md).
 
 | ID | Source requirement | Prototype acceptance gate | Tasks / tests |
 | --- | --- | --- | --- |

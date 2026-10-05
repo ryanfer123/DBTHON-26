@@ -7,12 +7,14 @@ Aritra Ghosh (24BCE0598), aligned with T5/T6 Waste & Circular Economy and Health
 & Well-being. Verified donors list safe surplus, receivers claim it once, volunteers
 collect and deliver it, and administrators inspect accountability and impact.
 
-The public application and database foundation run: FastAPI, React, versioned
-PostgreSQL/PostGIS schema, synthetic seeding, guarded claims and independent ledger
-verification. Registration, sessions, editable profiles and zone-admin verification
-work through connected, responsive account screens.
-**Food listing, claim and delivery screens/APIs remain unfinished.**
+The web app supports registration and zone-admin approval, donor listings, nearby
+receiver discovery and claims, volunteer pickup/delivery, expiry processing, an
+in-app inbox, participant ratings, trust history and scoped impact reports with CSV.
+FastAPI and React use real PostgreSQL/PostGIS transactions and restricted database
+roles. External SMS/push delivery and stakeholder/pilot evidence remain outstanding.
 See [current status](docs/STATUS.md).
+The expanded homepage includes handover guidance, FAQs and role-aware links. Use the
+sun/moon control in the header to switch themes; your preference persists across visits.
 
 ## Begin implementation
 
@@ -20,7 +22,7 @@ See [current status](docs/STATUS.md).
 2. Read the [project brief](docs/PROJECT_BRIEF.md), [requirements](docs/REQUIREMENTS.md),
    and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 3. Use [START_HERE.md](docs/START_HERE.md) as the next coding-session prompt.
-4. Start at task P04; acceptance criteria and dependencies are already documented.
+4. Start at task P11 for controlled demonstration/performance evidence; implementation boundaries are documented.
 
 ## What is included
 
@@ -37,6 +39,7 @@ See [current status](docs/STATUS.md).
 | Synthetic data and missing real-world evidence | [Data guide](data/README.md), [fixtures](data/fixtures/demo.json) |
 | Tests and course evidence templates | [Testing plan](docs/TESTING.md), [deliverables](docs/deliverables/README.md) |
 | Local prerequisites and commands | [Development](docs/DEVELOPMENT.md) |
+| Render static website configuration | [Render deployment](docs/RENDER_DEPLOYMENT.md), [Blueprint](render.yaml) |
 
 ## Run locally
 
@@ -80,9 +83,10 @@ The source PDF defines the project. Architecture and lifecycle refinements are
 explicitly labelled in the decision record. Fixtures are synthetic, not collected
 donor/NGO data. The supplied brief contains research claims that need source
 verification before public presentation. No real interviews, pilot, notification-provider
-integration, or TRL validation has been completed here. Foundation/database checks
-pass, including identity API coverage; delivery, worker and full browser-workflow
-acceptance remains unfinished.
+integration, or TRL validation has been completed here. Core database, API, delivery,
+worker and browser workflows are implemented and verified locally. The controlled
+multi-zone simulation, 10k-listing benchmark and broader clean-clone evidence remain
+P11 work; real stakeholder/pilot evidence remains P12 work.
 
 Repository: [ryanfer123/DBTHON-26](https://github.com/ryanfer123/DBTHON-26).
 No software license was supplied; adding one is an owner decision.

@@ -9,13 +9,13 @@ from sqlalchemy import Connection, Engine, create_engine, text
 from app.core.config import Settings
 from app.core.errors import DomainError
 
-Purpose = Literal["auth", "runtime"]
+Purpose = Literal["auth", "runtime", "worker"]
 
 
 class Access:
     def __init__(self, settings: Settings):
         self.engines: dict[Purpose, Engine | None] = {}
-        for purpose in ("auth", "runtime"):
+        for purpose in ("auth", "runtime", "worker"):
             url = settings.restricted_url(purpose)
             self.engines[purpose] = (
                 create_engine(
@@ -52,12 +52,14 @@ class Access:
                   AND tableowner=session_user)
                 AND pg_has_role(session_user,:role,'MEMBER')
                 AND NOT pg_has_role(session_user,'dbthon_guard','MEMBER')
-                AND NOT pg_has_role(session_user,:other,'MEMBER')
+                AND NOT EXISTS(SELECT FROM pg_roles forbidden WHERE forbidden.rolname IN
+      ('dbthon_auth','dbthon_runtime','dbthon_worker')
+                  AND forbidden.rolname<>:role AND
+      pg_has_role(session_user,forbidden.oid,'MEMBER'))
               FROM pg_roles r WHERE rolname=session_user
             """),
                 {
                     "role": f"dbthon_{purpose}",
-                    "other": "dbthon_runtime" if purpose == "auth" else "dbthon_auth",
                 },
             ).scalar_one()
             if not permitted:
@@ -68,6 +70,8 @@ class Access:
                 text(
                     "SET LOCAL ROLE dbthon_auth"
                     if purpose == "auth"
+                    else "SET LOCAL ROLE dbthon_worker"
+                    if purpose == "worker"
                     else "SET LOCAL ROLE dbthon_runtime"
                 )
             )
@@ -100,6 +104,16 @@ class Access:
                         text("SELECT has_function_privilege(current_user,:signature,'EXECUTE')"),
                         {"signature": signature},
                     ).scalar_one():
+                        return False
+                    if (
+                        purpose == "runtime"
+                        and not connection.execute(
+                            text(
+                                "SELECT has_function_privilege(current_user,"
+                                "'public.dbthon_command(text,bigint,bigint,jsonb,text)','EXECUTE')"
+                            )
+                        ).scalar_one()
+                    ):
                         return False
             return True
         except (SQLAlchemyError, DomainError):

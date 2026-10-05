@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router'
+import { ThemeToggle } from './ThemeToggle'
 import { useAuth } from '../features/identity/AuthContext'
 
 export function PageShell({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export function PageShell({ children }: { children: ReactNode }) {
             <Link to="/#how-it-works">How it works</Link>
             <Link to="/#community">Our community</Link>
             <NavLink className="nav-account" to={session ? '/account' : '/sign-in'}>{session ? 'Your account' : 'Sign in'}</NavLink>
+            <ThemeToggle />
           </nav>
         </div>
       </header>

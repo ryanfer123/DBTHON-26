@@ -19,20 +19,20 @@ flowchart TD
     Worker --> Provider[Optional SMS or push adapter]
 ```
 
-## Modules to implement
+## Implemented module boundaries
 
 | Boundary | Responsibilities | Suggested target |
 | --- | --- | --- |
 | Identity | Registration, Argon2id, opaque sessions, role verification | `apps/api/app/identity/` |
-| Listings | CRUD, ownership, expiry, zone snapshots | `apps/api/app/listings/` |
-| Matching | Geography, capacity, urgency ranking | `apps/api/app/matching/` |
-| Claims | Locks, whole-listing allocation, idempotency, cancellation | `apps/api/app/claims/` |
-| Pickups | Volunteer assignment, attempt history, pickup/delivery | `apps/api/app/pickups/` |
+| Listings | CRUD, ownership, expiry, zone snapshots | `apps/api/app/workflows/` |
+| Matching | Geography, capacity, urgency ranking | `apps/api/app/workflows/service.py` |
+| Claims | Locks, whole-listing allocation, idempotency, cancellation | `database/0003_workflows.sql` |
+| Pickups | Volunteer assignment, attempt history, pickup/delivery | `apps/api/app/workflows/` |
 | Trust | Per-user append service, verifier, participant ratings | `apps/api/app/trust/` |
-| Notifications | Transactional outbox, durable in-app inbox, adapter retries | `apps/api/app/notifications/` |
-| Analytics | Zone/city aggregates and filtered report exports | `apps/api/app/analytics/` |
+| Notifications | Transactional outbox, durable in-app inbox, adapter retries | `apps/api/app/workflows/worker.py` |
+| Analytics | Zone/city aggregates and filtered report exports | `apps/api/app/workflows/service.py` |
 | Shared | Configuration, DB transaction context, errors, clock interface | `apps/api/app/core/` |
-| Worker | Expiry sweeps and notification delivery loops | `apps/api/app/worker.py` |
+| Worker | Expiry sweeps and notification delivery loops | `scripts/worker.py` |
 
 Route handlers validate/serialize requests, services implement business operations,
 and repositories execute queries within an explicit transaction. Avoid hidden

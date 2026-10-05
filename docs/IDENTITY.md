@@ -58,12 +58,15 @@ It prints no password and grants no new roles. Admin registration is never publi
 ## Request protocol
 
 All unsafe identity requests need `X-Requested-With: SecondTable`. When Origin is
-present it must exactly match ALLOWED_ORIGINS; cross-site Fetch Metadata is denied.
-No cross-origin CORS permission is enabled. This also protects login/registration.
+present it must exactly match ALLOWED_ORIGINS. Credentialed CORS is enabled only for
+those explicit origins. Cross-site writes still require the custom header and an
+allowlisted Origin; requests marked cross-site without an Origin are denied. This
+also protects login/registration.
 
 Login returns `data.user` and `data.csrf_token` and sets a host-only HttpOnly
-`dbthon_session` cookie (SameSite=Lax, Path=/api/v1, 12-hour expiry; Secure in
-production). Preserve the cookie using a cookie jar or fetch credentials. All
+`dbthon_session` cookie (Path=/api/v1, 12-hour expiry; Secure in production).
+Development uses SameSite=Lax; production uses SameSite=None for a separately hosted
+website/API pair. Preserve the cookie using a cookie jar or fetch credentials. All
 authenticated writes additionally need `X-CSRF-Token` from login or GET /auth/me.
 The server derives this token from the opaque session with a domain separator;
 the database stores only its SHA-256 digest and the session's SHA-256 digest.

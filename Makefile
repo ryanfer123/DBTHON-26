@@ -1,4 +1,4 @@
-.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access
+.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access worker feed-plan
 
 check:
 	python3 scripts/validate_handoff.py
@@ -66,3 +66,9 @@ db-up:
 
 db-down:
 	docker compose down
+
+worker:
+	uv run --project apps/api --locked python scripts/worker.py
+
+feed-plan:
+	uv run --project apps/api --locked python scripts/feed_plan.py

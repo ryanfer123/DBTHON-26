@@ -1,5 +1,18 @@
 # Public welcome-screen design
 
+This page records historical P01/account design decisions. The current photographic
+homepage, dark mode and six-section layout are documented in
+[HOME_REFRESH.md](HOME_REFRESH.md), with retained opening/workflow/help/dark concepts.
+The connected role workspace uses [workspace-concept.png](workspace-concept.png):
+forest headings, sage context, open list rows, shared navigation and responsive forms.
+Final concept/render comparison inspected the latest desktop feed/report and mobile
+delivery captures: matching palette/fonts/container and open row layout; narrower
+filters use content width, timestamps expose actual server fields, and links use the
+shared outline/text treatments. Navigation includes only approved roles rather than
+all concept roles; real synthetic content determines row count and wrap. These are
+functional extensions. The 16-test browser pass checks real actions and overflow;
+temporary captures are removed after the comparison.
+
 [welcome-concept.png](welcome-concept.png) was generated with the built-in Image
 Gen tool on 2026-10-05 and selected as the working P01 design. Native size:
 1505 x 1045. It is a full public welcome screen, not a simulated donor dashboard.

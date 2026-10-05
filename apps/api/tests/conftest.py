@@ -90,7 +90,11 @@ def actor(engine, uid, session_seconds=3600):
 def identity_settings(db_engine):
     urls = {}
     with db_engine.begin() as c:
-        for purpose, name in [("runtime", "dbthon_test_runtime"), ("auth", "dbthon_test_auth")]:
+        for purpose, name in [
+            ("runtime", "dbthon_test_runtime"),
+            ("auth", "dbthon_test_auth"),
+            ("worker", "dbthon_test_worker"),
+        ]:
             password = secrets.token_urlsafe(36)
             provision_login(c.connection.driver_connection, name, purpose, password)
             urls[purpose] = db_engine.url.set(username=name, password=password)
@@ -101,4 +105,5 @@ def identity_settings(db_engine):
         database_url=SecretStr(db_engine.url.render_as_string(hide_password=False)),
         app_database_url=SecretStr(urls["runtime"].render_as_string(hide_password=False)),
         auth_database_url=SecretStr(urls["auth"].render_as_string(hide_password=False)),
+        worker_database_url=SecretStr(urls["worker"].render_as_string(hide_password=False)),
     )

@@ -6,8 +6,16 @@ from psycopg import Connection, sql
 
 
 def provision_login(connection: Connection, name: str, purpose: str, password: str) -> None:
-    if name not in {"dbthon_app", "dbthon_identity", "dbthon_test_runtime", "dbthon_test_auth"} or (
-        purpose not in {"auth", "runtime"} or not re.fullmatch(r"[A-Za-z0-9_-]{32,}", password)
+    if name not in {
+        "dbthon_app",
+        "dbthon_identity",
+        "dbthon_jobs",
+        "dbthon_test_runtime",
+        "dbthon_test_auth",
+        "dbthon_test_worker",
+    } or (
+        purpose not in {"auth", "runtime", "worker"}
+        or not re.fullmatch(r"[A-Za-z0-9_-]{32,}", password)
     ):
         raise ValueError("Unexpected local provision parameters")
     group = f"dbthon_{purpose}"

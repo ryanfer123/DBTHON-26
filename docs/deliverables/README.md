@@ -1,8 +1,8 @@
 # Eight course deliverables and evidence inventory
 
 These templates distinguish source content, planned implementation and actual
-validation evidence. Public application and database foundations are implemented
-and tested; the full workflow, real pilot and slide deck remain unfinished.
+validation evidence. Core API/browser workflows are implemented and tested. The measured performance/
+controlled-demo package, real pilot and slide deck remain unfinished.
 
 | Deliverable | Working artifact | Initial evidence/status |
 | --- | --- | --- |
@@ -10,8 +10,8 @@ and tested; the full workflow, real pilot and slide deck remain unfinished.
 | 2. Innovation Proposal | [02-innovation-proposal.md](02-innovation-proposal.md) | PDF section 3, p. 5; design refinements recorded |
 | 3. SRS | [03-software-requirements.md](03-software-requirements.md) | Traceability prepared; partial database coverage recorded |
 | 4. Database Design | [04-database-design.md](04-database-design.md) | Revision 0001, seeds, SQL examples, RLS and concurrency checks pass |
-| 5. Application Prototype | [05-application-prototype.md](05-application-prototype.md) | P01-P03 complete; P04-P10 pending |
-| 6. Testing & Validation | [06-testing-validation.md](06-testing-validation.md) | 65 backend/DB + 4 web + 4 browser checks pass; full acceptance pending |
+| 5. Application Prototype | [05-application-prototype.md](05-application-prototype.md) | P01-P10 core complete; external SMS/push partial |
+| 6. Testing & Validation | [06-testing-validation.md](06-testing-validation.md) | Current checks in STATUS.md; P11 controlled/performance evidence pending |
 | 7. Impact & TRL Report | [07-impact-trl.md](07-impact-trl.md) | Metrics defined; measured impact/TRL evidence pending |
 | 8. Expo Presentation | [08-expo-presentation.md](08-expo-presentation.md) | Slide outline prepared; deck/demo pending |
 

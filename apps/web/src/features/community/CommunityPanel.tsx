@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { useAuth } from '../identity/AuthContext'
 import { loadCommunity } from '../../lib/community'
 import type { Community, RoleId } from '../../lib/community'
 
@@ -7,6 +8,7 @@ type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'loaded
 
 export function CommunityPanel() {
   const { role } = useParams()
+  const { session } = useAuth()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
@@ -27,7 +29,7 @@ export function CommunityPanel() {
   return (
     <section className="community-section" id="community" aria-labelledby="community-heading">
       <div className="container">
-        <h2 id="community-heading">A place for everyone to help.</h2>
+        <h2 id="community-heading">There’s a place for you here.</h2>
         {state.status === 'loading' && <p role="status" className="community-message">Loading community details…</p>}
         {state.status === 'error' && <div role="alert" className="community-message">
           <p>Community details couldn’t load. Please try again.</p>
@@ -62,8 +64,9 @@ export function CommunityPanel() {
           {state.data.roles.map(item => <div
             key={item.id} className="role-panel" id={`panel-${item.id}`} role="tabpanel"
             aria-labelledby={`tab-${item.id}`} hidden={selected !== item.id} tabIndex={0}
-          ><p>{item.description}</p><Link className="text-link role-join" to={`/register?role=${item.id}`}>Join as a {item.id} <span aria-hidden="true">→</span></Link></div>)}
+          ><p>{item.description}</p><Link className="text-link role-join" to={session ? (session.user.capabilities.includes(item.id === 'donor' ? 'Donor' : item.id === 'receiver' ? 'Receiver' : 'Volunteer') ? item.id === 'donor' ? '/donations' : item.id === 'receiver' ? '/food' : '/deliveries' : '/account') : `/register?role=${item.id}`}>{session ? item.id === 'donor' ? 'Open my donations' : item.id === 'receiver' ? 'Find nearby food' : 'Open my deliveries' : `Join as a ${item.id}`} <span aria-hidden="true">→</span></Link></div>)}
         </>}
+        <div className="community-account"><p>Already a member? Your approved roles appear in your account.</p><Link className="text-link" to={session ? '/account' : '/sign-in'}>Open your account <span aria-hidden="true">→</span></Link></div>
       </div>
     </section>
   )

@@ -7,7 +7,9 @@ Runtime has restricted column SELECT and guarded-function EXECUTE, without gener
 DML. `dbthon_guard` is a private NOLOGIN/BYPASSRLS function owner; never grant its
 membership to an application login. Revision `0002` adds identity routines and CSRF;
 auth and runtime login accounts are provisioned separately with `make db-access`.
-Worker role capabilities remain P07.
+Revision `0003` applies [0003_workflows.sql](0003_workflows.sql): domain commands,
+ratings, trust summaries, expiry and in-app delivery. The separately provisioned
+worker login can execute only its maintenance routines; it cannot read all users.
 
 `make migrate`, `make seed ANCHOR=2026-10-05T12:00:00Z`, `make ledger-verify` apply,
 import and independently check the fixture. Seeding requires empty application

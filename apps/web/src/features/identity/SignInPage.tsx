@@ -10,7 +10,8 @@ export function SignInPage() {
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const destination = location.state?.from === '/admin' ? '/admin' : '/account'
+  const requested = location.state?.from
+  const destination = typeof requested === 'string' && /^\/(account|admin|donations|food|claims|deliveries|inbox|trust)(\/|$)/.test(requested) ? requested : '/account'
   if (auth.session) return <Navigate to={destination} replace />
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

@@ -1,3 +1,5 @@
+import { apiUrl } from './identity'
+
 export type RoleId = 'donor' | 'receiver' | 'volunteer'
 export type RoleIntroduction = { id: RoleId; name: string; description: string }
 export type Community = { name: string; roles: RoleIntroduction[] }
@@ -9,7 +11,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export async function loadCommunity(signal: AbortSignal): Promise<Community> {
-  const response = await fetch('/api/v1/community', { signal, credentials: 'same-origin' })
+  const response = await fetch(apiUrl('/community'), { signal, credentials: 'include' })
   if (!response.ok) throw new Error('Community information is unavailable.')
   const body: unknown = await response.json()
   if (!isRecord(body) || !isRecord(body.data) || typeof body.data.name !== 'string'

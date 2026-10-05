@@ -23,10 +23,11 @@ design decisions differ, preserve the source and document the reason for the cha
 
 ## Authorized scope and current state
 
-The repository has a runnable API/public welcome foundation (P01) and tested
-database/seed/claim/ledger foundation (P02), and tested identity/admin APIs (P03).
-Responsive registration, sign-in, profile and admin-review screens are connected.
-Listing/delivery APIs and their workflow screens still need implementation.
+P01-P10 core prototype workflows are implemented and connected to responsive role
+screens. Revision 0003 supplies guarded listing/claim/delivery/rating commands and
+restricted expiry/inbox worker routines. FR08 remains partial: external SMS/push is
+unconfigured. Start P11 for controlled-demo/10k-listing performance evidence; genuine
+stakeholder and pilot evidence belongs to P12.
 When asked to
 implement, take the first unfinished task in
 the plan, complete its acceptance criteria, and continue within the requested scope.

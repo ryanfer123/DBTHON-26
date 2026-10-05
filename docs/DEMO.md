@@ -1,6 +1,6 @@
 # Controlled demonstration script
 
-Run this after P11; the application does not exist yet. Use synthetic identities and
+Core workflows now run. Use P11 to record a controlled demonstration with reproducible evidence. Use synthetic identities and
 rebased seed times; record the commit and setup commands with screenshots/video.
 
 1. Reset a disposable database, migrate, import demo fixtures with a current UTC
@@ -24,3 +24,14 @@ rebased seed times; record the commit and setup commands with screenshots/video.
    evidence from pending donor/NGO interview or pilot evidence.
 
 Never use a production reset or real food exchange as a casual demo task.
+
+Role entry points: Donor `/donations/new`, Receiver `/food`, Volunteer `/deliveries`,
+Admin `/admin`, `/admin/exchanges`, `/admin/impact`. Approve newly registered public
+roles through Admin review first. Fixture logins remain disabled until explicitly
+enabled locally with `scripts/demo_password.py --user ID` (interactive, no shared
+password in Git). Synthetic zone-1 IDs: Donor 101, Receiver 102, Volunteer 103, Admin
+104. Test fixtures and local demo account activation are separate.
+
+Run `make worker` alongside independently started API/web, or `make dev` for all
+three. The worker processes expiry and durable in-app updates after commit. Its
+absence never permits a stale claim/delivery; guarded commands still check deadlines.

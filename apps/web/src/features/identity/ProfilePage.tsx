@@ -5,6 +5,7 @@ import { api, ApiError, type User } from '../../lib/identity'
 import { useAuth } from './AuthContext'
 import { ContactFields, LocationFields } from './FormParts'
 import { CommunityArea } from './CommunityArea'
+import { WorkspaceNav } from '../workflows/Workspace'
 
 export function ProfilePage() {
   const auth = useAuth()
@@ -41,6 +42,7 @@ export function ProfilePage() {
         finally { setBusy(false) }
       }}>{busy ? 'Please wait…' : 'Sign out'}</button>
     </div>
+    <WorkspaceNav />
     <div className="profile-layout">
       <aside className="account-summary" aria-label="Account status"><h2>Your community roles</h2>
         <p className="status-line"><span className={`status-dot ${user.verified_status ? 'approved' : ''}`} aria-hidden="true" />{user.verified_status ? 'Account verified' : 'Awaiting verification'}</p>

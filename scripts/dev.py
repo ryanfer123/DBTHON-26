@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the local API and frontend together; stop both on Ctrl+C or startup failure."""
+"""Run the local API, frontend and worker together; stop them on Ctrl+C or startup failure."""
 from pathlib import Path
 import os
 import shutil
@@ -24,6 +24,10 @@ try:
     ))
     children.append(subprocess.Popen(
         [npm, "run", "dev"], cwd=ROOT / "apps/web", start_new_session=True,
+    ))
+    children.append(subprocess.Popen(
+        [str(ROOT / 'apps/api/.venv/bin/python'), str(ROOT / 'scripts/worker.py')],
+        cwd=ROOT, start_new_session=True,
     ))
     print("Frontend: http://127.0.0.1:5173 | API docs: http://127.0.0.1:8000/api/docs", flush=True)
     while all(child.poll() is None for child in children):

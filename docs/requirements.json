@@ -24,7 +24,7 @@
       "title": "Listing creation, updates and cancellation",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P04",
         "P05"
@@ -33,14 +33,16 @@
         "T03",
         "T06"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Guarded listing CRUD and coordinated cancellations use real API/browser flows.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR03",
       "title": "Expiry countdown and warnings",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P04",
         "P07"
@@ -48,14 +50,16 @@
       "tests": [
         "T04"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Server-based countdown/warning, live deadline checks and expiry worker are tested.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR04",
       "title": "Ranked matching and atomic claiming",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "partial",
+      "status": "implemented",
       "tasks": [
         "P04",
         "P05"
@@ -65,7 +69,7 @@
         "T06"
       ],
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "Guarded SQL claim verified; ranked HTTP feed and idempotent API remain P04/P05.",
+      "implementation_note": "Ranked scoped capacity/radius feed, keyset cursors and competing idempotent claims are tested.",
       "evidence": "docs/STATUS.md"
     },
     {
@@ -73,7 +77,7 @@
       "title": "Volunteer pickup and delivery",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P06",
         "P07"
@@ -81,28 +85,32 @@
       "tests": [
         "T07"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Volunteer races, composite attempt history, pickup/delivery and deadline failures are tested.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR06",
       "title": "Participant ratings and trust score",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P08"
       ],
       "tests": [
         "T08"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Completed donor/receiver ratings, eligibility/uniqueness and derived averages/counts are tested.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR07",
       "title": "Hash-linked audit ledger",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "partial",
+      "status": "implemented",
       "tasks": [
         "P05",
         "P06",
@@ -113,7 +121,7 @@
         "T09"
       ],
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "Canonical serialized append and independent verifier implemented; remaining domain events await P03-P08.",
+      "implementation_note": "Domain/expiry/read/rating changes append canonical serialized ledgers; independent verification passes.",
       "evidence": "docs/STATUS.md"
     },
     {
@@ -121,7 +129,7 @@
       "title": "Notifications including push/SMS",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "partial",
       "tasks": [
         "P07",
         "P09"
@@ -129,14 +137,16 @@
       "tests": [
         "T10"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Real durable in-app delivery, read state, bounded retry and expired-lease recovery work. External SMS/push is unconfigured and has no provider/device evidence.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR09",
       "title": "Scoped admin dashboards",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P10"
       ],
@@ -144,21 +154,25 @@
         "T02",
         "T11"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Zone-scoped admin review, day/zone/city aggregates and date filters use real data.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR10",
       "title": "Impact reporting by date and zone",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "implemented",
       "tasks": [
         "P10"
       ],
       "tests": [
         "T11"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Picked-up and delivered mass are deduplicated; CSV matches filters; meal factor is labelled and unsupported CO2e remains null.",
+      "evidence": "docs/STATUS.md"
     }
   ],
   "nonfunctional": [
@@ -166,49 +180,55 @@
       "id": "NFR01",
       "title": "ACID integrity",
       "source_pdf_page": 6,
-      "status": "partial",
+      "status": "implemented",
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "Claim transaction, rollback and uniqueness verified on PostgreSQL; remaining writes await later milestones.",
+      "implementation_note": "Guarded command transactions, real PostgreSQL races/retries, cancellation and ledger/outbox atomicity checks pass.",
       "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR02",
       "title": "Nearby feed performance",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Actual restricted feed EXPLAIN ANALYZE captured on synthetic small data; the required 10k-listing API p95 benchmark remains P11.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR03",
       "title": "Zone availability",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Logical zone/object isolation and scoped locks are tested. Physical/shared-outage independence is deferred.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR04",
       "title": "Security and privacy",
       "source_pdf_page": 6,
-      "status": "partial",
+      "status": "implemented",
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "P03 uses distinct non-owner auth/runtime pools, Argon2id, CSRF/origin guards, input redaction, SQL/API zone permissions and pool isolation; full workflow permissions remain later milestones.",
+      "implementation_note": "Non-owner auth/runtime/worker logins, RLS/column privileges, CSRF/origin, Argon2id, session and workflow privacy checks pass.",
       "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR05",
       "title": "Auditability",
       "source_pdf_page": 6,
-      "status": "partial",
+      "status": "implemented",
       "spec": "docs/REQUIREMENTS.md",
-      "implementation_note": "Independent ledger checks and tamper detection verified; full workflow evidence remains P11.",
+      "implementation_note": "Canonical chain appends, concurrent serialization, independent verification and tamper detection are tested across workflow mutations.",
       "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR06",
       "title": "Multi-city scalability",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Stable multi-city zones, spatial/expiry indexes and scoped reports are implemented; large-scale and physical deployment evidence remains outstanding.",
+      "evidence": "docs/STATUS.md"
     }
   ]
 }

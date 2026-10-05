@@ -11,12 +11,12 @@ export function PasswordField({ newPassword = false }: { newPassword?: boolean }
   </div>
 }
 
-export function LocationFields({ latitude = '', longitude = '' }: { latitude?: string; longitude?: string }) {
+export function LocationFields({ latitude = '', longitude = '', legend = 'Your location' }: { latitude?: string; longitude?: string; legend?: string }) {
   const [lat, setLat] = useState(latitude)
   const [lon, setLon] = useState(longitude)
   const [message, setMessage] = useState('')
   const [locating, setLocating] = useState(false)
-  return <fieldset className="location-fields"><legend>Your location</legend>
+  return <fieldset className="location-fields"><legend>{legend}</legend>
     <p className="field-help">Enter coordinates or use your current location to connect locally.</p>
     <div className="field-row">
       <div className="field"><label htmlFor="latitude">Latitude</label><input id="latitude" name="latitude" type="number"

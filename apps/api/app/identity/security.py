@@ -48,6 +48,6 @@ def guard_write(request: Request, settings: Settings) -> None:
         raise DomainError("CSRF_INVALID", 403, "Use the application request headers.")
     origin = request.headers.get("Origin")
     if (origin is not None and origin not in settings.allowed_origins) or (
-        request.headers.get("Sec-Fetch-Site") == "cross-site"
+        origin is None and request.headers.get("Sec-Fetch-Site") == "cross-site"
     ):
         raise DomainError("ORIGIN_FORBIDDEN", 403, "The request origin is not permitted.")

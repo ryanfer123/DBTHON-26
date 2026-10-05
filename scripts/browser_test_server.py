@@ -4,18 +4,23 @@ import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from threading import Event, Thread
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "apps/api"))
 
 import uvicorn
 from alembic import command
 from alembic.config import Config
+from app.core.access import Access
 from app.core.config import ROOT, Settings
+from app.core.errors import DomainError
 from app.identity.security import HASHER
 from app.main import create_app
 from app.seed import import_demo
+from app.workflows.worker import tick
 from pydantic import SecretStr
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 
 
 def main() -> None:
@@ -28,7 +33,8 @@ def main() -> None:
     owner = settings.connection_url()
     runtime = settings.restricted_url("runtime")
     auth = settings.restricted_url("auth")
-    if owner is None or runtime is None or auth is None:
+    worker = settings.restricted_url("worker")
+    if owner is None or runtime is None or auth is None or worker is None:
         raise SystemExit("Configure local PostgreSQL and run make db-access first.")
     # This exact name is the only database this harness may create or reset.
     name = "dbthon_browser_test"
@@ -55,7 +61,9 @@ def main() -> None:
         )
         import_demo(c, datetime.now(UTC).replace(microsecond=0))
         c.execute(
-            text("UPDATE users SET password_hash=:hash WHERE user_id=104"),
+            text(
+                "UPDATE users SET password_hash=:hash WHERE user_id IN (101,102,103,104,105,107,108)"
+            ),
             {"hash": HASHER.hash(password)},
         )
     engine.dispose()
@@ -71,10 +79,33 @@ def main() -> None:
         auth_database_url=SecretStr(
             auth.set(database=name).render_as_string(hide_password=False)
         ),
+        worker_database_url=SecretStr(
+            worker.set(database=name).render_as_string(hide_password=False)
+        ),
         allowed_origins=["http://127.0.0.1:5174", "http://127.0.0.1:8001"],
     )
     print("Browser test database prepared; local/demo databases preserved.")
-    uvicorn.run(create_app(isolated), host="127.0.0.1", port=8001)
+    stop = Event()
+
+    def process_updates() -> None:
+        access = Access(isolated)
+        try:
+            while not stop.is_set():
+                try:
+                    tick(access)
+                except (SQLAlchemyError, DomainError):
+                    print("Isolated browser worker will retry processing.")
+                stop.wait(2)
+        finally:
+            access.close()
+
+    thread = Thread(target=process_updates, daemon=True)
+    thread.start()
+    try:
+        uvicorn.run(create_app(isolated), host="127.0.0.1", port=8001)
+    finally:
+        stop.set()
+        thread.join(timeout=5)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,7 @@
-# REST API contract to implement
+# Implemented REST API contract
 
-Base path `/api/v1`. Most of this is a target contract. P01 implements the two health
-endpoints and public `GET /community` introduction. P03 implements all identity and
-administration routes in the first table; listing/delivery/report routes remain
-targets. Actual generated contract: [openapi.json](openapi.json).
+Base path `/api/v1`. All paths below are implemented; the generated contract is
+[openapi.json](openapi.json). Authenticated responses are private/no-store.
 Identity request headers, envelopes and session policy: [IDENTITY.md](IDENTITY.md).
 IDs are integers; mass is a decimal string in kg; distance is metres; timestamps are
 RFC3339 UTC strings. Session auth and CSRF behavior: [architecture](ARCHITECTURE.md).
@@ -24,8 +22,13 @@ All endpoints validate approved roles, zone and object ownership server-side.
   different body returns 409 `IDEMPOTENCY_CONFLICT`. Retain records for at least 24 h.
   Recheck authentication on replay, and deny if current actor access has been revoked.
 - Accept explicit action commands rather than arbitrary status PATCH values.
-- Generate FastAPI OpenAPI after routes exist; commit a reviewed export and compare
-  it to this contract. This Markdown specification is not an existing OpenAPI artifact.
+- `make openapi` regenerates the exported FastAPI contract; `--check` detects drift.
+- Every workflow write requires Idempotency-Key, including listing edits, ratings and
+  inbox reads. Command responses contain IDs/status in `data`; follow with a resource GET.
+- Listing feed cursors are opaque, filter-bound strings. Own-listing/claim/inbox/ledger
+  cursors are increasing IDs/sequences; volunteer history uses `claim_id:pickup_id`.
+- Matching is bounded to 5 km around the saved profile. Optional feed coordinates
+  further narrow discovery; they do not move eligibility.
 
 ## Identity and administration
 
@@ -48,8 +51,8 @@ All endpoints validate approved roles, zone and object ownership server-side.
 
 | Method / path | Input | Authorization / result |
 | --- | --- | --- |
-| POST `/listings` | food_type, category, quantity_kg, prepared_at, expiry_window_start/end, pickup_lat/long | Verified Donor; derive donor_id/zone_id from session; 201 listing |
-| PATCH `/listings/{id}` | allowed food/quantity/time/location changes | Owning Donor, Available only; 200 listing |
+| POST `/listings` | food_type, category, quantity_kg, prepared_at, expiry_window_start/end, pickup_lat/long | Verified Donor; derive donor_id/zone_id from session; 201 command result with listing ID |
+| PATCH `/listings/{id}` | allowed food/quantity/time/location changes | Owning Donor, Available only; 200 command result with listing ID |
 | POST `/listings/{id}/cancel` | reason; Idempotency-Key | Owning Donor, before actual pickup; 200 terminal listing/related cancellation |
 | GET `/listings` | latitude, longitude, radius_m, category optional, cursor | Verified Receiver; ranked live capacity-filtered feed in own zone |
 | GET `/listings/mine` | status filter, cursor | Donor's own history including terminal listings |
@@ -78,12 +81,13 @@ Create-listing request example (times must be replaced with live eligible values
 | GET `/claims/mine` | status filter, cursor | Receiver claims or donor's listing claims; explicit role context |
 | GET `/claims/{id}` | none | Donor/receiver/assigned volunteer or approved scoped Admin |
 | POST `/claims/{id}/cancel` | reason; Idempotency-Key | Receiver before actual pickup; coordinated cancellation |
-| GET `/pickup-tasks` | latitude, longitude, radius_m, cursor | Verified Volunteer; unassigned eligible same-zone claims |
+| GET `/pickup-tasks` | radius_m, cursor | Verified Volunteer; unassigned eligible same-zone claims |
 | POST `/claims/{id}/pickups` | scheduled_time; Idempotency-Key | Eligible Volunteer; 201 Scheduled attempt; one winner |
 | GET `/pickups/mine` | status filter, cursor | Volunteer's assigned attempts |
 | POST `/claims/{id}/pickups/{pickup_id}/cancel` | reason; Idempotency-Key | Assigned Volunteer, Scheduled only |
 | POST `/claims/{id}/pickups/{pickup_id}/picked-up` | empty object; Idempotency-Key | Assigned Volunteer; server timestamp; deadline check |
 | POST `/claims/{id}/pickups/{pickup_id}/delivered` | empty object; Idempotency-Key | Assigned Volunteer; server timestamp; atomically complete allocation |
+| GET `/admin/claims` | status, cursor | Scoped Admin exchange history |
 | POST `/admin/claims/{id}/fail` | reason; Idempotency-Key | Scoped Admin; terminal failure/dispute; no automatic relisting |
 | POST `/claims/{id}/ratings` | target_user_id, score, comments optional; Idempotency-Key | Completed donor/receiver participant; 201 rating and recalculated trust |
 
@@ -95,12 +99,12 @@ weak entity's composite key away in route handlers or frontend state.
 | Method / path | Input | Authorization / result |
 | --- | --- | --- |
 | GET `/notifications` | unread_only, cursor | Self inbox only |
-| POST `/notifications/{id}/read` | empty object | Owner; idempotent read_at assignment |
+| POST `/notifications/{id}/read` | empty object; Idempotency-Key | Owner; idempotent read_at assignment; only first read changes the ledger |
 | GET `/users/{id}/trust` | none | Safe average/count for permitted visible profile |
 | GET `/trust-ledger/mine` | cursor | Own chain, redacted canonical event payload |
 | GET `/admin/users/{id}/trust-ledger` | cursor | Scoped Admin audit |
 | GET `/admin/impact` | from, to, zone_id or city, grouping day/zone/city | Admin approved zones; consistent documented aggregates |
-| GET `/admin/impact/export` | same filters, format=csv | Same authorization and semantics as dashboard |
+| GET `/admin/impact/export` | same filters; CSV response | Same authorization and semantics as dashboard |
 
 Impact response contains `picked_up_kg`, `delivered_kg`, `estimated_meals`,
 `estimated_co2e_kg` (nullable), `claim_latency_seconds`, counts, and a `factors`

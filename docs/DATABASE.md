@@ -3,7 +3,9 @@
 Source schema: PDF pp. 8-11; examples pp. 11-13. Baseline revision `0001` implements
 the schema and guarded claim foundation. Revision `0002` adds identity/session/CSRF
 routines, private throttles/reviews and the guarded claim's CSRF wrapper.
-Later workflows remain specified below.
+Revision `0003` implements guarded workflows, task visibility, trust summaries,
+expiry/outbox worker functions, pickup `accepted_at`, outbox lease tokens and indexes.
+The same ER entities and ownership rules remain in use.
 Executable SQL and course examples: [database/README.md](../database/README.md).
 Use snake_case identifiers, BIGINT identity keys, NUMERIC for
 mass, and TIMESTAMPTZ for times. Preserve the original eight entities; extensions
@@ -47,11 +49,11 @@ evidence. Sessions/outbox maintenance can use targeted cleanup rules.
 | `receiver_profiles` | `user_id` PK/FK users, `capacity_kg` numeric(8,2) CHECK >0; per-claim maximum, not simultaneous warehouse inventory |
 | `food_listings` | `listing_id` PK, `donor_id` FK users, `zone_id` FK zones (immutable snapshot), `food_type` varchar(80), `category` Veg/NonVeg, `quantity_kg` numeric(8,2) CHECK >0, `prepared_at`, `expiry_window_start`, `expiry_window_end`, `pickup_lat` numeric(9,6), `pickup_long` numeric(9,6), generated `pickup_location` geography(Point,4326), `status`, `created_at`, `updated_at` |
 | `claims` | `claim_id` PK, `listing_id` FK listings, `receiver_id` FK users, `claimed_at`, `status` Confirmed/Cancelled/Expired/Completed, `ended_at` nullable, `cancellation_reason` nullable; Pending deferred because acceptance is synchronous |
-| `pickups` | `(claim_id, pickup_id)` composite PK with claim FK, `pickup_id` identity partial key, `volunteer_id` FK users, `scheduled_time`, `actual_pickup_time` nullable, `delivery_time` nullable, `ended_at` nullable, `status` Scheduled/PickedUp/Delivered/Missed/Cancelled/Failed, `reason` nullable |
+| `pickups` | `(claim_id, pickup_id)` composite PK with claim FK, `pickup_id` identity partial key, `volunteer_id` FK users, `scheduled_time`, `accepted_at`, `actual_pickup_time` nullable, `delivery_time` nullable, `ended_at` nullable, `status` Scheduled/PickedUp/Delivered/Missed/Cancelled/Failed, `reason` nullable |
 | `ratings` | `rating_id` PK, `claim_id` FK claims, `rater_id` FK users, `target_user_id` FK users, `score` smallint CHECK 1..5, `comments` varchar(300) nullable, `created_at`; CHECK rater != target; UNIQUE(claim_id,rater_id,target_user_id) |
 | `trust_ledger` | `ledger_id` PK, `user_id` FK users, `sequence` bigint, `action_type` varchar(40), `ref_table` varchar(40), `ref_id` bigint, `claim_id` nullable FK claims, `occurred_at`, `payload` jsonb, `payload_version` integer, `prev_hash` char(64), `curr_hash` char(64); UNIQUE(user_id,sequence) |
 | `notifications` | `notification_id` PK, `user_id` FK users, `event_id` text, `message` varchar(200), `type` varchar(30), `created_at`, `sent_at` nullable, `read_at` nullable; UNIQUE(user_id,event_id) |
-| `notification_outbox` | `outbox_id` PK, `notification_id` FK notifications, `channel` InApp/SMS/Push, `status` Pending/Processing/Sent/Failed, `attempts` integer, `next_attempt_at`, `locked_until` nullable, `last_error` nullable (redacted); UNIQUE(notification_id,channel) |
+| `notification_outbox` | `outbox_id` PK, `notification_id` FK notifications, `channel` InApp/SMS/Push, `status` Pending/Processing/Sent/Failed, `attempts` integer, `next_attempt_at`, `locked_until` nullable, `lease_token` uuid nullable, `last_error` nullable (redacted); UNIQUE(notification_id,channel) |
 | `sessions` | `session_hash` PK, `user_id` FK users, `csrf_hash` nullable for old sessions, `created_at`, `expires_at`, `revoked_at` nullable; no raw session/CSRF values persisted; old sessions without CSRF digest cannot write |
 | `idempotency_keys` | `(actor_id, operation, key)` composite PK, actor FK users, `request_hash`, `response_status`, `response_body` jsonb, `created_at`, `expires_at`; same key/body returns original result; mismatched body conflicts |
 | `seed_runs` | `seed_name` PK, fixture SHA-256, UTC anchor, `created_at`; records repeatable synthetic imports |
@@ -195,3 +197,17 @@ Technical references: [locks](https://www.postgresql.org/docs/17/explicit-lockin
 [partial indexes](https://www.postgresql.org/docs/17/indexes-partial.html),
 [geography filtering](https://postgis.net/docs/ST_DWithin.html),
 [RLS](https://www.postgresql.org/docs/17/ddl-rowsecurity.html).
+
+## Revision 0003 operations
+
+`dbthon_command` accepts a fixed allowlist of listing/claim/pickup/rating/read commands.
+The runtime has EXECUTE, not arbitrary DML. Request fingerprints and actor/operation/key
+locks serialize retries; authorization is repeated after sorted domain/user locks,
+including the participant's required role on rating replays. Worker-owned routines
+find at most 100 due listings and commit each separately; notification leasing uses
+SKIP LOCKED, 30-second UUID leases and five attempts. `accepted_at` records real volunteer
+acceptance for participation reporting, independently of scheduled collection time.
+Pending leases survive worker restarts. Retry delay is bounded exponential, up to an
+hour; final failures remain inspectable in the outbox. No SMS/Push row is marked sent
+without an external adapter. Idempotency records retain results for at least 24 hours;
+pruning old retry rows is an operational follow-up, not performed by a user request.

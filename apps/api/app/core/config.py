@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     database_url: SecretStr | None = None
     app_database_url: SecretStr | None = None
     auth_database_url: SecretStr | None = None
+    worker_database_url: SecretStr | None = None
+    worker_interval_seconds: int = Field(default=5, ge=1, le=60)
     allowed_origins: list[str] = [
         "http://127.0.0.1:5173",
         "http://localhost:5173",
@@ -26,6 +28,12 @@ class Settings(BaseSettings):
     postgres_password: SecretStr | None = None
     postgres_host: str = "127.0.0.1"
     postgres_port: int = Field(default=5432, ge=1, le=65535)
+    db_auth_user: str = "dbthon_identity"
+    db_auth_password: SecretStr | None = None
+    db_runtime_user: str = "dbthon_app"
+    db_runtime_password: SecretStr | None = None
+    db_worker_user: str = "dbthon_jobs"
+    db_worker_password: SecretStr | None = None
 
     @field_validator("allowed_origins")
     @classmethod
@@ -49,13 +57,39 @@ class Settings(BaseSettings):
         return origins
 
     def restricted_url(self, purpose: str) -> URL | None:
-        value = self.auth_database_url if purpose == "auth" else self.app_database_url
-        if value is None or not value.get_secret_value():
+        value = {
+            "auth": self.auth_database_url,
+            "runtime": self.app_database_url,
+            "worker": self.worker_database_url,
+        }.get(purpose)
+        if value is not None and value.get_secret_value():
+            url = make_url(value.get_secret_value())
+            if url.get_backend_name() != "postgresql":
+                raise ValueError("The application requires PostgreSQL.")
+            return self._driver_url(url)
+        user, password = {
+            "auth": (self.db_auth_user, self.db_auth_password),
+            "runtime": (self.db_runtime_user, self.db_runtime_password),
+            "worker": (self.db_worker_user, self.db_worker_password),
+        }.get(purpose, ("", None))
+        if not self.postgres_host or not password or not password.get_secret_value():
             return None
-        url = make_url(value.get_secret_value())
-        if url.get_backend_name() != "postgresql":
-            raise ValueError("The application requires PostgreSQL.")
-        return url.set(drivername="postgresql+psycopg")
+        return self._driver_url(
+            URL.create(
+                "postgresql",
+                username=user,
+                password=password.get_secret_value(),
+                host=self.postgres_host,
+                port=self.postgres_port,
+                database=self.postgres_db,
+            )
+        )
+
+    def _driver_url(self, url: URL) -> URL:
+        url = url.set(drivername="postgresql+psycopg")
+        if self.app_env == "production":
+            url = url.update_query_dict({"sslmode": "require"})
+        return url
 
     @model_validator(mode="after")
     def production_origins(self) -> Self:
@@ -70,14 +104,16 @@ class Settings(BaseSettings):
             url = make_url(self.database_url.get_secret_value())
             if url.get_backend_name() != "postgresql":
                 raise ValueError("The application requires PostgreSQL.")
-            return url.set(drivername="postgresql+psycopg")
+            return self._driver_url(url)
         if not self.postgres_password or not self.postgres_password.get_secret_value():
             return None
-        return URL.create(
-            "postgresql+psycopg",
-            username=self.postgres_user,
-            password=self.postgres_password.get_secret_value(),
-            host=self.postgres_host,
-            port=self.postgres_port,
-            database=self.postgres_db,
+        return self._driver_url(
+            URL.create(
+                "postgresql",
+                username=self.postgres_user,
+                password=self.postgres_password.get_secret_value(),
+                host=self.postgres_host,
+                port=self.postgres_port,
+                database=self.postgres_db,
+            )
         )

@@ -15,7 +15,8 @@ Candidate feed eligibility: `Available`, `expiry_window_start <= clock_timestamp
 `expiry_window_end > clock_timestamp()`, same zone, distance within radius, quantity
 <= receiver capacity, donor active/verified. Use geography ST_DWithin in metres;
 calculate exact distance on the filtered candidates. Default radius 5,000 m, maximum
-25,000 m. Rank `expiry_window_end ASC`, then `distance_m ASC`, then `listing_id ASC`.
+5,000 m. This matches the guarded claim and alert radius; broader discovery is
+deferred rather than advertising listings that the actor cannot claim. Rank `expiry_window_end ASC`, then `distance_m ASC`, then `listing_id ASC`.
 This reproducible lexicographic rule resolves the unspecified ranking weights.
 Volunteer task matching uses confirmed claim, deadline and same-zone proximity.
 
@@ -71,7 +72,7 @@ claimed_at <= actual_pickup_time <= delivery_time < expiry_window_end.
 
 Scheduled attempt can be cancelled by its volunteer before pickup; claim remains
 Confirmed and task reopens if time permits. A scheduled attempt not picked up within
-a configurable 15-minute grace is Missed, allowing a replacement attempt while the
+a 15-minute grace (fixed prototype policy) is Missed, allowing a replacement attempt while the
 claim remains valid. At expiry, scheduled attempts become Missed, active claims and
 listings become Expired. A PickedUp attempt passing expiry becomes Failed and claim/
 listing Expired. Preserve actual pickup time and failure reason; do not count it as
@@ -99,7 +100,8 @@ external delivery statuses are distinct.
 
 ## Impact definitions
 
-Date range is half-open `[from,to)` in UTC; frontend labels local timezone.
+Date range is half-open `[from,to)` in UTC; report date inputs and exports label UTC.
+Other workflow timestamps display the device timezone.
 
 | Metric | Definition |
 | --- | --- |
@@ -109,7 +111,7 @@ Date range is half-open `[from,to)` in UTC; frontend labels local timezone.
 | Delivered kg | Sum one quantity per listing with successful delivery in range; retry joins cannot duplicate it |
 | Estimated meals-equivalent | Delivered kg / configured 0.4 kg per meal; display estimate and factor; source picked-up equivalent can be a separate labelled column |
 | Estimated CO2e avoided | Delivered kg * configured kgCO2e/kg; null plus missing-factor note until a supported factor is supplied |
-| Participation | Distinct active donors/receivers/volunteers involved in events in range; multi-role people count once within each role |
+| Participation | Distinct donors with listing creation/state-update in range; receivers with claim/ending/actual-pickup in range; volunteers with acceptance/pickup/delivery/ending in range. Each role is counted once per row; do not sum daily counts as unique people |
 | Average time-to-claim | Average successful claimed_at-created_at in seconds; report sample count and chosen range on claimed_at |
 
 Do not present meal-equivalent as observed meals served or estimates as measured
