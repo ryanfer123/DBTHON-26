@@ -64,6 +64,10 @@ extensions: route-backed receiver/volunteer descriptions, loading/error/retry st
 and mobile stacking. Browser plugin absent; used Playwright with installed Chrome.
 Current tests are foundation evidence, not T01-T12 domain completion or TRL validation.
 Remote CI configuration exists; a passing hosted run has not been verified.
+GitHub main was verified at P02 commit `f36fdde42a4a71f97e85346b5f7ea7aab887f6fa`
+after pushing P01 and P02. Hosted Actions status could not be read: `gh` is absent
+and the unauthenticated Actions API returned 404. Local results below are confirmed;
+no hosted CI success is claimed.
 
 P01 commit: `62d7cda`. Exported that commit into a clean directory, installed both
 locked dependency sets offline from caches, passed six backend tests and the web
@@ -71,6 +75,8 @@ production build, started API/web on separate ports, and observed 200 responses
 for readiness, community and the web page. Temporary processes were stopped.
 
 ## P02 implementation and observed checks
+
+Implementation commit: `f36fdde`.
 
 - Alembic revision `0001`, original eight entities and seven extensions, PostGIS/
   pgcrypto, partial allocation indexes, composite pickups, spatial/FK indexes.
