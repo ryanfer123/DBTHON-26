@@ -384,6 +384,25 @@
         "title": "SessionResponse",
         "type": "object"
       },
+      "SessionSnapshotResponse": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "SessionSnapshotResponse",
+        "type": "object"
+      },
       "UserData": {
         "properties": {
           "active": {
@@ -926,6 +945,28 @@
           }
         },
         "summary": "Register",
+        "tags": [
+          "Identity"
+        ]
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "description": "Anonymous is a normal UI state; protected endpoints still require an actor.",
+        "operationId": "session_snapshot_api_v1_auth_session_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionSnapshotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Session Snapshot",
         "tags": [
           "Identity"
         ]

@@ -2,7 +2,8 @@
 
 Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P03 complete.
 Public apps, schema/claims/audit foundation and identity/admin APIs run. Listing,
-delivery and connected account/workflow screens remain unfinished.
+delivery and their workflow screens remain unfinished. Connected account/admin
+screens now work, implementing the identity portion of P09 ahead of its other gates.
 
 Publication authorization: on 2026-10-05 the user explicitly approved pushing the
 complete handoff to GitHub, including the original PDF, extracted brief, student
@@ -142,10 +143,64 @@ its process environment. Readiness/zones returned 200; the temporary API was sto
 | Ruff / strict mypy / OpenAPI | Passed; generated contract includes only implemented public/identity routes |
 | Web lint/types/unit/build and desktop/mobile browser regression | Passed; 4 web + 4 browser tests |
 
-Current UI remains the welcome/community screen. These checks complete P03/T01 and
+At the P03 checkpoint the UI was the welcome/community screen. These checks complete P03/T01 and
 the identity portion of T02; permissions on future redistribution/report endpoints
 and full T12 browser workflow remain to implement. Hosted CI remains unverified.
 Reproduction and header/session policy: [IDENTITY.md](IDENTITY.md).
+
+## Connected account UI and working controls
+
+At the user's request, improved the existing Second Table design and connected all
+rendered account/admin actions. No schema revision or package dependency was added.
+
+- Welcome primary action now opens registration; role links preselect donor,
+  receiver or volunteer. Header links reach the correct home sections from other
+  pages. Account-aware navigation, readable labels, focus states and mobile forms.
+- Registration uses paginated live zones, multiple requested roles, conditional
+  receiver capacity, manual/geolocation coordinates and explicit success/sign-in.
+- Secure session restoration, login/logout, editable persisted profile, actual area
+  names, role approval status and refresh. No passwords/tokens in browser storage.
+- Admin member filtering/pagination, expandable reviews, selected-role replacement
+  and revocation with a required reason; backend zone/role enforcement retained.
+- GET `/auth/session` provides nullable anonymous state without routine browser
+  errors; authenticated DTO matches login, private/no-store. Expired/revoked/inactive
+  sessions return null, while dependency failure is not treated as anonymous.
+- Browser harness isolates writes in dbthon_browser_test, preserves demo/backend
+  test databases, and uses an ephemeral synthetic admin password. No shared login
+  or fake domain data appears in frontend source.
+
+Observed checks: 66 backend tests (10 unit + 56 PostgreSQL/API), seven Vitest tests,
+Ruff/strict mypy/OpenAPI drift and web ESLint/TypeScript/production build passed.
+All eight Playwright checks passed against the real isolated API/database on
+desktop/mobile: registration, password visibility, location, login, persisted profile,
+direct-route guards, selected-role approval, revocation, logout, status refresh,
+cross-page anchors and retry paths. No browser application errors or horizontal
+overflow were observed. Final live welcome captures also had empty error/warning
+lists at 1505x1045 and 390x844. `view_image` comparison against the retained design
+covered palette, fonts, columns, timeline, controls, band, navigation and mobile
+forms. Intentional account-entry/copy extensions and comparison details are in
+[the design ledger](design/README.md). Total: 81 passing backend/component/browser
+checks. Hosted CI remains unverified.
+
+| Reproduction command | Observed result |
+| --- | --- |
+| `apps/api/.venv/bin/python -m pytest apps/api/tests --db -q` | 66 passed; resets only dbthon_test |
+| `apps/api/.venv/bin/ruff check apps/api scripts/browser_test_server.py` | Passed |
+| `apps/api/.venv/bin/mypy --config-file apps/api/pyproject.toml apps/api/app` | Passed |
+| `apps/api/.venv/bin/python scripts/export_openapi.py --check` | Passed |
+| From apps/web: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` | Passed; seven component tests |
+| From apps/web: `npm run test:e2e` | Eight passed in isolated dbthon_browser_test |
+| `python3 scripts/validate_handoff.py` and `git diff --check` | Passed |
+| `apps/api/.venv/bin/python scripts/database.py verify` | Original demo ledger: 20 valid entries; preserved |
+
+Fixed a browser-discovered sign-out/route-guard race; logout and home navigation
+now change together. A review-status test selector was narrowed to distinguish
+the saved notice from the concurrently loading list.
+
+P09 remains partial: listing/claim/delivery, inbox, trust and report screens cannot
+be implemented against completed domain APIs yet. The UI renders working account
+actions without inactive controls, seeded food counters or simulated success.
+Full T12 claim-to-delivery and external notification evidence remain outstanding.
 
 ## Next work
 

@@ -39,6 +39,7 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | POST `/auth/login` | email, password | 200 safe user DTO + Set-Cookie session; rate-limit failures |
 | POST `/auth/logout` | CSRF token | 204 revoke session and clear cookie |
 | GET `/auth/me` | session cookie | `data.user` self profile + `data.csrf_token`; private/no-store |
+| GET `/auth/session` | optional session cookie | UI session snapshot; same safe DTO/CSRF for active sessions, `data: null` for anonymous/malformed/expired/revoked/inactive sessions; private/no-store; database failure remains 503 |
 | PATCH `/auth/me` | name, phone, latitude, longitude, capacity_kg | Self; zone/role changes require verification workflow; ledger event |
 | GET `/admin/users` | zone_id, verification filter, cursor | Approved zone Admin only |
 | POST `/admin/users/{id}/verify` | requested public roles to approve, verified boolean, reason | Scoped Admin; replace public-role approvals; revocation uses empty roles; 200 safe profile; no Admin grants |

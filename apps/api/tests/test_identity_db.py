@@ -141,6 +141,9 @@ def test_login_cookie_session_hash_csrf_and_logout_revocation(identity):
     token = client.cookies.get(SESSION_COOKIE)
     assert "password_hash" not in result.text and token not in result.text
     assert client.get("/api/v1/auth/me").json()["data"]["user"]["user_id"] == 102
+    snapshot = client.get("/api/v1/auth/session")
+    assert snapshot.status_code == 200 and snapshot.json() == result.json()
+    assert snapshot.headers["cache-control"] == "private, no-store"
     with db.connect() as c:
         session = c.execute(
             text("SELECT session_hash,csrf_hash FROM sessions WHERE user_id=102")
@@ -150,8 +153,10 @@ def test_login_cookie_session_hash_csrf_and_logout_revocation(identity):
         )
     assert client.post("/api/v1/auth/logout").status_code == 204
     assert client.get("/api/v1/auth/me").status_code == 401
+    assert client.get("/api/v1/auth/session").json() == {"data": None}
     client.cookies.set(SESSION_COOKIE, token, path="/api/v1")
     assert client.get("/api/v1/auth/me").status_code == 401
+    assert client.get("/api/v1/auth/session").json() == {"data": None}
     with db.connect() as c:
         assert (
             verify(
@@ -203,10 +208,12 @@ def test_expired_session_and_inactive_user_are_denied(identity):
             )
         )
     assert client.get("/api/v1/auth/me").status_code == 401
+    assert client.get("/api/v1/auth/session").json() == {"data": None}
     sign_in(client, password)
     with db.begin() as c:
         c.execute(text("UPDATE users SET active=false WHERE user_id=102"))
     assert client.get("/api/v1/auth/me").status_code == 401
+    assert client.get("/api/v1/auth/session").json() == {"data": None}
     assert (
         client.post(
             "/api/v1/auth/login",

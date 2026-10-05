@@ -35,3 +35,35 @@ community role tabs; no fake metrics, photos, decorative badges or unrelated con
 The tool returned the retained 1505x1045 concept. Responsive layout is an intentional
 extension of the same design system. Functional and screenshot comparison evidence
 is recorded in STATUS.md after verification.
+
+## Account UI extension and final comparison (2026-10-05)
+
+The user requested better UI and working controls. This extends the existing design
+system with functional account forms rather than changing the visual direction;
+the skill's existing-design-system exception applies. The retained concept above
+remains the reference for welcome layout, typography and palette. Forms/admin
+lists are necessary additions for the already implemented identity APIs.
+
+Inspected the concept and latest live browser captures with `view_image` in the
+same final QA pass. Captures used Playwright/installed Chrome at native 1505x1045
+and mobile 390x844 viewports, with full-page screenshots for longer forms.
+Browser plugin was absent; attempted built-in IAB also returned unavailable.
+
+| Comparison point | Reference / observed render | Resolution |
+| --- | --- | --- |
+| Palette | White page, forest text/actions, sage community strip, orange steps | Retained exact shared CSS tokens; no tint, gradient or raster UI |
+| Typography | Georgia headline/wordmark, Arial body, two headline lines | Retained fonts/scale and prevented accidental headline wrapping; explicit form/control sizes |
+| Layout | Open two-column hero/timeline and full-width community band | Retained desktop columns, timeline positions, shared container and footer; added role CTA increases band height intentionally |
+| Navigation | Original two home-section links | Added sign-in/account destination; corrected section URLs from account pages; compact mobile header stays readable |
+| Actions/copy | Original primary “See how it works” | Intentionally promoted “Join your community” and kept the original as secondary; added real per-role registration links |
+| Account states | New API-backed surface required by request | Open two-column sign-in/register; sage profile summary; structured admin rows and expandable review form using the same tokens |
+| Responsive/focus | Mobile stacking is an existing extension | Inspected registration/profile/admin and welcome at 390px; visible focus/labels, readable long contacts and zero horizontal overflow |
+
+Above-the-fold copy diff: headline, introduction, timeline and footer preserved.
+Intentional additions are sign-in/account navigation and account-entry CTA; the
+original explanatory CTA becomes secondary. Role signup links and account/admin
+copy are functional extensions, not claims of implemented food redistribution.
+No unexplained added copy, invented metrics, placeholder inputs, or inactive domain
+buttons remain. The retained design was faithfully verified with these recorded
+extensions; no material visual mismatch remains. Temporary QA captures stay outside
+Git and are removed after inspection; this ledger records durable evidence.

@@ -9,8 +9,9 @@ collect and deliver it, and administrators inspect accountability and impact.
 
 The public application and database foundation run: FastAPI, React, versioned
 PostgreSQL/PostGIS schema, synthetic seeding, guarded claims and independent ledger
-verification. Registration, sessions and admin verification APIs work.
-**Listing/delivery APIs and connected account/workflow screens remain unfinished.**
+verification. Registration, sessions, editable profiles and zone-admin verification
+work through connected, responsive account screens.
+**Food listing, claim and delivery screens/APIs remain unfinished.**
 See [current status](docs/STATUS.md).
 
 ## Begin implementation
@@ -49,6 +50,8 @@ make dev
 ```
 
 Open `http://127.0.0.1:5173`. The frontend calls the API through Vite's `/api` proxy.
+Use **Join your community** to register, **Sign in** to access `/account`, and
+**Review community members** from an approved admin account to open `/admin`.
 API documentation is at `http://127.0.0.1:8000/api/docs`. `make setup` creates an
 ignored `.env` with an unprinted random local database password, preserving existing
 configuration. Prerequisites and other working commands: [development](docs/DEVELOPMENT.md).

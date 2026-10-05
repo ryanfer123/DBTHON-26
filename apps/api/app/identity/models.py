@@ -123,6 +123,10 @@ class SessionResponse(BaseModel):
     data: SessionData
 
 
+class SessionSnapshotResponse(BaseModel):
+    data: SessionData | None
+
+
 class PageMeta(BaseModel):
     next_cursor: int | None
 

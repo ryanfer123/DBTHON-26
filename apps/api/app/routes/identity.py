@@ -17,6 +17,7 @@ from app.identity.models import (
     RoleData,
     SessionData,
     SessionResponse,
+    SessionSnapshotResponse,
     UserData,
     UserResponse,
     UsersResponse,
@@ -135,6 +136,25 @@ def me(request: Request) -> SessionResponse:
             user=service.user_data(c, uid), csrf_token=csrf_token(session_token(request))
         )
     return SessionResponse(data=data)
+
+
+@router.get("/auth/session", response_model=SessionSnapshotResponse)
+def session_snapshot(request: Request) -> SessionSnapshotResponse:
+    """Anonymous is a normal UI state; protected endpoints still require an actor."""
+    try:
+        token = session_token(request)
+    except DomainError as error:
+        if error.status != 401:
+            raise
+        return SessionSnapshotResponse(data=None)
+    access: Access = request.app.state.access
+    with access.transaction("runtime", digest(token)) as c:
+        uid = c.execute(text("SELECT dbthon_actor_id()")).scalar_one()
+        if uid is None:
+            return SessionSnapshotResponse(data=None)
+        return SessionSnapshotResponse(
+            data=SessionData(user=service.user_data(c, uid), csrf_token=csrf_token(token))
+        )
 
 
 @router.patch("/auth/me", response_model=UserResponse)

@@ -2,8 +2,29 @@
 
 P03 implements registration, login/logout, self-profile reads/updates, zone listing,
 zone-admin user listing and requested-role verification. Alembic revision `0002`
-extends `0001`; no published baseline was rewritten. Connected account screens
-arrive in P09; the public welcome screen remains the current frontend.
+extends `0001`; no published baseline was rewritten. Connected registration,
+sign-in, profile and admin-review screens now use these APIs. Food redistribution
+screens and notification delivery remain later P04-P09 work.
+
+## Browser flows
+
+`/register` loads database-backed community areas, supports multiple public roles,
+requires capacity for receivers and accepts manual coordinates or browser location.
+Role links on the welcome page preselect the requested role. Registration success
+opens `/sign-in` with the email and confirmation only; the password is not retained.
+
+`/account` shows actual pending/approved roles and community area, updates permitted
+profile fields, refreshes verification and signs out server-side. Approved admins
+can open `/admin`, filter same-zone members and submit requested-role approvals or
+revocation with a required reason. Anonymous direct account/admin URLs go to sign-in;
+non-admin direct admin URLs return to the account. Server authorization remains
+mandatory. There are no simulated listings, impact counters or inactive domain CTAs.
+
+The frontend keeps the CSRF token in memory and uses the HttpOnly session cookie.
+GET `/auth/session` returns the normal anonymous state as `data: null`, avoiding
+expected 401 console errors on public pages. Valid-cookie snapshots consult the
+restricted database pool; dependency failures remain errors. GET `/auth/me` and
+protected mutations still return 401 for an absent/invalid session.
 
 ## Configure local access
 

@@ -47,7 +47,20 @@ def test_openapi_lists_only_implemented_endpoints():
             "/api/v1/auth/register",
             "/api/v1/auth/login",
             "/api/v1/auth/me",
+            "/api/v1/auth/session",
             "/api/v1/auth/logout",
             "/api/v1/admin/users",
             "/api/v1/admin/users/{user_id}/verify",
         }
+
+
+def test_anonymous_session_snapshot_is_normal_and_private():
+    with TestClient(create_app(Settings(_env_file=None, postgres_password=None))) as client:
+        result = client.get("/api/v1/auth/session")
+        assert result.status_code == 200 and result.json() == {"data": None}
+        assert result.headers["cache-control"] == "private, no-store"
+        client.cookies.set("dbthon_session", "malformed", path="/api/v1")
+        assert client.get("/api/v1/auth/session").json() == {"data": None}
+        # A plausible cookie must be checked; missing DB configuration is not signed-out.
+        client.cookies.set("dbthon_session", "a" * 43, path="/api/v1")
+        assert client.get("/api/v1/auth/session").status_code == 503

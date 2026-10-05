@@ -19,7 +19,9 @@ Copy this prompt into the coding session with this repository open:
 ## First concrete task
 
 P01-P03 are complete: public apps, migrations, scoped database access, guarded claims,
-fixtures/verifier and identity/admin APIs pass real PostgreSQL checks. Start P04:
+fixtures/verifier and identity/admin APIs pass real PostgreSQL checks. Responsive
+account and admin-review screens also work; P09's domain screens remain unfinished.
+Start P04:
 listing CRUD, geo-temporal/capacity feed, safe donor projections, urgency ordering and
 deadline fields. Use `app.routes.identity.context` and the existing restricted pools;
 preserve session-derived identity, CSRF, sorted locks and atomic audit/outbox writes.

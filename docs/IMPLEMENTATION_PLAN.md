@@ -1,7 +1,8 @@
 # Ordered implementation plan
 
 P01-P03 are complete; P04-P12 remain unfinished. Identity/admin APIs and guarded SQL
-claims work; listing/delivery APIs and connected workflow screens remain unfinished.
+claims work; account/admin screens are connected. Listing/delivery APIs and their
+workflow screens remain unfinished.
 Execute dependencies in order; use [STATUS.md](STATUS.md)
 to resume. Each task must update requirement coverage and record actual checks.
 
@@ -62,6 +63,10 @@ to resume. Each task must update requirement coverage and record actual checks.
   otherwise document FR08 external delivery as blocked/partial. Gate: T12 end-to-end
   browser workflow plus lint/typecheck/build; T10 adapter/retry tests. No claim of
   external delivery without provider receipt/observed device evidence.
+  Account portion implemented ahead of dependency completion at the user's request:
+  registration/sign-in, profiles, verification review/revocation and responsive
+  error/retry states use P03 APIs. P09 stays unchecked until redistribution and
+  notification acceptance gates pass; see STATUS.md for observed browser checks.
 - [ ] **P10 - Admin analytics and export.** Depends P06/P08/P09. Scoped zone/city/date
   dashboards, picked-up/delivered distinction, factor-labelled estimates, exports
   and latency/participation counts. Gate: T11/T02 pass; source/fixture totals reconcile;

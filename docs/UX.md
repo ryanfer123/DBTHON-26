@@ -5,6 +5,11 @@ approved capabilities; hiding a control is not a substitute for server authoriza
 Multi-role people can switch views without another account. The product must show
 plain task language rather than implementation terms such as row locks or SQL.
 
+Implemented now: public welcome/role navigation, `/register`, `/sign-in`, `/account`
+and `/admin` verification. Forms use real identity APIs, empty initial inputs,
+database-backed area labels, pending/approved roles and recoverable request errors.
+The remaining rows below are acceptance targets, not rendered placeholder screens.
+
 | Screen | Required information and actions |
 | --- | --- |
 | Registration/login | Role selection, zone, contact, coordinates, receiver capacity; verification pending notice; no Admin public option |

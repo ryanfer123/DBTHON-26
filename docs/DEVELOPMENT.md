@@ -36,18 +36,28 @@ make openapi
 make db-test
 ```
 
-Backend checks: Ruff, strict mypy, nine unit tests and 56 opt-in PostgreSQL checks.
-Frontend checks: ESLint,
-TypeScript, four Vitest tests, production build. Browser tests exercise the real
-API and DB readiness, role selection/keyboard/refresh, failure/retry and no horizontal
-overflow on desktop/mobile. They require a running Docker database and installed
-Google Chrome locally; Playwright starts API/web if ports are free. CI installs
-Playwright Chromium and runs a disposable PostGIS service.
+Backend checks: Ruff, strict mypy, ten unit tests and 56 opt-in PostgreSQL checks.
+Frontend checks: ESLint, TypeScript, seven Vitest tests and production build.
+Eight desktop/mobile browser checks exercise real registration, login, profile
+persistence, admin approval/revocation, session guards, location, failure/retry and
+public navigation. They require local PostgreSQL and installed Google Chrome;
+CI installs Playwright Chromium and runs a disposable PostGIS service.
+
+`make e2e` starts fresh API/web servers on ports 8001/5174 using
+`scripts/browser_test_server.py`. It creates/resets **only dbthon_browser_test**,
+migrates/imports synthetic fixtures, and enables fixture admin 104 using an ephemeral
+in-memory password shared with test workers. It reuses the configured restricted
+login memberships, with their connection databases changed to the isolated DB.
+`dbthon` and `dbthon_test` are untouched. Do not point another app at the browser DB
+while this suite runs. Keep ports 8001/5174 free; tests never reuse another server.
+Browser output defaults to `/tmp/dbthon-browser-results`, overridable with
+DBTHON_E2E_OUTPUT. Traces are disabled because forms contain test passwords;
+screenshots contain only synthetic test contacts and are outside Git.
 
 The Browser plugin was not available in this session, so verification used Playwright
 with installed Chrome. Native concept viewport: 1505x1045; mobile: 390x844. Current
-screen is a public introduction; identity APIs work, while connected account screens
-and listing/delivery workflows remain unfinished.
+screen includes connected account/admin flows; listing/delivery workflows remain
+unfinished. Built-in IAB was also checked and reported unavailable.
 
 `docs/openapi.json` describes only implemented routes. `make openapi` regenerates
 it; `uv run --project apps/api python scripts/export_openapi.py --check` detects drift.

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { loadCommunity } from '../../lib/community'
 import type { Community, RoleId } from '../../lib/community'
 
@@ -62,7 +62,7 @@ export function CommunityPanel() {
           {state.data.roles.map(item => <div
             key={item.id} className="role-panel" id={`panel-${item.id}`} role="tabpanel"
             aria-labelledby={`tab-${item.id}`} hidden={selected !== item.id} tabIndex={0}
-          ><p>{item.description}</p></div>)}
+          ><p>{item.description}</p><Link className="text-link role-join" to={`/register?role=${item.id}`}>Join as a {item.id} <span aria-hidden="true">→</span></Link></div>)}
         </>}
       </div>
     </section>

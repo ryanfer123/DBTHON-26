@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router'
+import { Link, NavLink } from 'react-router'
+import { useAuth } from '../features/identity/AuthContext'
 
 export function PageShell({ children }: { children: ReactNode }) {
+  const { session } = useAuth()
   return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
@@ -9,8 +11,9 @@ export function PageShell({ children }: { children: ReactNode }) {
         <div className="container header-content">
           <Link to="/" className="wordmark" aria-label="Second Table home">Second Table</Link>
           <nav aria-label="Main navigation">
-            <a href="#how-it-works">How it works</a>
-            <a href="#community">Our community</a>
+            <Link to="/#how-it-works">How it works</Link>
+            <Link to="/#community">Our community</Link>
+            <NavLink className="nav-account" to={session ? '/account' : '/sign-in'}>{session ? 'Your account' : 'Sign in'}</NavLink>
           </nav>
         </div>
       </header>

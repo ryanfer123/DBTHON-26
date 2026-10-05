@@ -25,7 +25,8 @@ design decisions differ, preserve the source and document the reason for the cha
 
 The repository has a runnable API/public welcome foundation (P01) and tested
 database/seed/claim/ledger foundation (P02), and tested identity/admin APIs (P03).
-Listing/delivery APIs and connected account/workflow screens still need implementation.
+Responsive registration, sign-in, profile and admin-review screens are connected.
+Listing/delivery APIs and their workflow screens still need implementation.
 When asked to
 implement, take the first unfinished task in
 the plan, complete its acceptance criteria, and continue within the requested scope.

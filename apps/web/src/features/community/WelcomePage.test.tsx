@@ -16,9 +16,9 @@ function mount(path = '/') {
 
 describe('public community flow', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true, json: async () => ({ data: { name: 'Second Table', roles } }),
-    }))
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(async path => String(path).endsWith('/auth/session')
+      ? { ok: true, status: 200, json: async () => ({ data: null }) }
+      : { ok: true, json: async () => ({ data: { name: 'Second Table', roles } }) }))
   })
 
   it('switches between API-provided role descriptions with keyboard navigation', async () => {
@@ -29,7 +29,7 @@ describe('public community flow', () => {
     await userEvent.keyboard('{ArrowRight}')
     expect(screen.getByRole('tab', { name: 'Volunteers' })).toHaveFocus()
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Collect and deliver food nearby.')
-    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(fetch).mock.calls.filter(([path]) => String(path).endsWith('/community'))).toHaveLength(1)
   })
 
   it('restores a role from its direct URL', async () => {
@@ -39,7 +39,12 @@ describe('public community flow', () => {
   })
 
   it('shows a recoverable failure instead of presenting offline content as live', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('offline'))
+    const original = vi.mocked(fetch).getMockImplementation()!
+    let offline = true
+    vi.mocked(fetch).mockImplementation((...args) => {
+      if (String(args[0]).endsWith('/community') && offline) { offline = false; return Promise.reject(new Error('offline')) }
+      return original(...args)
+    })
     mount()
     expect(await screen.findByRole('alert')).toHaveTextContent('couldn’t load')
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }))

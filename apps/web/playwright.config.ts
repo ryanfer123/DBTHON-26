@@ -1,11 +1,17 @@
 import { defineConfig, devices } from '@playwright/test'
+import { randomBytes } from 'node:crypto'
+
+// Shared only with the isolated test-server process and workers; never saved in Git.
+process.env.DBTHON_E2E_PASSWORD ??= randomBytes(24).toString('hex')
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
+  outputDir: process.env.DBTHON_E2E_OUTPUT ?? '/tmp/dbthon-browser-results',
   use: {
-    baseURL: 'http://127.0.0.1:5173',
-    trace: 'retain-on-failure',
+    baseURL: 'http://127.0.0.1:5174',
+    trace: 'off', // Account forms contain credentials; capture screenshots only.
     // Reuse installed Chrome locally; CI installs Playwright's Chromium.
     channel: process.env.CI ? undefined : 'chrome',
   },
@@ -15,10 +21,11 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: '../api/.venv/bin/uvicorn app.main:app --app-dir ../api --host 127.0.0.1 --port 8000',
-      url: 'http://127.0.0.1:8000/api/v1/health/live',
-      reuseExistingServer: !process.env.CI,
+      command: '../api/.venv/bin/python ../../scripts/browser_test_server.py',
+      url: 'http://127.0.0.1:8001/api/v1/health/ready',
+      reuseExistingServer: false,
     },
-    { command: 'npm run dev', url: 'http://127.0.0.1:5173', reuseExistingServer: !process.env.CI },
+    { command: 'npm run dev -- --port 5174', url: 'http://127.0.0.1:5174', reuseExistingServer: false,
+      env: { DBTHON_API_PROXY: 'http://127.0.0.1:8001' } },
   ],
 })
