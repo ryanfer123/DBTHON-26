@@ -1,0 +1,37 @@
+import { expect, test } from '@playwright/test'
+
+test('public screen uses the real API and its role navigation survives refresh', async ({ page, request }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  const community = await request.get('/api/v1/community')
+  expect(community.ok()).toBeTruthy()
+  expect((await community.json()).data.roles).toHaveLength(3)
+  const readiness = await request.get('/api/v1/health/ready')
+  expect(readiness.status()).toBe(200)
+  expect((await readiness.json()).data.status).toBe('ready')
+  await page.goto('/')
+  await expect(page).toHaveTitle('Second Table · Food shared locally')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Good food.Better shared.')
+  await expect(page.getByRole('tab', { name: 'Donors' })).toHaveAttribute('aria-selected', 'true')
+  await page.getByRole('tab', { name: 'Receivers' }).click()
+  await expect(page).toHaveURL('/community/receiver')
+  await expect(page.getByRole('tabpanel')).toContainText('fits your capacity')
+  await page.reload()
+  await expect(page.getByRole('tab', { name: 'Receivers' })).toHaveAttribute('aria-selected', 'true')
+  await page.getByRole('tab', { name: 'Volunteers' }).click()
+  await expect(page.getByRole('tabpanel')).toContainText('Help close the distance.')
+  await page.getByRole('link', { name: 'See how it works' }).click()
+  await expect(page).toHaveURL(/#how-it-works$/)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+  expect(errors).toEqual([])
+})
+
+test('offline community request can be retried', async ({ page }) => {
+  await page.route('**/api/v1/community', route => route.fulfill({ status: 503, body: '{}' }))
+  await page.goto('/')
+  await expect(page.getByRole('alert')).toContainText('couldn’t load')
+  await page.unroute('**/api/v1/community')
+  await page.getByRole('button', { name: 'Try again' }).click()
+  await expect(page.getByRole('tab', { name: 'Donors' })).toBeVisible()
+})

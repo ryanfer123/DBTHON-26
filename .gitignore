@@ -25,3 +25,7 @@ data/private/
 data/generated/
 *.pem
 *.key
+playwright-report/
+test-results/
+*.tsbuildinfo
+.cache/

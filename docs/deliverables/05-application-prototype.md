@@ -7,4 +7,5 @@ Append fresh-clone installation/start commands, migration/seed commands, role
 workflow screenshots, API export and a recorded end-to-end demo. Explain which
 features work and which external integrations remain partial.
 
-Status: no application exists yet. Do not imply README directories are runnable apps.
+Status: P01 public foundation runs with verified starter tests; account and
+redistribution workflows remain unfinished. See STATUS.md for observed evidence.

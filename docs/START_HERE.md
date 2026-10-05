@@ -18,9 +18,9 @@ Copy this prompt into the coding session with this repository open:
 
 ## First concrete task
 
-P01: scaffold `apps/api/` and `apps/web/`, pin dependencies and lockfiles, add an API
-health endpoint and web shell, document development commands, and prove both start.
-Then P02 implements migrations, invariants, indexes, and deterministic fixture seeding.
+P01 is complete: the API and public web screen run with locked dependencies and
+passing starter checks. Start P02: implement migrations, invariants, indexes,
+runtime roles/RLS and deterministic fixture seeding against the running PostGIS DB.
 Do not jump to dashboard visuals before the concurrency-critical database workflow.
 
 ## Resume a later session

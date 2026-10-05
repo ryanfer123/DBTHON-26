@@ -1,12 +1,12 @@
 # Ordered implementation plan
 
-All tasks below are unfinished. The repository initialization is a completed handoff,
-not a completed prototype. Execute dependencies in order; use [STATUS.md](STATUS.md)
+P01's runnable foundation is complete; P02-P12 remain unfinished. The repository
+does not yet contain a transactional prototype. Execute dependencies in order; use [STATUS.md](STATUS.md)
 to resume. Each task must update requirement coverage and record actual checks.
 
 ## Milestone 1: runnable foundation and correct database
 
-- [ ] **P01 - Scaffold and developer workflow.** Create FastAPI and React/Vite apps
+- [x] **P01 - Scaffold and developer workflow.** Create FastAPI and React/Vite apps
   in the prepared directories; dependency manifests/lockfiles; formatting/linting;
   health/readiness endpoints; frontend shell and API proxy; backend/web test setup.
   Add documented `dev`, `lint`, `typecheck`, `test`, `build` commands and CI jobs.

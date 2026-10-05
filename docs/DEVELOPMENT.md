@@ -1,63 +1,72 @@
-# Developer setup and command status
+# Developer setup and working commands
 
-## Available now
+P01 is implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
+uv, Node 22.13+ and npm, Docker Engine/Desktop with Compose v2.
 
-Only Python 3.12+ is needed to validate the handoff; the checker uses the standard
-library and does not need package installation or network access.
-
-```sh
-python3 scripts/validate_handoff.py
-```
-
-For the optional database configuration use Docker Engine/Desktop and Compose v2:
+## Start locally
 
 ```sh
-cp .env.example .env
-# Supply POSTGRES_PASSWORD in the local ignored .env.
-docker compose config --quiet
-docker compose up -d db
-docker compose exec db psql -U dbthon -d dbthon -c 'SELECT PostGIS_Version();'
-docker compose down
+make setup
+make install
+make db-up
+make dev
 ```
 
-Compose binds only localhost and persists a named volume. Changing `.env` values
-does not update credentials in an already initialized volume. `down` preserves data;
-only use volume deletion on an explicitly disposable local database. The Compose
-user is a bootstrap owner, not the eventual restricted API runtime identity.
-No schema/seeding/application startup is configured yet.
+`make setup` creates an ignored mode-0600 `.env` with a random database password,
+without printing it. Existing `.env` is preserved. `make install` uses committed
+uv.lock and package-lock.json. `make dev` starts both apps and stops them on Ctrl+C.
+The frontend is `http://127.0.0.1:5173`; API docs are
+`http://127.0.0.1:8000/api/docs`. Vite proxies `/api` to port 8000.
 
-Upstream `postgis/postgis:17-3.5` advertises amd64 support and uses the PostgreSQL
-17 volume path `/var/lib/postgresql/data`. Compose requests amd64 explicitly so an
-Apple Silicon machine can use emulation. Validate actual runtime support at P01/P02.
-References: [upstream image](https://github.com/postgis/docker-postgis),
-[Compose interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/).
+To start each process independently use `make api-dev` and `make web-dev`.
+`make db-down` stops PostgreSQL without deleting its named volume. Changing local
+credentials does not update an already initialized volume; preserve the existing
+configuration. Compose only installs PostgreSQL/PostGIS, not the application schema.
+The Compose bootstrap owner is not the future restricted API runtime identity.
 
-## Commands P01/P02 must add
+## Verification
 
-These are the target conventions, **not working commands yet**:
+```sh
+make check lint typecheck test build
+make e2e
+make openapi
+```
 
-| Area | Target command / prerequisite |
-| --- | --- |
-| Backend install | `uv sync --project apps/api` after pyproject.toml and uv.lock exist |
-| API server | From apps/api: `uv run uvicorn app.main:app --reload --port 8000` |
-| Migrations | From apps/api: `uv run alembic upgrade head` after Alembic setup exists |
-| Fixture import | From apps/api: `uv run python -m app.seed --fixture ../../data/fixtures/demo.json --anchor-now` after importer exists |
-| Backend tests | From apps/api: `uv run pytest` with dedicated PostgreSQL test database |
-| Frontend install | From apps/web: `npm ci` after package.json and package-lock.json exist |
-| Frontend dev | From apps/web: `npm run dev` with `/api` proxy to port 8000 |
-| Frontend checks | `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` |
-| Browser E2E | Chosen browser runner against seeded app; document exact command in P09 |
-| Worker | From apps/api: `uv run python -m app.worker` after worker exists |
+Backend checks: Ruff, strict mypy, six pytest tests. Frontend checks: ESLint,
+TypeScript, four Vitest tests, production build. Browser tests exercise the real
+API and DB readiness, role selection/keyboard/refresh, failure/retry and no horizontal
+overflow on desktop/mobile. They require a running Docker database and installed
+Google Chrome locally; Playwright starts API/web if ports are free. CI installs
+Playwright Chromium and runs a disposable PostGIS service.
 
-Choose a supported Python runtime (default 3.12+) and Node LTS at scaffold time;
-record exact versions/lockfiles in the repository. Do not assume the host Python
-version matches dependency support. Use dedicated test resources; never run cleanup
-tests against a deployment database. Every command added must be exercised and its
-actual result recorded in STATUS.md.
+The Browser plugin was not available in this session, so verification used Playwright
+with installed Chrome. Native concept viewport: 1505x1045; mobile: 390x844. Current
+screen is a public introduction; auth/listing/delivery workflows are not implemented.
 
-## Git on this initialization machine
+`docs/openapi.json` describes only implemented routes. `make openapi` regenerates
+it; `uv run --project apps/api python scripts/export_openapi.py --check` detects drift.
+`GET /api/v1/health/live` returns 200 when the process is alive.
+`GET /api/v1/health/ready` requires a real PostgreSQL/PostGIS response and returns
+503 with a safe error and request ID if configuration/dependency is unavailable.
 
-The `/usr/bin/git` launcher is blocked by an Xcode license check on this host.
-The installed direct binary `/Library/Developer/CommandLineTools/usr/bin/git` worked
-for cloning and can perform repository operations without changing system settings.
-This path is a local convenience, not a project prerequisite on other machines.
+## Commands still to add in P02+
+
+- Alembic migrations and `alembic upgrade head`.
+- A fixture importer supporting fixed UTC anchors and `--anchor-now`.
+- A notification/expiry worker invocation.
+- PostgreSQL domain, concurrency, RLS and ledger test commands.
+
+Use dedicated disposable test resources; never run resets against a deployment DB.
+The existing fixture is not automatically imported, and no source requirement is
+considered fulfilled by the welcome screen alone.
+
+## Platform notes
+
+The upstream PostGIS image advertises amd64 and the PostgreSQL 17 volume path
+`/var/lib/postgresql/data`; Compose explicitly requests amd64 for Apple Silicon
+emulation. Local execution verified PostgreSQL 17.5 and PostGIS 3.5.
+If the host Git launcher is blocked by an Xcode-license check, the direct installed
+`/Library/Developer/CommandLineTools/usr/bin/git` worked during initialization.
+
+References: [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/),
+[Vite guide](https://vite.dev/guide/), [PostGIS image](https://github.com/postgis/docker-postgis).

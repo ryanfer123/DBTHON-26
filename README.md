@@ -7,9 +7,10 @@ Aritra Ghosh (24BCE0598), aligned with T5/T6 Waste & Circular Economy and Health
 & Well-being. Verified donors list safe surplus, receivers claim it once, volunteers
 collect and deliver it, and administrators inspect accountability and impact.
 
-This repository currently contains a complete implementation handoff and local
-database infrastructure configuration. **Application code and database migrations
-are still to be implemented.** See [current status](docs/STATUS.md).
+The first implementation milestone is running: a FastAPI foundation, React welcome
+screen and PostgreSQL/PostGIS database, with locked dependencies and automated checks.
+**Registration, schema migrations and redistribution workflows remain unfinished.**
+See [current status](docs/STATUS.md).
 
 ## Begin implementation
 
@@ -17,7 +18,7 @@ are still to be implemented.** See [current status](docs/STATUS.md).
 2. Read the [project brief](docs/PROJECT_BRIEF.md), [requirements](docs/REQUIREMENTS.md),
    and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 3. Use [START_HERE.md](docs/START_HERE.md) as the next coding-session prompt.
-4. Start at task P01; acceptance criteria and dependencies are already documented.
+4. Start at task P02; acceptance criteria and dependencies are already documented.
 
 ## What is included
 
@@ -35,26 +36,29 @@ are still to be implemented.** See [current status](docs/STATUS.md).
 | Tests and course evidence templates | [Testing plan](docs/TESTING.md), [deliverables](docs/deliverables/README.md) |
 | Local prerequisites and commands | [Development](docs/DEVELOPMENT.md) |
 
-## Commands available now
+## Run locally
 
 ```sh
-python3 scripts/validate_handoff.py
-make check
+make setup
+make install
+make db-up
+make dev
 ```
 
-Optional database-only setup, after configuring a local `.env`:
+Open `http://127.0.0.1:5173`. The frontend calls the API through Vite's `/api` proxy.
+API documentation is at `http://127.0.0.1:8000/api/docs`. `make setup` creates an
+ignored `.env` with an unprinted random local database password, preserving existing
+configuration. Prerequisites and other working commands: [development](docs/DEVELOPMENT.md).
+
+Checks:
 
 ```sh
-cp .env.example .env
-# Fill POSTGRES_PASSWORD locally; do not commit .env.
-docker compose config --quiet
-docker compose up -d db
-docker compose exec db psql -U dbthon -d dbthon -c 'SELECT PostGIS_Version();'
-docker compose down
+make check lint typecheck test build
+make e2e
 ```
 
-Compose starts only PostgreSQL/PostGIS. It does not install a schema, seed the data,
-or start an application. Docker execution has not been verified during this handoff.
+Compose starts PostgreSQL/PostGIS. It does not yet install a schema or seed the data.
+Local startup and real API readiness have been verified.
 The selected image is amd64, so Compose explicitly requests emulation on Apple
 Silicon; see the [upstream image documentation](https://github.com/postgis/docker-postgis).
 
@@ -63,8 +67,9 @@ Silicon; see the [upstream image documentation](https://github.com/postgis/docke
 The source PDF defines the project. Architecture and lifecycle refinements are
 explicitly labelled in the decision record. Fixtures are synthetic, not collected
 donor/NGO data. The supplied brief contains research claims that need source
-verification before public presentation. No real interviews, pilot, application
-tests, notification-provider integration, or TRL validation has been completed here.
+verification before public presentation. No real interviews, pilot, notification-provider
+integration, or TRL validation has been completed here. Starter application tests pass;
+domain tests await P02+.
 
 Repository: [ryanfer123/DBTHON-26](https://github.com/ryanfer123/DBTHON-26).
 No software license was supplied; adding one is an owner decision.

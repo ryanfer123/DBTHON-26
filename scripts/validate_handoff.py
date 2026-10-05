@@ -7,6 +7,7 @@ from collections import Counter
 from decimal import Decimal
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -56,8 +57,14 @@ def check_links_and_coverage() -> None:
                 "docs/decisions/0001-prototype-design.md", "data/README.md", "compose.yaml"]
     for path in required:
         require((ROOT / path).is_file(), f"Missing handoff file: {path}")
-    for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts or path.name == "brief-extracted.md":
+    ignored = {".git", ".venv", "node_modules", "dist", "build", "artifacts", "tmp",
+               "playwright-report", "test-results", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+    markdown = []
+    for directory, children, files in os.walk(ROOT):
+        children[:] = [name for name in children if name not in ignored]
+        markdown.extend(Path(directory) / name for name in files if name.endswith(".md"))
+    for path in markdown:
+        if path.name == "brief-extracted.md":
             continue
         text = path.read_text(encoding="utf-8")
         # These handoff links use simple relative paths; external URLs are skipped.

@@ -2,8 +2,8 @@
 
 Read [AGENTS.md](AGENTS.md), [current status](docs/STATUS.md), and the
 [implementation plan](docs/IMPLEMENTATION_PLAN.md). Begin with the first unfinished
-task, not an assumed previous milestone. The initial repository is a handoff package;
-apps/api and apps/web are reserved locations rather than runnable applications.
+task, not an assumed previous milestone. P01 now runs in apps/api and apps/web;
+the database/domain tasks remain unfinished.
 
 Before a PR, run `python3 scripts/validate_handoff.py` and any actual application
 checks added for the task. Describe the concrete behavior, requirement/task IDs,

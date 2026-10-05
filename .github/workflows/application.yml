@@ -1,0 +1,68 @@
+name: Application checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: '3.13'
+          cache-dependency-glob: apps/api/uv.lock
+      - run: uv sync --project apps/api --locked
+      - run: uv run --project apps/api --locked ruff check apps/api
+      - run: uv run --project apps/api --locked mypy --config-file apps/api/pyproject.toml apps/api/app
+      - run: uv run --project apps/api --locked pytest apps/api/tests
+      - run: uv run --project apps/api --locked python scripts/export_openapi.py --check
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --prefix apps/web
+      - run: npm run lint --prefix apps/web
+      - run: npm run typecheck --prefix apps/web
+      - run: npm test --prefix apps/web
+      - run: npm run build --prefix apps/web
+  browser:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: dbthon
+      POSTGRES_DB: dbthon
+      POSTGRES_PASSWORD: dbthon-ci-only
+    services:
+      db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: dbthon
+          POSTGRES_DB: dbthon
+          POSTGRES_PASSWORD: dbthon-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dbthon -d dbthon"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: '3.13'
+          cache-dependency-glob: apps/api/uv.lock
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: uv sync --project apps/api --locked
+      - run: npm ci --prefix apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm run test:e2e --prefix apps/web

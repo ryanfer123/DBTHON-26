@@ -23,8 +23,9 @@ design decisions differ, preserve the source and document the reason for the cha
 
 ## Authorized scope and current state
 
-The initial setup preserves context and prepares implementation; it does not contain
-a working application. When asked to implement, take the first unfinished task in
+The repository now has a runnable API/public welcome foundation (P01). Account,
+listing and redistribution workflows still need implementation. When asked to
+implement, take the first unfinished task in
 the plan, complete its acceptance criteria, and continue within the requested scope.
 Use the documented defaults without asking again about routine technical choices.
 Ask for input only when a missing decision blocks correctness or an external action

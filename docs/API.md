@@ -1,6 +1,8 @@
 # REST API contract to implement
 
-Base path `/api/v1`. This is a target contract; no endpoints are implemented yet.
+Base path `/api/v1`. Most of this is a target contract. P01 implements the two health
+endpoints and public `GET /community` introduction; all domain/auth routes below
+remain unimplemented. The actual generated contract is [openapi.json](openapi.json).
 IDs are integers; mass is a decimal string in kg; distance is metres; timestamps are
 RFC3339 UTC strings. Session auth and CSRF behavior: [architecture](ARCHITECTURE.md).
 All endpoints validate approved roles, zone and object ownership server-side.
@@ -29,6 +31,7 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | --- | --- | --- |
 | GET `/health/live` | none | Public process health; no sensitive dependency details |
 | GET `/health/ready` | none | Database readiness; 503 when unavailable |
+| GET `/community` | none | Public role descriptions for the welcome screen; implemented in P01 |
 | GET `/zones` | city optional, pagination | Public zone names/city only |
 | POST `/auth/register` | name, email, phone, password, roles (Donor/Receiver/Volunteer), zone_id, latitude, longitude, capacity_kg if Receiver | 201 unverified user; never accept approved/admin flags |
 | POST `/auth/login` | email, password | 200 safe user DTO + Set-Cookie session; rate-limit failures |
