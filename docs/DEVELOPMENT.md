@@ -1,6 +1,6 @@
 # Developer setup and working commands
 
-P01 is implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
+P01-P02 are implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
 uv, Node 22.13+ and npm, Docker Engine/Desktop with Compose v2.
 
 ## Start locally
@@ -9,6 +9,7 @@ uv, Node 22.13+ and npm, Docker Engine/Desktop with Compose v2.
 make setup
 make install
 make db-up
+make migrate
 make dev
 ```
 
@@ -21,7 +22,7 @@ The frontend is `http://127.0.0.1:5173`; API docs are
 To start each process independently use `make api-dev` and `make web-dev`.
 `make db-down` stops PostgreSQL without deleting its named volume. Changing local
 credentials does not update an already initialized volume; preserve the existing
-configuration. Compose only installs PostgreSQL/PostGIS, not the application schema.
+configuration. Compose installs PostgreSQL/PostGIS; `make migrate` applies revision 0001.
 The Compose bootstrap owner is not the future restricted API runtime identity.
 
 ## Verification
@@ -30,9 +31,11 @@ The Compose bootstrap owner is not the future restricted API runtime identity.
 make check lint typecheck test build
 make e2e
 make openapi
+make db-test
 ```
 
-Backend checks: Ruff, strict mypy, six pytest tests. Frontend checks: ESLint,
+Backend checks: Ruff, strict mypy, seven unit tests and 33 opt-in PostgreSQL checks.
+Frontend checks: ESLint,
 TypeScript, four Vitest tests, production build. Browser tests exercise the real
 API and DB readiness, role selection/keyboard/refresh, failure/retry and no horizontal
 overflow on desktop/mobile. They require a running Docker database and installed
@@ -49,12 +52,30 @@ it; `uv run --project apps/api python scripts/export_openapi.py --check` detects
 `GET /api/v1/health/ready` requires a real PostgreSQL/PostGIS response and returns
 503 with a safe error and request ID if configuration/dependency is unavailable.
 
-## Commands still to add in P02+
+## Database commands and test isolation
 
-- Alembic migrations and `alembic upgrade head`.
-- A fixture importer supporting fixed UTC anchors and `--anchor-now`.
-- A notification/expiry worker invocation.
-- PostgreSQL domain, concurrency, RLS and ledger test commands.
+```sh
+make migrate
+make seed ANCHOR=2026-10-05T12:00:00Z
+make ledger-verify
+make db-test
+```
+
+Seed supports an explicit UTC anchor, or `make seed` selects the current time.
+Retain that timestamp for repeat imports: same anchor/hash is a no-op; a different
+anchor fails without changing existing records. Import requires empty application
+tables. Synthetic account hashes are disabled; login setup arrives in P03.
+
+`make db-test` creates/uses the fixed `dbthon_test` database, migrates it and clears
+only its application tables for each case. It leaves the local demo DB untouched.
+`make test` runs unit/web checks and skips PostgreSQL tests unless `--db` is supplied.
+`make reset-test` is destructive and refuses database names without a `_test` suffix;
+configure POSTGRES_DB=dbthon_test only for a disposable test resource. It downgrades
+and upgrades application artifacts, preserving extensions and cluster roles.
+
+The API still uses bootstrap connectivity for health only. P03 adds restricted
+auth/runtime request connections. Do not deploy using the Compose owner account.
+Notification/expiry worker invocation and user-facing domain routes remain to add.
 
 Use dedicated disposable test resources; never run resets against a deployment DB.
 The existing fixture is not automatically imported, and no source requirement is
@@ -67,6 +88,10 @@ The upstream PostGIS image advertises amd64 and the PostgreSQL 17 volume path
 emulation. Local execution verified PostgreSQL 17.5 and PostGIS 3.5.
 If the host Git launcher is blocked by an Xcode-license check, the direct installed
 `/Library/Developer/CommandLineTools/usr/bin/git` worked during initialization.
+The direct `/Library/Developer/CommandLineTools/usr/bin/make` also worked when the
+system Make launcher hit the same license gate.
+Restricted environments can set UV_CACHE_DIR and npm's --cache to a writable
+temporary directory; lockfiles must remain authoritative.
 
 References: [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/),
 [Vite guide](https://vite.dev/guide/), [PostGIS image](https://github.com/postgis/docker-postgis).

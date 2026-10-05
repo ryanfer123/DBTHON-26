@@ -53,7 +53,7 @@
       "title": "Ranked matching and atomic claiming",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "partial",
       "tasks": [
         "P04",
         "P05"
@@ -62,7 +62,9 @@
         "T05",
         "T06"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Guarded SQL claim verified; ranked HTTP feed and idempotent API remain P04/P05.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR05",
@@ -98,7 +100,7 @@
       "title": "Hash-linked audit ledger",
       "source_pdf_page": 6,
       "source_section": "4.2",
-      "status": "not_implemented",
+      "status": "partial",
       "tasks": [
         "P05",
         "P06",
@@ -108,7 +110,9 @@
       "tests": [
         "T09"
       ],
-      "spec": "docs/REQUIREMENTS.md"
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Canonical serialized append and independent verifier implemented; remaining domain events await P03-P08.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "FR08",
@@ -160,8 +164,10 @@
       "id": "NFR01",
       "title": "ACID integrity",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Claim transaction, rollback and uniqueness verified on PostgreSQL; remaining writes await later milestones.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR02",
@@ -181,15 +187,19 @@
       "id": "NFR04",
       "title": "Security and privacy",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Database RLS, column grants and session-derived actor checks verified; HTTP authentication/CSRF remain P03.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR05",
       "title": "Auditability",
       "source_pdf_page": 6,
-      "status": "not_implemented",
-      "spec": "docs/REQUIREMENTS.md"
+      "status": "partial",
+      "spec": "docs/REQUIREMENTS.md",
+      "implementation_note": "Independent ledger checks and tamper detection verified; full workflow evidence remains P11.",
+      "evidence": "docs/STATUS.md"
     },
     {
       "id": "NFR06",

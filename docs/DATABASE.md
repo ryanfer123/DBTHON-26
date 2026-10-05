@@ -1,7 +1,9 @@
 # Database implementation specification
 
-Source schema: PDF pp. 8-11; examples pp. 11-13. This is the target design, **not an
-executed migration**. Use snake_case identifiers, BIGINT identity keys, NUMERIC for
+Source schema: PDF pp. 8-11; examples pp. 11-13. Baseline revision `0001` implements
+the schema and guarded claim foundation; later workflows remain specified below.
+Executable SQL and course examples: [database/README.md](../database/README.md).
+Use snake_case identifiers, BIGINT identity keys, NUMERIC for
 mass, and TIMESTAMPTZ for times. Preserve the original eight entities; extensions
 below resolve omissions in [ADR 0001](decisions/0001-prototype-design.md).
 
@@ -23,6 +25,8 @@ erDiagram
     USERS ||--o{ NOTIFICATIONS : receives
     USERS ||--o{ TRUST_LEDGER : chains
     USERS ||--o{ SESSIONS : authenticates
+    USERS ||--o{ IDEMPOTENCY_KEYS : retries
+    NOTIFICATIONS ||--o{ NOTIFICATION_OUTBOX : transports
 ```
 
 ## Data dictionary
@@ -46,6 +50,7 @@ evidence. Sessions/outbox maintenance can use targeted cleanup rules.
 | `notification_outbox` | `outbox_id` PK, `notification_id` FK notifications, `channel` InApp/SMS/Push, `status` Pending/Processing/Sent/Failed, `attempts` integer, `next_attempt_at`, `locked_until` nullable, `last_error` nullable (redacted); UNIQUE(notification_id,channel) |
 | `sessions` | `session_hash` PK, `user_id` FK users, `created_at`, `expires_at`, `revoked_at` nullable; no raw session value persisted |
 | `idempotency_keys` | `(actor_id, operation, key)` composite PK, actor FK users, `request_hash`, `response_status`, `response_body` jsonb, `created_at`, `expires_at`; same key/body returns original result; mismatched body conflicts |
+| `seed_runs` | `seed_name` PK, fixture SHA-256, UTC anchor, `created_at`; records repeatable synthetic imports |
 
 ## Constraints and indexes
 
@@ -93,7 +98,7 @@ before domain locks, consistently across all commands, and keep that lock class
 separate from domain/user locks. Do not acquire a new domain lock after user locks.
 
 1. Authenticate and parse the request outside the domain transaction.
-2. Begin; set local actor/zone context; acquire idempotency serialization if used.
+2. Begin; set local private session-hash context; acquire idempotency serialization if used.
 3. Lock listing with `SELECT ... FOR UPDATE`; lock related rows and actors as needed.
 4. Recheck authorization, verification, source state, and deadline using
    `clock_timestamp()` after any lock wait. PostgreSQL `now()` is transaction-start
@@ -145,6 +150,14 @@ columns/tables as well as rows. Claims/pickups visible only to participants and
 approved zone admins; listings visible to eligible zone participants; ratings follow
 transaction visibility; inbox and own ledger default to self only. Admin audit
 requires an approved scoped role. Test both direct SQL and API denial.
+
+The database resolves `app.session_hash` through the private sessions table. It
+ignores raw actor/zone settings, preventing runtime callers from impersonating a
+zone admin by setting a numeric ID. Auth issuance remains P03. Definer helpers
+belong to private NOLOGIN/BYPASSRLS `dbthon_guard`, with fixed search paths; runtime
+has no membership in that role or EXECUTE on private append/notification helpers.
+FORCE RLS can therefore query user/session data without recursive row policies.
+Never grant the guard role to a login. Restricted application logins remain P03.
 
 RLS context must use `SET LOCAL`/transaction-local `set_config` on every request so
 pooled connections cannot leak identities. Do not run permission tests as a superuser

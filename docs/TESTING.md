@@ -1,7 +1,8 @@
 # Validation plan and evidence requirements
 
-This is a plan; no application tests have run. Initial handoff checks are separate
-and reported in [STATUS.md](STATUS.md). Use fixed clock/fixtures for deterministic
+This defines full-prototype acceptance. P01-P02 foundation/database checks have run;
+observed evidence is in [STATUS.md](STATUS.md). Full T01-T12 completion remains pending.
+Use fixed clock/fixtures for deterministic
 logic; use real elapsed database time and real separate connections for lock tests.
 
 | Test ID | Test family | Required proof |

@@ -1,7 +1,8 @@
 # Ordered implementation plan
 
-P01's runnable foundation is complete; P02-P12 remain unfinished. The repository
-does not yet contain a transactional prototype. Execute dependencies in order; use [STATUS.md](STATUS.md)
+P01-P02 foundations are complete; P03-P12 remain unfinished. Guarded SQL claims
+work, while user-facing transaction workflows await authentication and APIs.
+Execute dependencies in order; use [STATUS.md](STATUS.md)
 to resume. Each task must update requirement coverage and record actual checks.
 
 ## Milestone 1: runnable foundation and correct database
@@ -13,7 +14,7 @@ to resume. Each task must update requirement coverage and record actual checks.
   Gate: fresh clone can install and start both apps, health responds, web renders,
   web typecheck/build and health test pass. Target files: apps/api, apps/web, Makefile,
   docs/DEVELOPMENT.md. No data mocks masquerading as a backend.
-- [ ] **P02 - Schema, programmability and seeds.** Depends P01. Add Alembic baseline
+- [x] **P02 - Schema, programmability and seeds.** Depends P01. Add Alembic baseline
   for all original entities and specified extensions, PostGIS, constraints/indexes,
   runtime roles/RLS, transition guards, views and a claim routine. Implement fixture
   importer rebased to a supplied clock and repeatable disposable DB reset. Include

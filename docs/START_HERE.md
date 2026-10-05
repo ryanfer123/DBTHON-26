@@ -18,10 +18,11 @@ Copy this prompt into the coding session with this repository open:
 
 ## First concrete task
 
-P01 is complete: the API and public web screen run with locked dependencies and
-passing starter checks. Start P02: implement migrations, invariants, indexes,
-runtime roles/RLS and deterministic fixture seeding against the running PostGIS DB.
-Do not jump to dashboard visuals before the concurrency-critical database workflow.
+P01-P02 are complete: public apps, migrations, scoped database access, guarded claims,
+fixture importer and ledger verifier pass real PostgreSQL checks. Start P03:
+Argon2id registration, session issuance/revocation, CSRF, capacity profiles, scoped
+admin verification and transaction-local runtime context. The database derives
+actor identity from a private session hash, never a client-supplied actor/zone ID.
 
 ## Resume a later session
 

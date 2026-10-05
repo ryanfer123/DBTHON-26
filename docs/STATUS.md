@@ -1,7 +1,8 @@
 # Implementation status and session handoff
 
-Updated: 2026-10-05 (Asia/Kolkata). Stage: P01 runnable foundation complete.
-Public API and frontend run; application schema and transactional workflows remain unfinished.
+Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P02 foundations complete.
+Public apps, schema, guarded SQL claims and audit verification run. Authentication
+and user-facing redistribution workflows remain unfinished.
 
 Publication authorization: on 2026-10-05 the user explicitly approved pushing the
 complete handoff to GitHub, including the original PDF, extracted brief, student
@@ -64,12 +65,47 @@ and mobile stacking. Browser plugin absent; used Playwright with installed Chrom
 Current tests are foundation evidence, not T01-T12 domain completion or TRL validation.
 Remote CI configuration exists; a passing hosted run has not been verified.
 
+P01 commit: `62d7cda`. Exported that commit into a clean directory, installed both
+locked dependency sets offline from caches, passed six backend tests and the web
+production build, started API/web on separate ports, and observed 200 responses
+for readiness, community and the web page. Temporary processes were stopped.
+
+## P02 implementation and observed checks
+
+- Alembic revision `0001`, original eight entities and seven extensions, PostGIS/
+  pgcrypto, partial allocation indexes, composite pickups, spatial/FK indexes.
+- FORCE RLS and column permissions; session-derived actor identity; private fixed-path
+  definer helpers; immutable ledger/transition triggers and guarded atomic claims.
+- Canonical Unicode SHA-256 append with sorted user locks; independent Python verifier.
+- Repeatable, transactional synthetic importer and explicitly disposable reset command.
+- Course JOIN/nested/aggregate/geo-query examples and updated ER/normalization mapping.
+
+| Check | Observed result |
+| --- | --- |
+| Empty local PostgreSQL migration | Revision 0001 applied; PostGIS 3.5 and pgcrypto present |
+| Same fixture/UTC anchor imported twice | First import adds data; second is a no-op; 20 users/12 listings/3 claims/4 pickups/2 ratings |
+| Independent fixture ledger verification | 20 entries valid; no hard-coded demo password |
+| `pytest apps/api/tests --db -q` | 40 passed: 7 unit and 33 real PostgreSQL checks |
+| Competing claim transactions | Exactly one allocation, two participant events, two pending outbox rows |
+| Actual PostgreSQL lock wait across expiry | Wait observed in pg_stat_activity; claim denied after release, no allocation |
+| Permission/RLS checks | Zone/participant isolation, pending/revoked actor denials, no hash/session reads or generic runtime writes |
+| Audit checks | SQL/Python Unicode bytes match; concurrent appends serialize; mutation/deletion rejected; modified export and missing chain prefix detected |
+| Fixture impact view | 14.00 kg picked up, 10.00 kg delivered, 25.00 estimated meals; zero-activity zones retained |
+| Ruff / strict mypy | Passed |
+| Disposable reset + re-migration | `POSTGRES_DB=dbthon_test python scripts/database.py reset-test` passed; full 40-check rerun passed |
+| Course SQL examples | All six result sets, including EXPLAIN ANALYZE, executed successfully |
+
+Database tests reset only `dbthon_test`; the seeded local `dbthon` is preserved.
+Historical synthetic transactions are bootstrap records, labelled by fixture-import
+events rather than claimed real-world activity. Full T01-T12 remain incomplete.
+The HTTP contract still has only public/health routes; auth, idempotency/cancellation,
+delivery, worker, reports and connected role screens remain later milestones.
+
 ## Next work
 
-**P02 is the first unfinished task:** versioned schema, constraints/indexes, guarded
-SQL routines, runtime roles/RLS, immutable trust events and repeatable fixture seeding.
-The local PostGIS service runs; no owner decision blocks database implementation.
-Follow with P03 authentication and verified role/zone access.
+**P03 is the first unfinished task:** Argon2id registration, sessions/revocation,
+CSRF, receiver capacity, zone-admin verification and restricted request connections.
+The local PostGIS service and schema run; no owner decision blocks implementation.
 Use [START_HERE.md](START_HERE.md) as the handoff prompt.
 
 ## Outstanding decisions / evidence

@@ -1,4 +1,4 @@
-.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down
+.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test
 
 check:
 	python3 scripts/validate_handoff.py
@@ -39,6 +39,21 @@ e2e:
 
 openapi:
 	uv run --project apps/api --locked python scripts/export_openapi.py
+
+migrate:
+	uv run --project apps/api --locked python scripts/database.py migrate
+
+seed:
+	uv run --project apps/api --locked python scripts/database.py seed $(if $(ANCHOR),--anchor $(ANCHOR),--anchor-now)
+
+db-test:
+	uv run --project apps/api --locked pytest apps/api/tests --db
+
+ledger-verify:
+	uv run --project apps/api --locked python scripts/database.py verify
+
+reset-test:
+	uv run --project apps/api --locked python scripts/database.py reset-test
 
 db-config:
 	docker compose config --quiet

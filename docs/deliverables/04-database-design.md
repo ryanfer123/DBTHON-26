@@ -11,4 +11,9 @@ triggers, views, row-lock race, indexes/EXPLAIN and RLS/grants tests.
 Record exact PostgreSQL/PostGIS versions, setup and execution commands, outputs,
 commit ID, screenshots where useful and differences from the illustrative PDF SQL.
 
-Status: specification prepared; migrations/SQL execution pending.
+Implemented foundation: Alembic `0001`, executable DDL/routines/guards/views/RLS in
+`database/0001_initial.sql`, importer in `apps/api/app/seed.py`, course queries in
+`database/examples.sql` and independent verifier in `apps/api/app/trust/verify.py`.
+PostgreSQL 17.5/PostGIS 3.5: migration/fixture totals and 33 real database checks pass;
+see [STATUS.md](../STATUS.md) for commands and limitations. Remaining authenticated
+workflows, worker and performance benchmark stay pending.

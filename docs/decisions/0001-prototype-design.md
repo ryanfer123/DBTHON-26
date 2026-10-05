@@ -1,6 +1,6 @@
 # ADR 0001: implementable prototype defaults
 
-Date: 2026-10-05. Status: adopted defaults for implementation; application unbuilt.
+Date: 2026-10-05. Status: adopted; public app and database foundation implemented.
 Source: PDF pp. 5-15. These choices are not quotations from the brief.
 
 | Gap / ambiguity | Adopted decision | Reason / alternative |
@@ -17,6 +17,7 @@ Source: PDF pp. 5-15. These choices are not quotations from the brief.
 | Chain links but no payload or concurrency rule | Per-user sequence, JSON payload, canonical SHA-256, serialized append | Prevents forks and permits independent verification. Global blockchain/network consensus is out of scope. |
 | Push/SMS FR vs later SMS roadmap | Durable in-app notifications first; provider adapter in P09 | External-channel FR remains partial until a real channel is configured/tested; no mock delivery claims. |
 | RLS described as hiding password hashes | RLS for row scope; restricted projection and response models for columns | Row policies alone cannot redact columns. |
+| Raw actor/zone settings can be forged by runtime SQL | Resolve actor from a private session-hash table; fixed-path definer helpers owned by NOLOGIN guard | Runtime cannot read sessions or mint them. P03 auth routines establish opaque session credentials; transaction-local context prevents pool leakage. |
 | PickedUp implies redistributed | Show picked-up kg and delivered kg separately | Preserve source report while avoiding 'meals served' claims for undelivered food. |
 | Zone partitions imply outage isolation | Logical zone scoping in one DB; physical isolation deferred | Shared DB is a shared availability dependency. Do not promise independent-zone uptime. |
 | Listing edit/cancel after claim unspecified | Only available listings editable; claimed cancellations use explicit coordinated transaction | Prevent quantity/location/safety window changes beneath an accepted claim. |

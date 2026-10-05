@@ -12,7 +12,11 @@ uv run ruff check .
 uv run mypy app
 ```
 
-Root `.env` configures connectivity; no schema exists until P02.
+Root `.env` configures connectivity. Run `make migrate` from the repo root to apply
+revision 0001, `make seed ANCHOR=<UTC ISO timestamp>` to import synthetic data,
+`make ledger-verify` to check hashes, and `make db-test` for real PostgreSQL tests.
+Database writes are currently guarded SQL routines; no authenticated HTTP workflow
+is implemented yet. Seeded account logins are disabled.
 Target [architecture](../../docs/ARCHITECTURE.md), [database](../../docs/DATABASE.md)
 and [API](../../docs/API.md) remain authoritative for unfinished domain features.
 Use real PostgreSQL for integration tests; SQLite is not supported.

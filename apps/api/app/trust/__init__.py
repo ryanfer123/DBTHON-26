@@ -1,0 +1,1 @@
+"""Independent trust-chain verification."""
