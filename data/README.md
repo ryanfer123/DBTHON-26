@@ -17,17 +17,18 @@ emails use `.invalid`, phone numbers use fictional 555 ranges, and coordinates a
 approximate hypothetical demo pickup points. This is not stakeholder evidence.
 
 Timestamps are **integer minute offsets from an import anchor**, not fixed dates.
-The future importer must accept a UTC `--anchor` or `--anchor-now`, materialize all
+The implemented importer accepts a UTC `--anchor` or `--anchor-now`, materializes all
 `*_offset_min` fields, and record the chosen anchor in demo/test evidence. Fixed
 offsets let the same fixture remain meaningful months later. Status consistency is
 defined at that anchor; live actions naturally change it afterward.
 
 No login passwords, session values, notifications marked as sent, or invented ledger
-hashes are supplied. The importer must require a locally supplied demo-password
-input or generate credentials for the disposable local environment, hash them, and
-avoid storing raw values in Git. Generate ledger events through the real append
-service, not by inserting fictitious chain rows. Match demo IDs through a stable
-seed mapping or preserve explicit IDs and advance identity sequences safely.
+hashes are supplied. P02 imports disabled account hashes; P03 must provide explicit
+local demo-password setup before any fixture account can log in. Avoid storing raw
+values in Git. The importer generates labelled fixture events through the real
+append routine, preserves explicit IDs and advances identity sequences safely.
+The same fixture hash and anchor is a no-op; changed anchors fail explicitly, and
+the first import refuses existing application data. See [commands](../docs/DEVELOPMENT.md).
 
 `expected_at_anchor` contains hand-computed baseline analytics and visible listing
 IDs for the primary receiver; use it for meaningful reconciliation tests. Listing

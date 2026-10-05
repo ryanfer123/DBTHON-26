@@ -47,8 +47,10 @@ Use Argon2id rather than inventing password hashing. Session IDs are random, sto
 as hashes, revoked on logout, and expire after a documented policy interval.
 
 The API uses a non-superuser, non-table-owner runtime database role. Each transaction
-sets local actor ID and approved zone context from authenticated server state, never
-from an untrusted body/header. FORCE RLS where applicable. Migration/seed and worker
+sets a transaction-local private session hash from the authenticated cookie. The
+database resolves the actor and zone from its own session/user tables and ignores
+raw actor/zone GUCs. Never accept a numeric impersonation context from a body/header.
+FORCE RLS where applicable. Migration/seed and worker
 roles have separate privileges; the worker has only the routines/tables it needs.
 An authenticated session itself is not proof of verified role eligibility.
 
