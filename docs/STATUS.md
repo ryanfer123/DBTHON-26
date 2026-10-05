@@ -110,6 +110,12 @@ screens remain later milestones.
 
 ## P03 implementation and observed checks
 
+Implementation commit `f3bd327a4c840b6ad5be54e1ff1a949248474945` was pushed and
+verified against GitHub main. A clean export of that commit installed its locked
+API dependencies offline, passed nine unit tests and the OpenAPI drift check,
+then started on a separate port with existing restricted URLs supplied through
+its process environment. Readiness/zones returned 200; the temporary API was stopped.
+
 - Revision `0002` adds session CSRF hashes, private auth-rate buckets/verification
   reviews and identity SQL routines; baseline `0001` is unchanged.
 - Separate real non-owner LOGIN roles/pools for auth/runtime, with fail-closed
