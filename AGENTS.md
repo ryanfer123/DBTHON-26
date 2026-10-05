@@ -24,7 +24,7 @@ design decisions differ, preserve the source and document the reason for the cha
 ## Authorized scope and current state
 
 P01-P10 core prototype workflows are implemented and connected to responsive role
-screens. Revision 0003 supplies guarded listing/claim/delivery/rating commands and
+screens, with a shared dashboard, role navigation, URL filters and help. Revision 0003 supplies guarded listing/claim/delivery/rating commands and
 restricted expiry/inbox worker routines. FR08 remains partial: external SMS/push is
 unconfigured. Start P11 for controlled-demo/10k-listing performance evidence; genuine
 stakeholder and pilot evidence belongs to P12.

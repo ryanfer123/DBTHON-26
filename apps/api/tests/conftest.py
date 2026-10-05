@@ -1,5 +1,6 @@
-"""Opt-in real database tests; reset only the fixed disposable dbthon_test database."""
+"""Opt-in real database tests; reset only an allowlisted disposable test database."""
 
+import os
 import secrets
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -32,10 +33,16 @@ def db_engine():
     url = Settings().connection_url()
     if url is None:
         pytest.fail("Configure local PostGIS before using --db")
-    test_url = url.set(database="dbthon_test")
+    name = os.environ.get("DBTHON_TEST_DATABASE", "dbthon_test")
+    if name not in {"dbthon_test", "dbthon_usability_test"}:
+        pytest.fail("Only the two named disposable test databases are allowed")
+    test_url = url.set(database=name)
     with create_engine(url, isolation_level="AUTOCOMMIT", hide_parameters=True).connect() as c:
-        if c.execute(text("SELECT 1 FROM pg_database WHERE datname='dbthon_test'")).first() is None:
-            c.execute(text("CREATE DATABASE dbthon_test"))
+        if (
+            c.execute(text("SELECT 1 FROM pg_database WHERE datname=:name"), {"name": name}).first()
+            is None
+        ):
+            c.execute(text(f'CREATE DATABASE "{name}"'))
     engine = create_engine(test_url, hide_parameters=True, pool_size=6)
     config = Config(str(ROOT / "apps/api/alembic.ini"))
     with engine.connect() as c:
@@ -49,7 +56,7 @@ def db_engine():
 @pytest.fixture
 def seeded_db(db_engine):
     # This fixture never receives a caller-selected database or schema.
-    assert db_engine.url.database == "dbthon_test"
+    assert db_engine.url.database in {"dbthon_test", "dbthon_usability_test"}
     with db_engine.begin() as c:
         c.execute(
             text("""

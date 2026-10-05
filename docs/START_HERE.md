@@ -18,7 +18,8 @@ Copy this prompt into the coding session with this repository open:
 
 ## First concrete task
 
-P01-P10 core workflows are implemented. Read STATUS.md for actual checks and known
+P01-P10 core workflows and the requested shared dashboard/navigation/help extension
+are implemented. Read STATUS.md for actual checks and known
 boundaries. Start P11: reproducible four-zone week simulation, a measured 10,000-listing
 API benchmark, controlled demo evidence and clean-clone reproduction of the expanded
 app. Preserve revision 0003, sorted locks, cookie/CSRF and the three restricted pools.

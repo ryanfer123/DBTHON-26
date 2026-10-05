@@ -3,6 +3,7 @@ import { useParams } from 'react-router'
 import { apiUrl } from '../../lib/identity'
 import { useAuth } from '../identity/AuthContext'
 import { date, params, useCommand, useQuery, type Impact, type Ledger, type Notification, type Rows, type Trust } from './data'
+import { useListLocation } from './useListLocation'
 import { Access, Feedback, Pagination, QueryStatus, Workspace } from './Workspace'
 
 function Message({ message, refresh }: { message: Notification; refresh: () => void }) {
@@ -12,15 +13,16 @@ function Message({ message, refresh }: { message: Notification; refresh: () => v
   </li>
 }
 export function InboxPage() {
-  const [unread, setUnread] = useState(false)
-  const [cursor, setCursor] = useState<string | number | null>(null)
+  const list = useListLocation()
+  const unread = list.value('unread') === 'true'
+  const { cursor, setCursor } = list
   const query = useQuery<Rows<Notification>>(`/notifications?${params({ unread_only: String(unread), cursor: cursor ?? 0 })}`)
   const { refresh } = query
   useEffect(() => { const timer = window.setInterval(refresh, 15000); return () => clearInterval(timer) }, [refresh])
   return <Workspace title="Your inbox" intro="Updates about your food-sharing community.">
-    <div className="workspace-toolbar"><label className="review-check"><input type="checkbox" checked={unread} onChange={event => { setUnread(event.target.checked); setCursor(null) }} />Unread only</label><button className="text-button" onClick={refresh} disabled={query.loading}>Refresh inbox</button></div>
+    <div className="workspace-toolbar"><label className="review-check"><input type="checkbox" checked={unread} onChange={event => { list.setFilters({ unread: String(event.target.checked) }) }} />Unread only</label><button className="text-button" onClick={refresh} disabled={query.loading}>Refresh inbox</button></div>
     <QueryStatus {...query} />{query.data && <><ul className="inbox-list">{query.data.data.map(message => <Message key={message.notification_id} message={message} refresh={refresh} />)}</ul>
-      {!query.data.data.length && <p className="list-message">{unread ? 'You’re all caught up.' : 'No delivered updates yet. New updates appear here after processing.'}</p>}<Pagination meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
+      {!query.data.data.length && <p className="list-message">{unread ? 'You’re all caught up.' : 'No delivered updates yet. New updates appear here after processing.'}</p>}<Pagination previous={list.previous} meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
     <p className="workspace-note">In-app updates refresh every 15 seconds.</p>
   </Workspace>
 }

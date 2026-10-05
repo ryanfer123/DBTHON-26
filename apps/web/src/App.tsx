@@ -11,6 +11,9 @@ import { AdminPage } from './features/identity/AdminPage'
 import { FoodDetailPage, FoodPage, ListingEditorPage } from './features/workflows/FoodPages'
 import { DeliveriesPage, ExchangeDetailPage, ExchangesPage } from './features/workflows/ExchangePages'
 import { ImpactPage, InboxPage, TrustPage } from './features/workflows/CommunityPages'
+import { DashboardPage } from './features/workflows/DashboardPage'
+import { HelpPage } from './features/workflows/HelpPage'
+import { OverviewProvider } from './features/workflows/OverviewProvider'
 import { Access } from './features/workflows/Workspace'
 
 function NavigationEffects() {
@@ -19,7 +22,7 @@ function NavigationEffects() {
     const frame = requestAnimationFrame(() => {
       if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
       else if (!pathname.startsWith('/community/')) window.scrollTo({ top: 0, behavior: 'instant' })
-      const titles: Record<string, string> = { '/register': 'Create account', '/sign-in': 'Sign in', '/account': 'Your account', '/admin': 'Community members', '/donations': 'My donations', '/donations/new': 'Share some food', '/food': 'Find nearby food', '/claims': 'My exchanges', '/deliveries': 'Your deliveries', '/inbox': 'Your inbox', '/trust': 'Your trust history', '/admin/exchanges': 'Review exchanges', '/admin/impact': 'Community impact' }
+      const titles: Record<string, string> = { '/dashboard': 'Your dashboard', '/help': 'Help', '/register': 'Create account', '/sign-in': 'Sign in', '/account': 'Your account', '/admin': 'Community members', '/donations': 'My donations', '/donations/new': 'Share some food', '/food': 'Find nearby food', '/claims': 'My exchanges', '/deliveries': 'Your deliveries', '/inbox': 'Your inbox', '/trust': 'Your trust history', '/admin/exchanges': 'Review exchanges', '/admin/impact': 'Community impact' }
       document.title = `${titles[pathname] ?? 'Second Table'} · Food shared locally`
     })
     return () => cancelAnimationFrame(frame)
@@ -29,11 +32,13 @@ function NavigationEffects() {
 
 export function App() {
   return (
-    <AuthProvider><NavigationEffects /><Routes>
+    <AuthProvider><OverviewProvider><NavigationEffects /><Routes>
       <Route path="/" element={<WelcomePage />} />
       <Route path="/community/:role" element={<WelcomePage />} />
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/dashboard" element={<AccountGate><DashboardPage /></AccountGate>} />
+      <Route path="/help" element={<AccountGate><HelpPage /></AccountGate>} />
       <Route path="/account" element={<AccountGate><ProfilePage /></AccountGate>} />
       <Route path="/admin" element={<AccountGate admin><AdminPage /></AccountGate>} />
       <Route path="/donations" element={<AccountGate><Access roles={['Donor']}><FoodPage own /></Access></AccountGate>} />
@@ -56,6 +61,6 @@ export function App() {
           <Link className="button" to="/">Back to Second Table</Link>
         </main></PageShell>
       } />
-    </Routes></AuthProvider>
+    </Routes></OverviewProvider></AuthProvider>
   )
 }

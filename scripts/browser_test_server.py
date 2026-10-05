@@ -36,14 +36,16 @@ def main() -> None:
     worker = settings.restricted_url("worker")
     if owner is None or runtime is None or auth is None or worker is None:
         raise SystemExit("Configure local PostgreSQL and run make db-access first.")
-    # This exact name is the only database this harness may create or reset.
-    name = "dbthon_browser_test"
+    # Only these explicitly allowlisted disposable databases may be created or reset.
+    name = os.environ.get("DBTHON_BROWSER_TEST_DATABASE", "dbthon_browser_test")
+    if name not in {"dbthon_browser_test", "dbthon_usability_browser_test"}:
+        raise SystemExit("Only the named disposable browser databases are allowed.")
     bootstrap = create_engine(owner, isolation_level="AUTOCOMMIT", hide_parameters=True)
     with bootstrap.connect() as c:
         if not c.execute(
             text("SELECT 1 FROM pg_database WHERE datname=:name"), {"name": name}
         ).first():
-            c.execute(text("CREATE DATABASE dbthon_browser_test"))
+            c.execute(text(f'CREATE DATABASE "{name}"'))
     bootstrap.dispose()
     engine = create_engine(owner.set(database=name), hide_parameters=True)
     config = Config(str(ROOT / "apps/api/alembic.ini"))

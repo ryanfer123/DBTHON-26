@@ -1234,6 +1234,131 @@
         "title": "NotificationsResponse",
         "type": "object"
       },
+      "OverviewData": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "summaries": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Summaries",
+            "type": "object"
+          },
+          "unread_count": {
+            "title": "Unread Count",
+            "type": "integer"
+          },
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/OverviewItem"
+            },
+            "title": "Upcoming",
+            "type": "array"
+          },
+          "updates": {
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            },
+            "title": "Updates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "capabilities",
+          "unread_count",
+          "summaries",
+          "upcoming",
+          "updates"
+        ],
+        "title": "OverviewData",
+        "type": "object"
+      },
+      "OverviewItem": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "title": "Claim Id",
+            "type": "integer"
+          },
+          "expiry_window_end": {
+            "format": "date-time",
+            "title": "Expiry Window End",
+            "type": "string"
+          },
+          "food_type": {
+            "title": "Food Type",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "exchange",
+              "delivery"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "pickup_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pickup Id"
+          },
+          "scheduled_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled Time"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "claim_id",
+          "food_type",
+          "status",
+          "expiry_window_end"
+        ],
+        "title": "OverviewItem",
+        "type": "object"
+      },
+      "OverviewResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/OverviewData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "OverviewResponse",
+        "type": "object"
+      },
       "PageMeta": {
         "properties": {
           "next_cursor": {
@@ -3425,6 +3550,23 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
           }
         ],
         "responses": {
@@ -3557,6 +3699,23 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
             }
           }
         ],
@@ -4197,6 +4356,27 @@
           }
         },
         "summary": "User Trust",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/workspace/overview": {
+      "get": {
+        "operationId": "workspace_overview_api_v1_workspace_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Workspace Overview",
         "tags": [
           "Redistribution"
         ]

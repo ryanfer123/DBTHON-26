@@ -12,7 +12,7 @@ export function AccountGate({ children, admin = false }: { children: ReactNode; 
       <p>{auth.error}</p><button className="button button-small" onClick={auth.refresh}>Try again</button>
     </div>}
   </main></PageShell>
-  if (!auth.session) return <Navigate to="/sign-in" state={{ from: location.pathname }} replace />
+  if (!auth.session) return <Navigate to="/sign-in" state={{ from: location.pathname + location.search }} replace />
   if (admin && !auth.session.user.capabilities.includes('Admin')) return <Navigate to="/account" replace />
   return children
 }

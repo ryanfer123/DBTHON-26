@@ -1,39 +1,46 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ShareListing } from '../../components/ShareListing'
 import { useAuth } from '../identity/AuthContext'
 import { LocationFields } from '../identity/FormParts'
+import { useListLocation } from './useListLocation'
 import { date, localInput, params, useCommand, useQuery, type Listing, type Resource, type Rows } from './data'
 import { Access, Coordinates, Countdown, Feedback, Pagination, QueryStatus, Workspace } from './Workspace'
 
 export function FoodPage({ own = false }: { own?: boolean }) {
-  const [category, setCategory] = useState('')
-  const [radius, setRadius] = useState('5000')
-  const [status, setStatus] = useState('')
-  const [cursor, setCursor] = useState<string | number | null>(null)
-  const query = useQuery<Rows<Listing>>(`${own ? '/listings/mine' : '/listings'}?${params(own ? { status, cursor: cursor ?? 0 } : { category, radius_m: radius, cursor })}`)
+  const location = useLocation()
+  const list = useListLocation()
+  const category = list.value('category', '', ['', 'Veg', 'NonVeg'])
+  const radius = list.value('radius_m', '5000', ['1000', '3000', '5000'])
+  const status = list.value('status', '', ['', 'Available', 'Claimed', 'PickedUp', 'Delivered', 'Expired', 'Cancelled'])
+  const q = list.value('q').slice(0, 80)
+  const { cursor, setCursor } = list
+  const query = useQuery<Rows<Listing>>(`${own ? '/listings/mine' : '/listings'}?${params(own ? { status, q, cursor: cursor ?? 0 } : { category, radius_m: radius, q, cursor })}`)
   return <Access roles={[own ? 'Donor' : 'Receiver']}><Workspace title={own ? 'My donations' : 'Find nearby food'}
     intro={own ? 'Your food, from listing to delivery.' : 'Whole quantities, within your community.'}
     action={own && <Link className="button button-small" to="/donations/new">List food</Link>}>
     <div className="workspace-toolbar">
-      {own ? <div className="field"><label htmlFor="food-status">Listing status</label><select id="food-status" value={status} onChange={e => { setStatus(e.target.value); setCursor(null) }}>
+      <form className="food-search" onSubmit={event => { event.preventDefault(); list.setFilters({ q: String(new FormData(event.currentTarget).get('q')).trim() }) }}>
+        <div className="field"><label htmlFor="food-search">Search food</label><input key={q} id="food-search" name="q" type="search" maxLength={80} defaultValue={q} /></div><button className="button button-outline button-small" type="submit">Search</button>
+      </form>
+      {own ? <div className="field"><label htmlFor="food-status">Listing status</label><select id="food-status" value={status} onChange={e => { list.setFilters({ status: e.target.value }) }}>
         <option value="">All listings</option>{['Available', 'Claimed', 'PickedUp', 'Delivered', 'Expired', 'Cancelled'].map(s => <option key={s}>{s}</option>)}
-      </select></div> : <><div className="field"><label htmlFor="radius">Search radius</label><select id="radius" value={radius} onChange={e => { setRadius(e.target.value); setCursor(null) }}>
+      </select></div> : <><div className="field"><label htmlFor="radius">Search radius</label><select id="radius" value={radius} onChange={e => { list.setFilters({ radius_m: e.target.value }) }}>
         <option value="1000">1 km</option><option value="3000">3 km</option><option value="5000">5 km</option>
-      </select></div><div className="field"><label htmlFor="category">Category</label><select id="category" value={category} onChange={e => { setCategory(e.target.value); setCursor(null) }}>
+      </select></div><div className="field"><label htmlFor="category">Category</label><select id="category" value={category} onChange={e => { list.setFilters({ category: e.target.value }) }}>
         <option value="">All food</option><option value="Veg">Vegetarian</option><option value="NonVeg">Non-vegetarian</option>
       </select></div></>}
-      <button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh food</button>
+      <button className="text-button" onClick={list.clear}>Clear filters</button><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh food</button>
     </div>
     <QueryStatus {...query} />
     {query.data && <><ul className="food-list">{query.data.data.map(food => <li className="food-row" key={food.listing_id}>
       <div className="food-name"><h2>{food.food_type}</h2><p>{food.donor_name}</p><span className="food-tag">{food.category === 'Veg' ? 'Vegetarian' : 'Non-vegetarian'}</span><strong className="food-weight">{food.quantity_kg} kg</strong></div>
       <div className="food-timing"><p>Prepared {date(food.prepared_at)}</p><p>Collect by {date(food.expiry_window_end)}</p><span className="field-help">{food.distance_m !== null ? `${(food.distance_m / 1000).toFixed(1)} km away` : food.status}</span></div>
       <div>{['Available', 'Claimed', 'PickedUp'].includes(food.status) ? <Countdown key={query.data!.meta.server_time} end={food.expiry_window_end} serverTime={query.data!.meta.server_time} /> : <strong>{food.status}</strong>}</div>
-      <Link className="button button-outline button-small" to={`/food/${food.listing_id}`}>View food</Link>
+      <Link className="button button-outline button-small" to={`/food/${food.listing_id}`} state={{ parent: location.pathname + location.search }}>View food</Link>
     </li>)}</ul>
       {!query.data.data.length && <div className="empty-state"><h2>{own ? 'Your first donation starts here.' : 'No food matches this search.'}</h2><p>{own ? 'Add the food you can share and its collection window.' : 'Try a wider radius or category. Only live listings within your receiving capacity appear.'}</p>{own && <Link className="text-link" to="/donations/new">List your food</Link>}</div>}
-      <Pagination meta={query.data.meta} cursor={cursor} setCursor={setCursor} />
+      <Pagination previous={list.previous} meta={query.data.meta} cursor={cursor} setCursor={setCursor} />
       <p className="workspace-note">Collection deadlines are provided by donors. Check preparation and handling before accepting food.</p>
     </>}
   </Workspace></Access>

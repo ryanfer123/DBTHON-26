@@ -28,6 +28,7 @@ from app.workflows.models import (
     Meta,
     Notification,
     NotificationsResponse,
+    OverviewResponse,
     PickupInput,
     PickupStatus,
     RatingInput,
@@ -46,6 +47,12 @@ Limit = Annotated[int, Query(ge=1, le=100)]
 Cursor = Annotated[int, Query(ge=0)]
 
 
+@router.get("/workspace/overview", response_model=OverviewResponse)
+def workspace_overview(request: Request) -> OverviewResponse:
+    with context(request) as c:
+        return service.overview(c)
+
+
 @router.post("/listings", response_model=CommandResponse, status_code=201)
 def create_listing(body: ListingInput, request: Request, key: Key) -> CommandResponse:
     with context(request, write=True) as c:
@@ -61,18 +68,23 @@ def food_feed(
     category: Category | None = None,
     cursor: Annotated[str | None, Query(max_length=1024)] = None,
     limit: Limit = 20,
+    q: Annotated[str | None, Query(max_length=80)] = None,
 ) -> ListingsResponse:
     with context(request) as c:
-        data, meta = service.feed(c, latitude, longitude, radius_m, category, cursor, limit)
+        data, meta = service.feed(c, latitude, longitude, radius_m, category, cursor, limit, q)
         return ListingsResponse(data=data, meta=meta)
 
 
 @router.get("/listings/mine", response_model=ListingsResponse)
 def own_listings(
-    request: Request, status: ListingStatus | None = None, cursor: Cursor = 0, limit: Limit = 20
+    request: Request,
+    status: ListingStatus | None = None,
+    cursor: Cursor = 0,
+    limit: Limit = 20,
+    q: Annotated[str | None, Query(max_length=80)] = None,
 ) -> ListingsResponse:
     with context(request) as c:
-        data, meta = service.listings_mine(c, status, cursor, limit)
+        data, meta = service.listings_mine(c, status, cursor, limit, q)
         return ListingsResponse(data=data, meta=meta)
 
 

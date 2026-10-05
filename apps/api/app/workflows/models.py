@@ -12,6 +12,29 @@ ClaimStatus = Literal["Confirmed", "Cancelled", "Expired", "Completed"]
 PickupStatus = Literal["Scheduled", "PickedUp", "Delivered", "Missed", "Cancelled", "Failed"]
 
 
+class OverviewItem(Input):
+    kind: Literal["exchange", "delivery"]
+    claim_id: int
+    pickup_id: int | None = None
+    food_type: str
+    status: str
+    expiry_window_end: datetime
+    scheduled_time: datetime | None = None
+
+
+class OverviewData(Input):
+    capabilities: list[str]
+    unread_count: int
+    summaries: dict[str, int]
+    upcoming: list[OverviewItem]
+    updates: list["Notification"]
+
+
+class OverviewResponse(Input):
+    data: OverviewData
+    meta: "Meta"
+
+
 class ListingInput(Input):
     food_type: str = Field(min_length=1, max_length=80)
     category: Category

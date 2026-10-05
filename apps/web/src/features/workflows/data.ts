@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, ApiError } from '../../lib/identity'
+import { invalidateOverview } from './OverviewContext'
 import { useAuth } from '../identity/AuthContext'
 
 export type Meta = { server_time: string; next_cursor: number | string | null }
@@ -73,6 +74,7 @@ export function useCommand() {
     inFlight.current = true; setBusy(true); setError(''); setNotice('')
     try {
       const result = await api<Command>(path, { method, body, csrf: session.csrf_token, key })
+      invalidateOverview()
       keys.current.delete(signature)
       return result
     } catch (error) {

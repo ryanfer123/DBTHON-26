@@ -628,3 +628,143 @@ def test_admin_exchange_failure_is_scoped_and_never_relists_picked_up_food(workf
     assert post(client(107), f"/listings/{lid}/claims", {}).status_code == 409
     with db.connect() as c:
         verify(c.execute(text("SELECT * FROM trust_ledger ORDER BY user_id,sequence")).mappings())
+
+
+@pytest.mark.parametrize("uid", [101, 102, 103, 104, 106, 202])
+def test_overview_exact_scoped_role_counts_and_private_projection(workflow, uid):
+    db, client, worker = workflow
+    tick(worker)
+    response = client(uid).get("/api/v1/workspace/overview")
+    assert response.status_code == 200, response.text
+    data = response.json()["data"]
+    with db.connect() as c:
+        assert (
+            data["unread_count"]
+            == c.execute(
+                text("""
+            SELECT count(*) FROM notifications WHERE user_id=:uid
+              AND sent_at IS NOT NULL AND read_at IS NULL
+        """),
+                {"uid": uid},
+            ).scalar_one()
+        )
+        if uid == 101:
+            assert (
+                data["summaries"]["live_donations"]
+                == c.execute(
+                    text("""
+              SELECT count(*) FROM food_listings WHERE donor_id=101
+              AND status='Available' AND expiry_window_end>clock_timestamp()
+            """)
+                ).scalar_one()
+            )
+        if uid in [101, 102, 202]:
+            assert (
+                data["summaries"]["active_exchanges"]
+                == c.execute(
+                    text("""
+              SELECT count(*) FROM claims c JOIN food_listings l USING(listing_id)
+              WHERE c.status='Confirmed' AND (c.receiver_id=:uid OR l.donor_id=:uid)
+            """),
+                    {"uid": uid},
+                ).scalar_one()
+            )
+        if uid == 103:
+            assert (
+                data["summaries"]["active_deliveries"]
+                == c.execute(
+                    text("""
+              SELECT count(*) FROM pickups WHERE volunteer_id=103
+                AND status IN ('Scheduled','PickedUp')
+            """)
+                ).scalar_one()
+            )
+        if uid == 104:
+            assert data["summaries"] == {
+                "pending_reviews": c.execute(
+                    text("SELECT count(*) FROM users WHERE zone_id=1 AND NOT verified_status")
+                ).scalar_one()
+            }
+    if uid == 106:
+        assert data["capabilities"] == [] and data["summaries"] == {} and data["upcoming"] == []
+    else:
+        assert len(data["upcoming"]) <= 5
+        assert data["upcoming"] == sorted(
+            data["upcoming"],
+            key=lambda row: (
+                row["expiry_window_end"],
+                row["claim_id"],
+                row["kind"],
+                row["pickup_id"] or 0,
+            ),
+        )
+    assert not any(
+        field in response.text
+        for field in ["password_hash", "donor_phone", "receiver_phone", "latitude", "session_hash"]
+    )
+
+
+def test_overview_current_approvals_and_multi_role_counts(workflow):
+    db, client, _ = workflow
+    member = client(102)
+    with db.begin() as c:
+        c.execute(
+            text(
+                "INSERT INTO user_roles(user_id,role,approved_by,approved_at) "
+                "VALUES(102,'Donor',104,clock_timestamp())"
+            )
+        )
+    data = member.get("/api/v1/workspace/overview").json()["data"]
+    assert set(data["capabilities"]) == {"Receiver", "Donor"}
+    assert set(data["summaries"]) == {"live_donations", "active_exchanges"}
+    with db.begin() as c:
+        c.execute(text("UPDATE users SET verified_status=false WHERE user_id=102"))
+    data = member.get("/api/v1/workspace/overview").json()["data"]
+    assert data["capabilities"] == [] and data["summaries"] == {} and data["upcoming"] == []
+
+
+def test_food_search_literals_case_and_cursor_scope(workflow):
+    _, client, _ = workflow
+    donor, receiver = client(101), client(102)
+    literal = create(donor, food_type="100%_Bread\\special")
+    other = create(donor, food_type="100 percent bread")
+    for endpoint, actor in [("/listings", receiver), ("/listings/mine", donor)]:
+        result = actor.get("/api/v1" + endpoint, params={"q": "  %_bREAD\\  "})
+        assert result.status_code == 200, result.text
+        assert [row["listing_id"] for row in result.json()["data"]] == [literal]
+        assert actor.get("/api/v1" + endpoint, params={"q": "' OR 1=1 --"}).json()["data"] == []
+        assert actor.get("/api/v1" + endpoint, params={"q": "x" * 81}).status_code == 422
+    first = receiver.get("/api/v1/listings", params={"q": " 100 ", "limit": 1}).json()
+    cursor = first["meta"]["next_cursor"]
+    assert cursor is not None
+    next_page = receiver.get("/api/v1/listings", params={"q": "100", "cursor": cursor, "limit": 1})
+    assert next_page.status_code == 200
+    assert {first["data"][0]["listing_id"], next_page.json()["data"][0]["listing_id"]} == {
+        literal,
+        other,
+    }
+    assert (
+        receiver.get("/api/v1/listings", params={"q": "rice", "cursor": cursor}).status_code == 422
+    )
+    foreign = client(202).get("/api/v1/listings", params={"q": "Bread\\special"})
+    assert foreign.status_code == 200 and foreign.json()["data"] == []
+
+
+def test_overview_counts_all_active_work_but_lists_only_five(workflow):
+    db, client, _ = workflow
+    donor, receiver = client(101), client(102)
+    for offset in range(7):
+        lid = create(
+            donor,
+            food_type=f"Upcoming meal {offset}",
+            expiry_window_end=(datetime.now(UTC) + timedelta(minutes=30 + offset)).isoformat(),
+        )
+        claim(receiver, lid)
+    data = receiver.get("/api/v1/workspace/overview").json()["data"]
+    with db.connect() as c:
+        expected = c.execute(
+            text("SELECT count(*) FROM claims WHERE receiver_id=102 AND status='Confirmed'")
+        ).scalar_one()
+    assert data["summaries"]["active_exchanges"] == expected and expected >= 7
+    assert len(data["upcoming"]) == 5
+    assert len({item["claim_id"] for item in data["upcoming"]}) == 5

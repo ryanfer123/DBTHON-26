@@ -1,5 +1,6 @@
+import { useListLocation } from './useListLocation'
 import { useState, type FormEvent } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { useAuth } from '../identity/AuthContext'
 import { date, localInput, params, useCommand, useQuery, type Exchange, type Resource, type Rows, type Task } from './data'
 import { Access, Coordinates, Countdown, Feedback, Pagination, QueryStatus, Workspace } from './Workspace'
@@ -56,16 +57,18 @@ function ExchangeDetails({ exchange, refresh, admin = false }: { exchange: Excha
   </dl><ExchangeActions exchange={exchange} refresh={refresh} admin={admin} /></>
 }
 export function ExchangesPage({ admin = false }: { admin?: boolean }) {
-  const [status, setStatus] = useState('')
-  const [cursor, setCursor] = useState<string | number | null>(null)
+  const location = useLocation()
+  const list = useListLocation()
+  const status = list.value('status', '', ['', 'Confirmed', 'Completed', 'Cancelled', 'Expired'])
+  const { cursor, setCursor } = list
   const query = useQuery<Rows<Exchange>>(`${admin ? '/admin/claims' : '/claims/mine'}?${params({ status, cursor: cursor ?? 0 })}`)
   return <Access roles={admin ? ['Admin'] : ['Donor', 'Receiver']}><Workspace title={admin ? 'Review exchanges' : 'My exchanges'} intro={admin ? 'Review food movements and record failures in your zone.' : 'Follow your food from reservation to delivery.'}>
-    <div className="workspace-toolbar"><div className="field"><label htmlFor="claim-filter">Claim status</label><select id="claim-filter" value={status} onChange={event => { setStatus(event.target.value); setCursor(null) }}><option value="">All exchanges</option>{['Confirmed', 'Completed', 'Cancelled', 'Expired'].map(status => <option key={status}>{status}</option>)}</select></div><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh exchanges</button></div>
+    <div className="workspace-toolbar"><div className="field"><label htmlFor="claim-filter">Claim status</label><select id="claim-filter" value={status} onChange={event => { list.setFilters({ status: event.target.value }) }}><option value="">All exchanges</option>{['Confirmed', 'Completed', 'Cancelled', 'Expired'].map(status => <option key={status}>{status}</option>)}</select></div><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh exchanges</button></div>
     <QueryStatus {...query} />{query.data && <><ul className="exchange-list">{query.data.data.map(exchange => <li className="exchange-row" key={exchange.claim_id}>
       <div><h2>{exchange.food_type}</h2><p>{exchange.quantity_kg} kg · {exchange.status}</p><p className="field-help">{exchange.donor_name} → {exchange.receiver_name}</p></div>
       <div><p>{exchange.pickup_status ?? 'Awaiting volunteer'}</p>{exchange.status === 'Confirmed' && <Countdown key={query.data!.meta.server_time} end={exchange.expiry_window_end} serverTime={query.data!.meta.server_time} />}</div>
-      <Link className="button button-small button-outline" to={`/claims/${exchange.claim_id}`}>View exchange</Link>
-    </li>)}</ul>{!query.data.data.length && <p className="list-message">No exchanges match this view.</p>}<Pagination meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
+      <Link className="button button-small button-outline" to={`/claims/${exchange.claim_id}`} state={{ parent: location.pathname + location.search }}>View exchange</Link>
+    </li>)}</ul>{!query.data.data.length && <p className="list-message">No exchanges match this view.</p>}<Pagination previous={list.previous} meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
   </Workspace></Access>
 }
 export function ExchangeDetailPage() {
@@ -89,27 +92,30 @@ function AcceptTask({ task, refresh }: { task: Task; refresh: () => void }) {
   </>
 }
 export function DeliveriesPage() {
-  const [tab, setTab] = useState('tasks')
-  const [radius, setRadius] = useState('5000')
-  const [status, setStatus] = useState('')
-  const [cursor, setCursor] = useState<string | number | null>(null)
+  const list = useListLocation()
+  const tab = list.value('view', 'tasks', ['tasks', 'mine'])
+  const radius = list.value('radius_m', '5000', ['1000', '3000', '5000'])
+  const status = list.value('status', '', ['', 'Scheduled', 'PickedUp', 'Delivered', 'Missed', 'Cancelled', 'Failed'])
+  const { cursor, setCursor } = list
   return <Access roles={['Volunteer']}><Workspace title="Your deliveries" intro="Help food reach a table nearby.">
-    <div className="workspace-toolbar"><div className="field"><label htmlFor="delivery-view">Show deliveries</label><select id="delivery-view" value={tab} onChange={event => { setTab(event.target.value); setCursor(null) }}><option value="tasks">Available tasks</option><option value="mine">My assignments</option></select></div>
-      {tab === 'tasks' ? <div className="field"><label htmlFor="delivery-radius">Search radius</label><select id="delivery-radius" value={radius} onChange={event => { setRadius(event.target.value); setCursor(null) }}><option value="1000">1 km</option><option value="3000">3 km</option><option value="5000">5 km</option></select></div> : <div className="field"><label htmlFor="pickup-filter">Assignment status</label><select id="pickup-filter" value={status} onChange={event => { setStatus(event.target.value); setCursor(null) }}><option value="">All assignments</option>{['Scheduled', 'PickedUp', 'Delivered', 'Missed', 'Cancelled', 'Failed'].map(s => <option key={s}>{s}</option>)}</select></div>}
-    </div>{tab === 'tasks' ? <Tasks key={`${radius}:${cursor}`} radius={radius} cursor={cursor} setCursor={setCursor} showMine={() => { setCursor(null); setTab('mine') }} /> : <Assignments status={status} cursor={cursor} setCursor={setCursor} />}
+    <div className="workspace-toolbar"><div className="field"><label htmlFor="delivery-view">Show deliveries</label><select id="delivery-view" value={tab} onChange={event => { list.setFilters({ view: event.target.value, status: '' }) }}><option value="tasks">Available tasks</option><option value="mine">My assignments</option></select></div>
+      {tab === 'tasks' ? <div className="field"><label htmlFor="delivery-radius">Search radius</label><select id="delivery-radius" value={radius} onChange={event => { list.setFilters({ radius_m: event.target.value }) }}><option value="1000">1 km</option><option value="3000">3 km</option><option value="5000">5 km</option></select></div> : <div className="field"><label htmlFor="pickup-filter">Assignment status</label><select id="pickup-filter" value={status} onChange={event => { list.setFilters({ status: event.target.value }) }}><option value="">All assignments</option>{['Scheduled', 'PickedUp', 'Delivered', 'Missed', 'Cancelled', 'Failed'].map(s => <option key={s}>{s}</option>)}</select></div>}
+    </div>{tab === 'tasks' ? <Tasks key={`${radius}:${cursor}`} radius={radius} cursor={cursor} setCursor={setCursor} showMine={() => list.setFilters({ view: 'mine' })} /> : <Assignments status={status} cursor={cursor} setCursor={setCursor} />}
   </Workspace></Access>
 }
 function Tasks({ radius, cursor, setCursor, showMine }: { radius: string; cursor: string | number | null; setCursor: (v: string | number | null) => void; showMine: () => void }) {
+  const list = useListLocation()
   const query = useQuery<Rows<Task>>(`/pickup-tasks?${params({ radius_m: radius, cursor: cursor ?? 0 })}`)
   return <><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh tasks</button><QueryStatus {...query} />{query.data && <>
     <ul className="task-list">{query.data.data.map(task => <li className="task-row" key={task.claim_id}><div><h2>{task.food_type}</h2><p>{task.quantity_kg} kg · {task.donor_name}</p><p>{(task.distance_m / 1000).toFixed(1)} km away · Collect by {date(task.expiry_window_end)}</p><p className="field-help">Pickup point: <Coordinates lat={task.pickup_lat} lon={task.pickup_long} /></p></div><AcceptTask task={task} refresh={showMine} /></li>)}</ul>
-    {!query.data.data.length && <p className="list-message">No nearby tasks are waiting for a volunteer.</p>}<Pagination meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
+    {!query.data.data.length && <p className="list-message">No nearby tasks are waiting for a volunteer.</p>}<Pagination previous={list.previous} meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
   </>
 }
 function Assignments({ status, cursor, setCursor }: { status: string; cursor: string | number | null; setCursor: (v: string | number | null) => void }) {
+  const list = useListLocation()
   const query = useQuery<Rows<Exchange>>(`/pickups/mine?${params({ status, cursor })}`)
   return <><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh assignments</button><QueryStatus {...query} />{query.data && <>
     <ul className="assignment-list">{query.data.data.map(exchange => <li className="assignment-row" key={`${exchange.claim_id}:${exchange.pickup_id}`}><h2>{exchange.food_type} · {exchange.pickup_status}</h2><p>{exchange.quantity_kg} kg</p><ExchangeDetails exchange={exchange} refresh={query.refresh} /></li>)}</ul>
-    {!query.data.data.length && <p className="list-message">You have no assignments in this view.</p>}<Pagination meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
+    {!query.data.data.length && <p className="list-message">You have no assignments in this view.</p>}<Pagination previous={list.previous} meta={query.data.meta} cursor={cursor} setCursor={setCursor} /></>}
   </>
 }

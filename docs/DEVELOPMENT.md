@@ -36,8 +36,8 @@ make openapi
 make db-test
 ```
 
-Backend checks: Ruff, strict mypy, twelve unit tests and 67 opt-in PostgreSQL checks.
-Frontend checks: ESLint, TypeScript, eight Vitest tests and production build.
+Backend checks: Ruff, strict mypy, twelve unit tests and 76 opt-in PostgreSQL checks.
+Frontend checks: ESLint, TypeScript, 12 Vitest tests and production build.
 Desktop/mobile browser checks exercise registration, login/profile/admin review,
 food CRUD/claim/cancellation, replacement volunteer attempts, pickup/delivery,
 reciprocal ratings, inbox reads, audit history, report CSV, theme persistence,
@@ -121,3 +121,19 @@ temporary directory; lockfiles must remain authoritative.
 
 References: [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/),
 [Vite guide](https://vite.dev/guide/), [PostGIS image](https://github.com/postgis/docker-postgis).
+
+### Concurrent usability checks
+
+Tests may use allowlisted isolated databases without touching another checkout's
+default test databases:
+
+```sh
+DBTHON_TEST_DATABASE=dbthon_usability_test apps/api/.venv/bin/python -m pytest apps/api/tests --db -q
+DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix apps/web
+```
+
+The defaults remain `dbthon_test` and `dbthon_browser_test`. Any other override is
+rejected. These disposable databases are created/migrated/reset by their harnesses
+and share the existing test-only restricted cluster login roles; do not run suites
+that reprovision those roles concurrently. Application/demo database and login roles
+remain untouched. Feature iteration applies only migrations 0001-0003.

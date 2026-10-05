@@ -47,6 +47,24 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | GET `/admin/users` | zone_id, verification filter, cursor | Approved zone Admin only |
 | POST `/admin/users/{id}/verify` | requested public roles to approve, verified boolean, reason | Scoped Admin; replace public-role approvals; revocation uses empty roles; 200 safe profile; no Admin grants |
 
+## Workspace overview
+
+Authenticated `GET /workspace/overview` is available to pending members and uses
+the existing restricted runtime connection/RLS. No new grants or migration.
+`meta.server_time` is authoritative. `data` contains current approved `capabilities`,
+exact delivered/unread `unread_count`, permitted `summaries`, `upcoming` and
+`updates`. Summaries are omitted for inapplicable roles:
+
+- Donor: `live_donations`, owned Available listings whose deadline is after server time.
+- Donor/Receiver: `active_exchanges`, Confirmed participating claims.
+- Volunteer: `active_deliveries`, own Scheduled or PickedUp assignments.
+- Admin: `pending_reviews`, unverified members in the administrator's own zone.
+
+Counts query the database independently of paginated lists. Upcoming exchanges
+and deliveries are limited to five total, ordered by collection deadline then
+claim/kind/pickup ID. Updates are the five newest delivered unread notifications.
+No participant contacts are returned. Revoked approvals suppress role summaries.
+
 ## Listings and matching
 
 | Method / path | Input | Authorization / result |
@@ -54,10 +72,16 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | POST `/listings` | food_type, category, quantity_kg, prepared_at, expiry_window_start/end, pickup_lat/long | Verified Donor; derive donor_id/zone_id from session; 201 command result with listing ID |
 | PATCH `/listings/{id}` | allowed food/quantity/time/location changes | Owning Donor, Available only; 200 command result with listing ID |
 | POST `/listings/{id}/cancel` | reason; Idempotency-Key | Owning Donor, before actual pickup; 200 terminal listing/related cancellation |
-| GET `/listings` | latitude, longitude, radius_m, category optional, cursor | Verified Receiver; ranked live capacity-filtered feed in own zone |
-| GET `/listings/mine` | status filter, cursor | Donor's own history including terminal listings |
+| GET `/listings` | latitude, longitude, radius_m, category optional, q optional, cursor | Verified Receiver; ranked live capacity-filtered feed in own zone |
+| GET `/listings/mine` | status filter, q optional, cursor | Donor's own history including terminal listings |
 | GET `/listings/{id}` | none | Eligible zone viewer or transaction participant; safe donor projection |
 | POST `/listings/{id}/claims` | empty object; Idempotency-Key | Verified eligible Receiver; 201 confirmed claim; 409 if allocation lost |
+
+Optional food-name `q` is limited to 80 characters, trimmed and matched
+case-insensitively as a literal substring using parameterized SQL. `%`, `_` and
+backslash are escaped rather than treated as wildcard syntax. The feed cursor
+binds the normalized search along with its other filters; changing search while
+reusing a feed cursor returns validation failure. UI filter changes reset cursors.
 
 Create-listing request example (times must be replaced with live eligible values):
 

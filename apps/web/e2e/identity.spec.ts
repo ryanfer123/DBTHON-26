@@ -1,9 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 
 test('register, edit, verify and revoke a real member; session state survives refresh', async ({ page, request }, info) => {
+  test.setTimeout(150000)
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  page.on('console', message => {
+    const expectedThrottle = message.location().url.endsWith('/api/v1/auth/login') && message.text().includes('status of 429')
+    if (message.type() === 'error' && !expectedThrottle) errors.push(message.text())
+  })
   const suffix = `${Date.now()}${info.project.name === 'desktop' ? '1' : '2'}`
   const email = `browser-${suffix}@example.org`
   const password = process.env.DBTHON_E2E_PASSWORD!
@@ -11,7 +15,16 @@ test('register, edit, verify and revoke a real member; session state survives re
     await page.goto('/sign-in')
     await page.getByLabel('Email address').fill(email)
     await page.getByLabel('Password', { exact: true }).fill(password)
+    const received = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/login'))
     await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    const response = await received
+    if (response.status() === 429) {
+      await expect(page.getByRole('alert')).toContainText('Too many attempts')
+      await page.waitForTimeout((Number(response.headers()['retry-after']) + 1) * 1000)
+      await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    }
+    await expect(page).toHaveURL('/dashboard')
+    await page.goto('/account')
     await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible()
   }
   async function signOut() {
@@ -50,6 +63,8 @@ test('register, edit, verify and revoke a real member; session state survives re
   await expect(page.getByLabel('Password', { exact: true })).toHaveValue('')
   await page.getByLabel('Password', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await expect(page).toHaveURL('/dashboard')
+  await page.getByRole('link', { name: 'Check verification status', exact: true }).click()
   await expect(page.getByText('Awaiting verification', { exact: true })).toBeVisible()
   await page.getByLabel('Name', { exact: true }).fill(`Edited Member ${suffix}`)
   await page.getByLabel('Receiving capacity (kg)').fill('12.50')
@@ -78,6 +93,12 @@ test('register, edit, verify and revoke a real member; session state survives re
   await page.getByLabel('Show members').selectOption('verified')
   await expect(member).toContainText('Receiver: approved')
   await expect(member).toContainText('Donor: pending')
+  await page.reload()
+  await expect(page.getByLabel('Show members')).toHaveValue('verified')
+  await member.getByRole('link', { name: 'Audit history' }).click()
+  await page.getByRole('navigation', { name: 'Breadcrumbs' }).getByRole('link', { name: 'Back to members' }).click()
+  await expect(page).toHaveURL('/admin?filter=verified')
+  await expect(member).toContainText('Receiver: approved')
   await page.getByRole('link', { name: 'Back to your account' }).click()
   await signOut()
   await signIn(email)

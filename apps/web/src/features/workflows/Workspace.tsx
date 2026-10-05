@@ -1,27 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, NavLink } from 'react-router'
-import { PageShell } from '../../components/PageShell'
+import { Link } from 'react-router'
+import { AppLayout, Breadcrumbs } from '../../components/AppLayout'
 import { useAuth } from '../identity/AuthContext'
 import type { Meta } from './data'
 import type { User } from '../../lib/identity'
 
-export function WorkspaceNav() {
-  const { session } = useAuth()
-  const roles = session?.user.capabilities ?? []
-  return <nav className="workspace-nav" aria-label="Community workspace">
-    {roles.includes('Donor') && <NavLink to="/donations">My donations</NavLink>}
-    {roles.includes('Receiver') && <NavLink to="/food">Find food</NavLink>}
-    {(roles.includes('Donor') || roles.includes('Receiver')) && <NavLink to="/claims">My exchanges</NavLink>}
-    {roles.includes('Volunteer') && <NavLink to="/deliveries">Deliveries</NavLink>}
-    <NavLink to="/inbox">Inbox</NavLink><NavLink to="/trust">My trust</NavLink>
-    {roles.includes('Admin') && <><NavLink to="/admin" end>Members</NavLink><NavLink to="/admin/exchanges">Exchange review</NavLink><NavLink to="/admin/impact">Impact report</NavLink></>}
-  </nav>
-}
 export function Workspace({ title, intro, action, children }: { title: string; intro: string; action?: ReactNode; children: ReactNode }) {
-  return <PageShell><main id="main" className="container account-page workspace">
-    <div className="page-heading"><div><h1>{title}</h1><p>{intro}</p></div>{action}</div>
-    <WorkspaceNav />{children}
-  </main></PageShell>
+  return <AppLayout><main id="main" className="container account-page workspace">
+    <Breadcrumbs /><div className="page-heading"><div><h1>{title}</h1><p>{intro}</p></div>{action}</div>
+    {children}
+  </main></AppLayout>
 }
 export function Access({ roles, children }: { roles: string[]; children: ReactNode }) {
   const { session } = useAuth()
@@ -38,8 +26,8 @@ export function QueryStatus({ loading, error, refresh }: { loading: boolean; err
 export function Feedback({ error, notice }: { error: string; notice: string }) {
   return <>{error && <p className="notice notice-error" role="alert">{error}</p>}{notice && <p className="notice" role="status">{notice}</p>}</>
 }
-export function Pagination({ meta, cursor, setCursor }: { meta?: Meta; cursor: string | number | null; setCursor: (cursor: string | number | null) => void }) {
-  return <div className="actions pagination">{cursor != null && cursor !== 0 && <button className="text-button" onClick={() => setCursor(null)}>Back to first page</button>}
+export function Pagination({ meta, cursor, setCursor, previous }: { meta?: Meta; cursor: string | number | null; setCursor: (cursor: string | number | null) => void; previous?: () => void }) {
+  return <div className="actions pagination">{previous && <button className="button button-small button-outline" onClick={previous}>Previous page</button>}{cursor != null && cursor !== 0 && <button className="text-button" onClick={() => setCursor(null)}>Back to first page</button>}
     {meta?.next_cursor != null && <button className="button button-small button-outline" onClick={() => setCursor(meta.next_cursor)}>Next page</button>}
   </div>
 }

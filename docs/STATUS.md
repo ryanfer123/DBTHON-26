@@ -1,6 +1,6 @@
 # Implementation status and session handoff
 
-Updated: 2026-10-05 (Asia/Kolkata). Stage: P01-P10 core prototype implemented.
+Updated: 2026-10-06 (Asia/Kolkata). Stage: P01-P10 core prototype implemented.
 Donor listings, receiver feed/claims, volunteer delivery, expiry/inbox worker,
 ratings/trust/audit and scoped admin reporting are connected. The longer homepage,
 dark-mode preference and share-link behavior were added at the user's request.
@@ -268,6 +268,62 @@ Hosted CI remains unverified. The old checkpoint counts above are historical.
 Homepage design/QA and final combined browser results are recorded in
 [HOME_REFRESH.md](design/HOME_REFRESH.md). The handover image is illustrative,
 not evidence of real users or impact. Temporary screenshots stay outside Git.
+
+## Workspace usability iteration (2026-10-06)
+
+Implemented in an isolated `feat/workspace-usability` checkout based on published
+`8b77231`. Original working-tree AWS infrastructure, cost/deployment documents,
+README/architecture links and uncommitted RDS compatibility migration remain local
+and outside this app commit. No schema revision, cloud deployment or data migration.
+
+- Shared `/dashboard` landing with preserved requested deep links, current-role
+  shortcuts, exact database counts, five deadline-ordered active items and unread
+  updates. Pending members get verification guidance; failures get retry without
+  fabricated zero totals. `/account` remains settings.
+- Forest/sage desktop grouped sidebar and mobile Dashboard / Tasks / Inbox / More,
+  with native dialog dismissal, focus wrapping/restoration and approved-role tools.
+  Breadcrumbs/parent links cover food, editor, exchange and audit views; originating
+  URLs retain filters and correct destination labels for multi-role people.
+- Authenticated `/workspace/overview`, existing restricted pools/RLS, no new grants.
+  Delivered unread counts and permitted Donor/Receiver/Volunteer/Admin summaries
+  query whole database sets independently of preview/page limits. Current approvals
+  govern responses; changed capabilities refresh the browser session.
+- Literal case-insensitive food search (80 characters, trimmed, parameterized and
+  wildcard-escaped), normalized search bound into feed cursors. URL filters for food,
+  exchanges, deliveries, members and inbox; cursor trails support Previous/Next,
+  refresh/Back/Forward and direct-link Back to first page.
+- Shared visible-tab overview polling every 15 seconds, return-to-tab refresh and
+  invalidation after successful commands, notification reads and admin reviews.
+  Searchable `/help` reuses existing FAQs and links to permitted role tools.
+
+| Reproduction/check | Observed result |
+| --- | --- |
+| `DBTHON_TEST_DATABASE=dbthon_usability_test apps/api/.venv/bin/python -m pytest apps/api/tests --db -q --tb=short --maxfail=1` | 88 passed in 85.86 s, including exact/multi-role/pending/revoked/zone counts, preview limit, literal search and cursor compatibility; one existing Pydantic field-alias warning |
+| `npm run test --prefix apps/web` | 12 passed; shared request/invalidation, hidden-tab polling, error/account isolation and capability revocation included |
+| `DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix apps/web` | 22 passed in 2.0 min, desktop 1505x1045 and mobile 390x844, real PostgreSQL/API and isolated worker |
+| Follow-up browser `e2e/identity.spec.ts e2e/workflows.spec.ts` | Eight passed in 1.8 min after final breadcrumb correction, including member/audit and exchange/delivery filter refresh/return |
+| Final browser `e2e/usability.spec.ts` and fresh visual captures | Six passed in 23.9 s; fresh desktop light/mobile dark renders inspected against retained concepts with `view_image`; paired themes and mobile menu were also inspected |
+| Ruff / strict mypy | Passed; 23 backend source files type checked |
+| Web ESLint / TypeScript / Vite build | Passed |
+| Exported OpenAPI drift / handoff / whitespace | Passed |
+
+Browser coverage includes default/deep-link sign-in, sidebar containment, role menus,
+focus wrapping/Escape/restoration, breadcrumbs, food filters/search, history, real
+23-listing Previous/Next/direct-link pagination, unread updates after reads, help
+search/disclosures, dark mode, long content/no horizontal overflow and overview
+outage/retry. Complete prior registration/approval/revocation and food-to-delivery/
+rating/report flows remain covered. The suite preserves actual login throttling
+and waits Retry-After; its intentional auth 429 is excluded from unexpected console
+errors, with the error message and successful retry asserted.
+
+Visual QA found and fixed a global nav rule making the sidebar horizontal; focus
+QA prompted explicit wrapping in the native dialog. Search pagination initially
+matched an existing bread fixture; its test was narrowed. Browser workflow tests
+now search their unique food instead of assuming a first-page result. Concepts,
+comparison ledger and intentional live-data differences are in
+[WORKSPACE_USABILITY.md](design/WORKSPACE_USABILITY.md). Browser plugin unavailable;
+installed Chrome/Playwright fallback used. Temporary captures are outside Git and
+removed after inspection. Hosted CI and deployment are not verified by these checks.
 
 ## Next work
 

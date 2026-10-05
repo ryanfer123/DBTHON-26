@@ -2,10 +2,10 @@
 .env
 .env.*
 !.env.example
-node_modules/
+node_modules
 dist/
 build/
-.venv/
+.venv
 venv/
 __pycache__/
 *.py[cod]

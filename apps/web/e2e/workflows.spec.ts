@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { workspaceLink } from './workspaceHelpers'
 
 function localTime(time: number) {
   const value = new Date(time)
@@ -17,7 +18,7 @@ async function signIn(page: Page, role: string) {
     await page.waitForTimeout((Number(response.headers()['retry-after']) + 1) * 1000)
     await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   }
-  await expect(page).toHaveURL('/account')
+  await expect(page).toHaveURL('/dashboard')
 }
 async function signOut(page: Page) {
   await page.goto('/account')
@@ -35,7 +36,7 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   page.on('pageerror', error => errors.push(error.message))
   const food = `Browser vegetables ${info.project.name} ${Date.now()}`
   await signIn(page, 'donor')
-  await page.getByRole('link', { name: 'My donations', exact: true }).click()
+  await workspaceLink(page, 'My donations')
   await page.getByRole('link', { name: 'List food', exact: true }).click()
   await page.getByLabel('Food name').fill(food)
   await page.getByLabel('Whole quantity (kg)').fill('4.00')
@@ -64,7 +65,9 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await signOut(page)
 
   await signIn(page, 'receiver')
-  await page.getByRole('link', { name: 'Find food', exact: true }).click()
+  await workspaceLink(page, 'Find food')
+  await page.getByLabel('Search food').fill(food)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
   const row = page.locator('.food-row').filter({ hasText: food })
   await expect(row).toBeVisible()
   await page.screenshot({ path: info.outputPath('food-feed.png'), fullPage: true })
@@ -82,10 +85,17 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await expect(page).toHaveURL(/\/claims\/\d+$/)
   const claimPath = new URL(page.url()).pathname
   await expect(page.getByText('4.50 kg · Confirmed', { exact: true })).toBeVisible()
+  await workspaceLink(page, 'Dashboard')
+  await page.locator('.dashboard-list li').filter({ hasText: food }).getByRole('link', { name: 'Open exchange' }).click()
+  await expect(page).toHaveURL(claimPath)
+  await page.getByRole('navigation', { name: 'Breadcrumbs' }).getByRole('link', { name: 'Back to my exchanges' }).click()
+  await expect(page).toHaveURL('/claims?status=Confirmed')
+  await page.reload()
+  await expect(page.getByLabel('Claim status')).toHaveValue('Confirmed')
   await signOut(page)
 
   await signIn(page, 'volunteer')
-  await page.getByRole('link', { name: 'Deliveries', exact: true }).click()
+  await workspaceLink(page, 'Deliveries')
   const task = page.locator('.task-row').filter({ hasText: food })
   await task.getByRole('button', { name: 'Arrange collection' }).click()
   await task.getByLabel('Collection time').fill(localTime(Date.now() + 300000))
@@ -106,6 +116,14 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await assignment.getByRole('button', { name: 'Record pickup' }).click()
   await page.getByLabel('Assignment status').selectOption('PickedUp')
   await expect(assignment.getByRole('heading', { name: `${food} · PickedUp` })).toBeVisible()
+  await page.reload()
+  await expect(page.getByLabel('Assignment status')).toHaveValue('PickedUp')
+  await expect(page.getByLabel('Show deliveries')).toHaveValue('mine')
+  await workspaceLink(page, 'Dashboard')
+  await page.locator('.dashboard-list li').filter({ hasText: food }).getByRole('link', { name: 'Open delivery' }).click()
+  await page.getByRole('navigation', { name: 'Breadcrumbs' }).getByRole('link', { name: 'Back to deliveries' }).click()
+  await expect(page).toHaveURL('/deliveries?view=mine')
+  await expect(assignment.getByRole('heading', { name: `${food} · PickedUp` })).toBeVisible()
   await page.screenshot({ path: info.outputPath('delivery.png'), fullPage: true })
   await noOverflow(page)
   await assignment.getByRole('button', { name: 'Confirm delivery' }).click()
@@ -120,13 +138,15 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await page.getByLabel('Comments (optional)').fill('Synthetic test: completed handover.')
   await page.getByRole('button', { name: 'Submit rating' }).click()
   await expect(page.getByText('Your rating: 5 / 5')).toBeVisible()
-  await page.getByRole('link', { name: 'Inbox', exact: true }).click()
+  await workspaceLink(page, 'Inbox')
   await expect(page.locator('.inbox-row').first()).toBeVisible()
   const unread = page.locator('.inbox-row.unread').first()
   const message = await unread.locator('h2').innerText()
   await unread.getByRole('button', { name: 'Mark read' }).click()
   await expect(page.locator('.inbox-row').filter({ hasText: message }).first()).toContainText('Read')
-  await page.getByRole('link', { name: 'My trust', exact: true }).click()
+  const overview = (await (await page.request.get('/api/v1/workspace/overview')).json()).data
+  await expect(page.locator('.unread-badge:visible')).toHaveText(` (${overview.unread_count})`)
+  await workspaceLink(page, 'My trust')
   await expect(page.locator('.ledger-list')).toContainText('pickup · deliver')
   await noOverflow(page)
   await signOut(page)
@@ -138,7 +158,7 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await expect(page.getByText('Your rating: 4 / 5')).toBeVisible()
   await signOut(page)
   await signIn(page, 'admin')
-  await page.getByRole('link', { name: 'Impact report', exact: true }).click()
+  await workspaceLink(page, 'Impact report')
   await expect(page.getByRole('region', { name: 'Impact details' })).toBeVisible({ timeout: 10000 })
   await page.getByLabel('Group by').selectOption('zone')
   await expect(page.locator('.report-table tbody tr')).toHaveCount(1)
@@ -157,7 +177,7 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   expect(csv).toContain(kilograms.toFixed(2))
   await page.screenshot({ path: info.outputPath('impact.png'), fullPage: true })
   await noOverflow(page)
-  await page.getByRole('link', { name: 'Exchange review', exact: true }).click()
+  await workspaceLink(page, 'Exchange review')
   await page.getByLabel('Claim status').selectOption('Completed')
   await expect(page.locator('.exchange-row').filter({ hasText: food })).toBeVisible()
   await page.goto('/admin/users/102/audit')

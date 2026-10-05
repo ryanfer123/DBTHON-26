@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { PageShell } from '../../components/PageShell'
+import { AppLayout } from '../../components/AppLayout'
 import { api, ApiError, type User } from '../../lib/identity'
 import { useAuth } from './AuthContext'
 import { ContactFields, LocationFields } from './FormParts'
 import { CommunityArea } from './CommunityArea'
-import { WorkspaceNav } from '../workflows/Workspace'
 
 export function ProfilePage() {
   const auth = useAuth()
@@ -33,7 +32,7 @@ export function ProfilePage() {
       } else setError((error as Error).message)
     } finally { setBusy(false) }
   }
-  return <PageShell><main id="main" className="container account-page">
+  return <AppLayout><main id="main" className="container account-page">
     <div className="page-heading"><div><h1>Your account</h1><p>Good to have you here, {user.name}.</p></div>
       <button className="button button-outline button-small" disabled={busy} onClick={async () => {
         setBusy(true); setError('')
@@ -42,7 +41,6 @@ export function ProfilePage() {
         finally { setBusy(false) }
       }}>{busy ? 'Please wait…' : 'Sign out'}</button>
     </div>
-    <WorkspaceNav />
     <div className="profile-layout">
       <aside className="account-summary" aria-label="Account status"><h2>Your community roles</h2>
         <p className="status-line"><span className={`status-dot ${user.verified_status ? 'approved' : ''}`} aria-hidden="true" />{user.verified_status ? 'Account verified' : 'Awaiting verification'}</p>
@@ -63,5 +61,5 @@ export function ProfilePage() {
         </fieldset></form>
       </section>
     </div>
-  </main></PageShell>
+  </main></AppLayout>
 }

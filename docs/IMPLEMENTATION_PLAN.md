@@ -85,6 +85,19 @@ to resume. Each task must update requirement coverage and record actual checks.
   real results; prepare presentation and run demo. Gate: all eight deliverables have
   evidence; TRL level matches actual validation. Do not fabricate evidence to finish.
 
+## Requested usability extension
+
+Implemented alongside P09, without changing the remaining P11/P12 gates:
+
+- [x] Shared role dashboard and authenticated database overview, current approvals,
+  pending/error states and exact unread/work/review counts.
+- [x] Desktop groups and mobile Dashboard/Tasks/Inbox/More with keyboard/focus
+  behavior, breadcrumbs and explicit parent destinations.
+- [x] Literal food search, search-bound feed cursors, URL filters, Previous/Next
+  history, shared overview polling/invalidation and searchable native help.
+- [x] PostgreSQL, component and desktop/mobile browser verification, dark/long-content
+  QA and updated API/design/handoff evidence. See STATUS.md for actual commands.
+
 ## Completion definition
 
 A prototype is done only when runnable apps, reproducible migrations/seeds, core

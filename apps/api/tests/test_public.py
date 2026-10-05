@@ -51,6 +51,7 @@ def test_openapi_lists_only_implemented_endpoints():
             "/api/v1/auth/logout",
             "/api/v1/admin/users",
             "/api/v1/admin/users/{user_id}/verify",
+            "/api/v1/workspace/overview",
             "/api/v1/listings",
             "/api/v1/listings/mine",
             "/api/v1/listings/{listing_id}",

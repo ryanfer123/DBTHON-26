@@ -15,6 +15,10 @@ roles. External SMS/push delivery and stakeholder/pilot evidence remain outstand
 See [current status](docs/STATUS.md).
 The expanded homepage includes handover guidance, FAQs and role-aware links. Use the
 sun/moon control in the header to switch themes; your preference persists across visits.
+After sign-in, `/dashboard` shows exact role-specific totals and upcoming work.
+A grouped desktop sidebar and mobile Dashboard / Tasks / Inbox / More navigation
+connect every approved role. Food search, URL filters, Previous/Next pages and
+searchable `/help` preserve useful destinations. See [usability details](docs/design/WORKSPACE_USABILITY.md).
 
 ## Begin implementation
 

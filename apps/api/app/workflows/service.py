@@ -13,6 +13,8 @@ from app.workflows.models import (
     ImpactRow,
     Listing,
     Meta,
+    OverviewData,
+    OverviewResponse,
 )
 
 
@@ -85,6 +87,7 @@ def feed(
     category: str | None,
     cursor: str | None,
     limit: int,
+    q: str | None = None,
 ) -> tuple[list[Listing], Meta]:
     require(connection, "Receiver")
     profile = connection.execute(
@@ -93,7 +96,8 @@ def feed(
     lat = latitude if latitude is not None else float(profile.latitude)
     lon = longitude if longitude is not None else float(profile.longitude)
     now = clock(connection)
-    scope = [lat, lon, radius, category]
+    search = (q or "").strip().lower()
+    scope = [lat, lon, radius, category, search]
     after_time, after_distance, after_id = datetime.min.replace(tzinfo=UTC), -1.0, 0
     if cursor:
         try:
@@ -112,6 +116,7 @@ def feed(
       SELECT {LISTING_COLUMNS},ST_Distance(l.pickup_location,
         ST_SetSRID(ST_MakePoint(:longitude,:latitude),4326)::geography) AS distance_m
       FROM food_listings l LEFT JOIN users u ON u.user_id=l.donor_id WHERE {FEED_FILTER}
+        AND l.food_type ILIKE :search ESCAPE '\\'
     ) SELECT * FROM eligible WHERE (expiry_window_end,distance_m,listing_id)>
       (:after_time,:after_distance,:after_id)
       ORDER BY expiry_window_end,distance_m,listing_id LIMIT :limit"""
@@ -124,6 +129,7 @@ def feed(
                 "longitude": lon,
                 "radius": radius,
                 "category": category,
+                "search": search_pattern(search),
                 "after_time": after_time,
                 "after_distance": after_distance,
                 "after_id": after_id,
@@ -153,7 +159,7 @@ def feed(
 
 
 def listings_mine(
-    connection: Connection, status: str | None, cursor: int, limit: int
+    connection: Connection, status: str | None, cursor: int, limit: int, q: str | None = None
 ) -> tuple[list[Listing], Meta]:
     uid = require(connection, "Donor")
     now = clock(connection)
@@ -162,8 +168,16 @@ def listings_mine(
             text(f"""SELECT {LISTING_COLUMNS} FROM food_listings l
       LEFT JOIN users u ON u.user_id=l.donor_id WHERE l.donor_id=:uid AND l.listing_id>:cursor
       AND (CAST(:status AS text) IS NULL OR l.status=:status)
+      AND l.food_type ILIKE :search ESCAPE '\\'
       ORDER BY l.listing_id LIMIT :limit"""),
-            {"uid": uid, "now": now, "cursor": cursor, "status": status, "limit": limit + 1},
+            {
+                "uid": uid,
+                "now": now,
+                "cursor": cursor,
+                "status": status,
+                "limit": limit + 1,
+                "search": search_pattern((q or "").strip()),
+            },
         )
         .mappings()
         .all()
@@ -399,4 +413,111 @@ def impact(
     )
     return ImpactResponse(
         data=[ImpactRow.model_validate(row) for row in rows], meta=Meta(server_time=now)
+    )
+
+
+def search_pattern(value: str) -> str:
+    """Treat wildcard and escape characters as literal user input."""
+    return "%" + value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+
+
+def overview(connection: Connection) -> OverviewResponse:
+    # Authenticated pending members can see their inbox; capabilities come from
+    # current database approvals, never from a caller or stale browser session.
+    uid = int(connection.execute(text("SELECT dbthon_require_actor(false)")).scalar_one())
+    now = clock(connection)
+    roles = [
+        role
+        for role in ["Donor", "Receiver", "Volunteer", "Admin"]
+        if connection.execute(text("SELECT dbthon_has_role(:role)"), {"role": role}).scalar_one()
+    ]
+    summaries: dict[str, int] = {}
+    values = {"uid": uid, "now": now}
+    if "Donor" in roles:
+        summaries["live_donations"] = connection.execute(
+            text("""
+          SELECT count(*) FROM food_listings WHERE donor_id=:uid AND status='Available'
+            AND expiry_window_end>:now
+        """),
+            values,
+        ).scalar_one()
+    if "Donor" in roles or "Receiver" in roles:
+        summaries["active_exchanges"] = connection.execute(
+            text("""
+          SELECT count(*) FROM claims c JOIN food_listings l USING(listing_id)
+          WHERE c.status='Confirmed' AND (c.receiver_id=:uid OR l.donor_id=:uid)
+            AND dbthon_can_view_claim(c.claim_id)
+        """),
+            values,
+        ).scalar_one()
+    if "Volunteer" in roles:
+        summaries["active_deliveries"] = connection.execute(
+            text("""
+          SELECT count(*) FROM pickups p JOIN claims c USING(claim_id)
+          WHERE p.volunteer_id=:uid AND p.status IN ('Scheduled','PickedUp')
+            AND dbthon_can_view_claim(c.claim_id)
+        """),
+            values,
+        ).scalar_one()
+    if "Admin" in roles:
+        summaries["pending_reviews"] = connection.execute(
+            text("""
+          SELECT count(*) FROM users WHERE zone_id=dbthon_actor_zone()
+            AND NOT verified_status
+        """)
+        ).scalar_one()
+    upcoming = (
+        connection.execute(
+            text("""
+      SELECT * FROM (
+        SELECT 'exchange'::text AS kind,c.claim_id,NULL::integer AS pickup_id,l.food_type,
+          c.status::text AS status,l.expiry_window_end,NULL::timestamptz AS scheduled_time
+        FROM claims c JOIN food_listings l USING(listing_id)
+        WHERE :exchanges AND c.status='Confirmed' AND (c.receiver_id=:uid OR l.donor_id=:uid)
+          AND dbthon_can_view_claim(c.claim_id)
+        UNION ALL
+        SELECT 'delivery',c.claim_id,p.pickup_id,l.food_type,p.status::text,
+          l.expiry_window_end,p.scheduled_time
+        FROM pickups p JOIN claims c USING(claim_id) JOIN food_listings l USING(listing_id)
+        WHERE :deliveries AND p.volunteer_id=:uid AND p.status IN ('Scheduled','PickedUp')
+          AND dbthon_can_view_claim(c.claim_id)
+      ) work ORDER BY expiry_window_end,claim_id,kind,pickup_id LIMIT 5
+    """),
+            {
+                **values,
+                "exchanges": "Donor" in roles or "Receiver" in roles,
+                "deliveries": "Volunteer" in roles,
+            },
+        )
+        .mappings()
+        .all()
+    )
+    unread = connection.execute(
+        text("""
+      SELECT count(*) FROM notifications WHERE user_id=:uid AND sent_at IS NOT NULL
+        AND read_at IS NULL
+    """),
+        values,
+    ).scalar_one()
+    updates = (
+        connection.execute(
+            text("""
+      SELECT notification_id,message,type,created_at,sent_at,read_at FROM notifications
+      WHERE user_id=:uid AND sent_at IS NOT NULL AND read_at IS NULL
+      ORDER BY sent_at DESC,notification_id DESC LIMIT 5
+    """),
+            values,
+        )
+        .mappings()
+        .all()
+    )
+    return OverviewResponse(
+        data=OverviewData(
+            capabilities=roles,
+            unread_count=unread,
+            summaries=summaries,
+            upcoming=list(upcoming),
+            updates=list(updates),
+        ),
+        meta=Meta(server_time=now),
     )
