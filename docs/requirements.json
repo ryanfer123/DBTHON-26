@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "source": "docs/source/DOC-20260817-WA0001.pdf",
+  "functional": [
+    {
+      "id": "FR01",
+      "title": "Registration, roles and verification",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P03"
+      ],
+      "tests": [
+        "T01",
+        "T02"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR02",
+      "title": "Listing creation, updates and cancellation",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P04",
+        "P05"
+      ],
+      "tests": [
+        "T03",
+        "T06"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR03",
+      "title": "Expiry countdown and warnings",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P04",
+        "P07"
+      ],
+      "tests": [
+        "T04"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR04",
+      "title": "Ranked matching and atomic claiming",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P04",
+        "P05"
+      ],
+      "tests": [
+        "T05",
+        "T06"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR05",
+      "title": "Volunteer pickup and delivery",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P06",
+        "P07"
+      ],
+      "tests": [
+        "T07"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR06",
+      "title": "Participant ratings and trust score",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P08"
+      ],
+      "tests": [
+        "T08"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR07",
+      "title": "Hash-linked audit ledger",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P05",
+        "P06",
+        "P07",
+        "P08"
+      ],
+      "tests": [
+        "T09"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR08",
+      "title": "Notifications including push/SMS",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P07",
+        "P09"
+      ],
+      "tests": [
+        "T10"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR09",
+      "title": "Scoped admin dashboards",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P10"
+      ],
+      "tests": [
+        "T02",
+        "T11"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "FR10",
+      "title": "Impact reporting by date and zone",
+      "source_pdf_page": 6,
+      "source_section": "4.2",
+      "status": "not_implemented",
+      "tasks": [
+        "P10"
+      ],
+      "tests": [
+        "T11"
+      ],
+      "spec": "docs/REQUIREMENTS.md"
+    }
+  ],
+  "nonfunctional": [
+    {
+      "id": "NFR01",
+      "title": "ACID integrity",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "NFR02",
+      "title": "Nearby feed performance",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "NFR03",
+      "title": "Zone availability",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "NFR04",
+      "title": "Security and privacy",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "NFR05",
+      "title": "Auditability",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    },
+    {
+      "id": "NFR06",
+      "title": "Multi-city scalability",
+      "source_pdf_page": 6,
+      "status": "not_implemented",
+      "spec": "docs/REQUIREMENTS.md"
+    }
+  ]
+}

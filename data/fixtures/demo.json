@@ -1,0 +1,621 @@
+{
+  "fixture_version": 1,
+  "synthetic": true,
+  "time_contract": "All *_offset_min fields are integer minutes relative to a UTC import anchor.",
+  "zones": [
+    {
+      "zone_id": 1,
+      "zone_name": "Demo zone 1",
+      "city": "Demo Vellore",
+      "pincode_range": "DEMO-1"
+    },
+    {
+      "zone_id": 2,
+      "zone_name": "Demo zone 2",
+      "city": "Demo Vellore",
+      "pincode_range": "DEMO-2"
+    },
+    {
+      "zone_id": 3,
+      "zone_name": "Demo zone 3",
+      "city": "Demo Vellore",
+      "pincode_range": "DEMO-3"
+    },
+    {
+      "zone_id": 4,
+      "zone_name": "Demo zone 4",
+      "city": "Demo Chennai",
+      "pincode_range": "DEMO-4"
+    }
+  ],
+  "users": [
+    {
+      "user_id": 101,
+      "zone_id": 1,
+      "name": "Demo Z1 Donor",
+      "email": "z1.donor@example.invalid",
+      "phone": "+12025550101",
+      "roles": [
+        "Donor"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9692,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 102,
+      "zone_id": 1,
+      "name": "Demo Z1 Receiver",
+      "email": "z1.receiver@example.invalid",
+      "phone": "+12025550102",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9692,
+      "longitude": 79.1559,
+      "capacity_kg": "12.00"
+    },
+    {
+      "user_id": 103,
+      "zone_id": 1,
+      "name": "Demo Z1 Volunteer",
+      "email": "z1.volunteer@example.invalid",
+      "phone": "+12025550103",
+      "roles": [
+        "Volunteer"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9692,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 104,
+      "zone_id": 1,
+      "name": "Demo Z1 Admin",
+      "email": "z1.admin@example.invalid",
+      "phone": "+12025550104",
+      "roles": [
+        "Admin"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9692,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 201,
+      "zone_id": 2,
+      "name": "Demo Z2 Donor",
+      "email": "z2.donor@example.invalid",
+      "phone": "+12025550105",
+      "roles": [
+        "Donor"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9892,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 202,
+      "zone_id": 2,
+      "name": "Demo Z2 Receiver",
+      "email": "z2.receiver@example.invalid",
+      "phone": "+12025550106",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9892,
+      "longitude": 79.1559,
+      "capacity_kg": "12.00"
+    },
+    {
+      "user_id": 203,
+      "zone_id": 2,
+      "name": "Demo Z2 Volunteer",
+      "email": "z2.volunteer@example.invalid",
+      "phone": "+12025550107",
+      "roles": [
+        "Volunteer"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9892,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 204,
+      "zone_id": 2,
+      "name": "Demo Z2 Admin",
+      "email": "z2.admin@example.invalid",
+      "phone": "+12025550108",
+      "roles": [
+        "Admin"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.9892,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 301,
+      "zone_id": 3,
+      "name": "Demo Z3 Donor",
+      "email": "z3.donor@example.invalid",
+      "phone": "+12025550109",
+      "roles": [
+        "Donor"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.0092,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 302,
+      "zone_id": 3,
+      "name": "Demo Z3 Receiver",
+      "email": "z3.receiver@example.invalid",
+      "phone": "+12025550110",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.0092,
+      "longitude": 79.1559,
+      "capacity_kg": "12.00"
+    },
+    {
+      "user_id": 303,
+      "zone_id": 3,
+      "name": "Demo Z3 Volunteer",
+      "email": "z3.volunteer@example.invalid",
+      "phone": "+12025550111",
+      "roles": [
+        "Volunteer"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.0092,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 304,
+      "zone_id": 3,
+      "name": "Demo Z3 Admin",
+      "email": "z3.admin@example.invalid",
+      "phone": "+12025550112",
+      "roles": [
+        "Admin"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.0092,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 401,
+      "zone_id": 4,
+      "name": "Demo Z4 Donor",
+      "email": "z4.donor@example.invalid",
+      "phone": "+12025550113",
+      "roles": [
+        "Donor"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.029200000000001,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 402,
+      "zone_id": 4,
+      "name": "Demo Z4 Receiver",
+      "email": "z4.receiver@example.invalid",
+      "phone": "+12025550114",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.029200000000001,
+      "longitude": 79.1559,
+      "capacity_kg": "12.00"
+    },
+    {
+      "user_id": 403,
+      "zone_id": 4,
+      "name": "Demo Z4 Volunteer",
+      "email": "z4.volunteer@example.invalid",
+      "phone": "+12025550115",
+      "roles": [
+        "Volunteer"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.029200000000001,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 404,
+      "zone_id": 4,
+      "name": "Demo Z4 Admin",
+      "email": "z4.admin@example.invalid",
+      "phone": "+12025550116",
+      "roles": [
+        "Admin"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 13.029200000000001,
+      "longitude": 79.1559,
+      "capacity_kg": null
+    },
+    {
+      "user_id": 105,
+      "zone_id": 1,
+      "name": "Demo small-capacity receiver",
+      "email": "small.receiver@example.invalid",
+      "phone": "+12025550117",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.97,
+      "longitude": 79.1565,
+      "capacity_kg": "2.00"
+    },
+    {
+      "user_id": 106,
+      "zone_id": 1,
+      "name": "Demo pending receiver",
+      "email": "pending.receiver@example.invalid",
+      "phone": "+12025550118",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": false,
+      "active": true,
+      "latitude": 12.97,
+      "longitude": 79.1565,
+      "capacity_kg": "20.00"
+    },
+    {
+      "user_id": 107,
+      "zone_id": 1,
+      "name": "Demo competing receiver",
+      "email": "second.receiver@example.invalid",
+      "phone": "+12025550119",
+      "roles": [
+        "Receiver"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.97,
+      "longitude": 79.1565,
+      "capacity_kg": "12.00"
+    },
+    {
+      "user_id": 108,
+      "zone_id": 1,
+      "name": "Demo competing volunteer",
+      "email": "second.volunteer@example.invalid",
+      "phone": "+12025550120",
+      "roles": [
+        "Volunteer"
+      ],
+      "verified_status": true,
+      "active": true,
+      "latitude": 12.97,
+      "longitude": 79.1565,
+      "capacity_kg": null
+    }
+  ],
+  "food_listings": [
+    {
+      "listing_id": 1,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "8.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 120,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.9693,
+      "pickup_long": 79.156,
+      "status": "Available"
+    },
+    {
+      "listing_id": 2,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Bread",
+      "category": "Veg",
+      "quantity_kg": "3.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 30,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.9694,
+      "pickup_long": 79.15610000000001,
+      "status": "Available"
+    },
+    {
+      "listing_id": 3,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "14.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 90,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.9695,
+      "pickup_long": 79.1562,
+      "status": "Available"
+    },
+    {
+      "listing_id": 4,
+      "donor_id": 201,
+      "zone_id": 2,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "4.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 100,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.989600000000001,
+      "pickup_long": 79.1563,
+      "status": "Available"
+    },
+    {
+      "listing_id": 5,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "5.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": -5,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.969700000000001,
+      "pickup_long": 79.1564,
+      "status": "Expired"
+    },
+    {
+      "listing_id": 6,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "6.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 100,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.969800000000001,
+      "pickup_long": 79.15650000000001,
+      "status": "Claimed"
+    },
+    {
+      "listing_id": 7,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "4.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 80,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.9699,
+      "pickup_long": 79.1566,
+      "status": "PickedUp"
+    },
+    {
+      "listing_id": 8,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "10.00",
+      "prepared_at_offset_min": -200,
+      "expiry_window_start_offset_min": -150,
+      "expiry_window_end_offset_min": 60,
+      "created_at_offset_min": -180,
+      "pickup_lat": 12.97,
+      "pickup_long": 79.1567,
+      "status": "Delivered"
+    },
+    {
+      "listing_id": 9,
+      "donor_id": 301,
+      "zone_id": 3,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "2.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 100,
+      "created_at_offset_min": -100,
+      "pickup_lat": 13.0101,
+      "pickup_long": 79.1568,
+      "status": "Cancelled"
+    },
+    {
+      "listing_id": 10,
+      "donor_id": 401,
+      "zone_id": 4,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "7.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 90,
+      "created_at_offset_min": -100,
+      "pickup_lat": 13.0302,
+      "pickup_long": 79.15690000000001,
+      "status": "Available"
+    },
+    {
+      "listing_id": 11,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Cooked rice and vegetables",
+      "category": "Veg",
+      "quantity_kg": "5.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": 30,
+      "expiry_window_end_offset_min": 180,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.9703,
+      "pickup_long": 79.157,
+      "status": "Available"
+    },
+    {
+      "listing_id": 12,
+      "donor_id": 101,
+      "zone_id": 1,
+      "food_type": "Packed meals",
+      "category": "NonVeg",
+      "quantity_kg": "2.00",
+      "prepared_at_offset_min": -120,
+      "expiry_window_start_offset_min": -90,
+      "expiry_window_end_offset_min": 150,
+      "created_at_offset_min": -100,
+      "pickup_lat": 12.970400000000001,
+      "pickup_long": 79.1571,
+      "status": "Available"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": 101,
+      "listing_id": 6,
+      "receiver_id": 102,
+      "claimed_at_offset_min": -50,
+      "status": "Confirmed"
+    },
+    {
+      "claim_id": 102,
+      "listing_id": 7,
+      "receiver_id": 102,
+      "claimed_at_offset_min": -45,
+      "status": "Confirmed"
+    },
+    {
+      "claim_id": 103,
+      "listing_id": 8,
+      "receiver_id": 102,
+      "claimed_at_offset_min": -100,
+      "status": "Completed",
+      "ended_at_offset_min": -30
+    }
+  ],
+  "pickups": [
+    {
+      "claim_id": 101,
+      "pickup_id": 1,
+      "volunteer_id": 103,
+      "scheduled_time_offset_min": -40,
+      "actual_pickup_time_offset_min": null,
+      "delivery_time_offset_min": null,
+      "ended_at_offset_min": -20,
+      "status": "Missed",
+      "reason": "Synthetic missed-attempt example"
+    },
+    {
+      "claim_id": 101,
+      "pickup_id": 2,
+      "volunteer_id": 108,
+      "scheduled_time_offset_min": 15,
+      "actual_pickup_time_offset_min": null,
+      "delivery_time_offset_min": null,
+      "ended_at_offset_min": null,
+      "status": "Scheduled",
+      "reason": null
+    },
+    {
+      "claim_id": 102,
+      "pickup_id": 3,
+      "volunteer_id": 103,
+      "scheduled_time_offset_min": -20,
+      "actual_pickup_time_offset_min": -15,
+      "delivery_time_offset_min": null,
+      "ended_at_offset_min": null,
+      "status": "PickedUp",
+      "reason": null
+    },
+    {
+      "claim_id": 103,
+      "pickup_id": 4,
+      "volunteer_id": 103,
+      "scheduled_time_offset_min": -60,
+      "actual_pickup_time_offset_min": -50,
+      "delivery_time_offset_min": -30,
+      "ended_at_offset_min": -30,
+      "status": "Delivered",
+      "reason": null
+    }
+  ],
+  "ratings": [
+    {
+      "rating_id": 1,
+      "claim_id": 103,
+      "rater_id": 102,
+      "target_user_id": 101,
+      "score": 5,
+      "comments": "Synthetic receiver rating",
+      "created_at_offset_min": -25
+    },
+    {
+      "rating_id": 2,
+      "claim_id": 103,
+      "rater_id": 101,
+      "target_user_id": 102,
+      "score": 4,
+      "comments": "Synthetic donor rating",
+      "created_at_offset_min": -24
+    }
+  ],
+  "expected_at_anchor": {
+    "zone_1_picked_up_kg": "14.00",
+    "zone_1_delivered_kg": "10.00",
+    "zone_1_estimated_meals": "25.00",
+    "co2e_kg_per_kg": null,
+    "primary_receiver_id": 102,
+    "primary_receiver_visible_listing_ids_by_urgency": [
+      2,
+      1,
+      12
+    ],
+    "insufficient_capacity_receiver_id": 105,
+    "insufficient_capacity_receiver_visible_listing_ids": [
+      12
+    ]
+  }
+}

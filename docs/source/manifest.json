@@ -1,0 +1,35 @@
+{
+  "source_type": "user-supplied project brief",
+  "original_path_at_import": "/Volumes/Seagate/Downloads/DOC-20260817-WA0001.pdf",
+  "import_date": "2026-10-05",
+  "pdf_pages": 16,
+  "extraction": "Poppler pdftotext -layout; images rendered with pdftoppm -scale-to 1400",
+  "files": [
+    {
+      "path": "docs/source/DOC-20260817-WA0001.pdf",
+      "bytes": 988596,
+      "sha256": "146102da61fdab47ee07fc2bebce8bc429912e46e5d1c7be3a607b2f2753273b"
+    },
+    {
+      "path": "docs/source/brief-extracted.md",
+      "bytes": 41155,
+      "sha256": "7086f06f032e60daccc70d1e03a17341e5aceb84671e59d18bb6cbab84f4d363"
+    },
+    {
+      "path": "docs/source/figures/architecture-page-07.png",
+      "bytes": 302928,
+      "sha256": "50523e2dcbfc2e75537483be25f9cfe735e986df58208ebaeea529ed9652207b"
+    },
+    {
+      "path": "docs/source/figures/er-diagram-page-08.png",
+      "bytes": 205382,
+      "sha256": "400be3651a9a0d42cb76838f87e967f6a2cf7f1f8e2245049c4ad21ffbe8f702"
+    },
+    {
+      "path": "docs/source/figures/workflow-page-14.png",
+      "bytes": 252587,
+      "sha256": "85ed0e0ee3710f75cf932f71b3425de571f57f838b39f92a1711143eb2760127"
+    }
+  ],
+  "source_scope": "Requirements and evidence only; illustrative SQL is incomplete. No external dataset or real interview/pilot results supplied."
+}
