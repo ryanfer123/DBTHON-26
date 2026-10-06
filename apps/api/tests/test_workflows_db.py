@@ -768,3 +768,18 @@ def test_overview_counts_all_active_work_but_lists_only_five(workflow):
     assert data["summaries"]["active_exchanges"] == expected and expected >= 7
     assert len(data["upcoming"]) == 5
     assert len({item["claim_id"] for item in data["upcoming"]}) == 5
+
+
+def test_overview_etag_is_actor_scoped_and_verification_checks_complete_chain(workflow):
+    _, client, _ = workflow
+    one, two = client(101), client(102)
+    initial = one.get("/api/v1/workspace/overview")
+    etag = initial.headers["etag"]
+    assert one.get("/api/v1/workspace/overview", headers={"If-None-Match": etag}).status_code == 304
+    assert two.get("/api/v1/workspace/overview", headers={"If-None-Match": etag}).status_code == 200
+    create(one)
+    assert one.get("/api/v1/workspace/overview", headers={"If-None-Match": etag}).status_code == 200
+    result = one.get("/api/v1/trust-ledger/mine/verification").json()["data"]
+    assert result["valid"] is True and result["entries_verified"] > 0
+    assert result["checked_through_sequence"] == result["entries_verified"]
+    assert len(result["head_hash"]) == 64

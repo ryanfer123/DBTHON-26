@@ -73,6 +73,7 @@ def test_openapi_lists_only_implemented_endpoints():
             "/api/v1/notifications/{notification_id}/read",
             "/api/v1/users/{user_id}/trust",
             "/api/v1/trust-ledger/mine",
+            "/api/v1/trust-ledger/mine/verification",
             "/api/v1/admin/users/{user_id}/trust-ledger",
             "/api/v1/admin/impact",
             "/api/v1/admin/impact/export",

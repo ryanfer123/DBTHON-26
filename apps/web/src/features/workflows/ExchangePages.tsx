@@ -1,3 +1,4 @@
+import { WhatsAppContact } from '../../components/WhatsAppContact'
 import { useListLocation } from './useListLocation'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
@@ -44,8 +45,8 @@ function ExchangeActions({ exchange, refresh, admin = false }: { exchange: Excha
 }
 function ExchangeDetails({ exchange, refresh, admin = false }: { exchange: Exchange; refresh: () => void; admin?: boolean }) {
   return <><dl className="detail-list">
-    <dt>Donor</dt><dd>{exchange.donor_name}{exchange.donor_phone && <> · <a href={`tel:${exchange.donor_phone}`}>{exchange.donor_phone}</a></>}</dd>
-    <dt>Receiver</dt><dd>{exchange.receiver_name}{exchange.receiver_phone && <> · <a href={`tel:${exchange.receiver_phone}`}>{exchange.receiver_phone}</a></>}</dd>
+    <dt>Donor</dt><dd>{exchange.donor_name}{exchange.donor_phone && <> · <><a href={`tel:${exchange.donor_phone}`}>{exchange.donor_phone}</a> <WhatsAppContact phone={exchange.donor_phone} claimId={exchange.claim_id} name={exchange.donor_name ?? 'Participant'} /></></>}</dd>
+    <dt>Receiver</dt><dd>{exchange.receiver_name}{exchange.receiver_phone && <> · <><a href={`tel:${exchange.receiver_phone}`}>{exchange.receiver_phone}</a> <WhatsAppContact phone={exchange.receiver_phone} claimId={exchange.claim_id} name={exchange.receiver_name ?? 'Participant'} /></></>}</dd>
     <dt>Pickup point</dt><dd><Coordinates lat={exchange.pickup_lat} lon={exchange.pickup_long} /></dd>
     {exchange.receiver_latitude && exchange.receiver_longitude && <><dt>Delivery point</dt><dd><Coordinates lat={exchange.receiver_latitude} lon={exchange.receiver_longitude} /></dd></>}
     <dt>Collect / deliver by</dt><dd>{date(exchange.expiry_window_end)}</dd>

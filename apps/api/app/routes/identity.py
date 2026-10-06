@@ -122,7 +122,7 @@ def login(body: Login, request: Request, response: Response) -> SessionResponse:
         max_age=43200,
         httponly=True,
         secure=settings.app_env == "production",
-        samesite="none" if settings.app_env == "production" else "lax",
+        samesite=settings.session_same_site if settings.app_env == "production" else "lax",
         path="/api/v1",
     )
     return SessionResponse(data=data)
@@ -177,7 +177,9 @@ def logout(request: Request, response: Response) -> None:
         path="/api/v1",
         secure=request.app.state.settings.app_env == "production",
         httponly=True,
-        samesite="none" if request.app.state.settings.app_env == "production" else "lax",
+        samesite=request.app.state.settings.session_same_site
+        if request.app.state.settings.app_env == "production"
+        else "lax",
     )
 
 

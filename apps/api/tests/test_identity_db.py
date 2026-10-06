@@ -381,7 +381,8 @@ def test_actual_login_roles_pool_isolation_and_no_auth_escalation(identity):
         access.close()
 
 
-def test_secure_production_cookie_and_rotation(identity, monkeypatch):
+@pytest.mark.parametrize("same_site", ["none", "lax"])
+def test_secure_production_cookie_and_rotation(identity, monkeypatch, same_site):
     _, password, make, settings = identity
     # This local disposable Postgres service has no TLS listener. Keep this test
     # focused on HTTPS cookies; production database TLS is checked separately.
@@ -392,13 +393,17 @@ def test_secure_production_cookie_and_rotation(identity, monkeypatch):
         lambda self, url: driver_url(self, url).update_query_dict({"sslmode": "disable"}),
     )
     production = settings.model_copy(
-        update={"app_env": "production", "allowed_origins": ["https://app.example.com"]}
+        update={
+            "app_env": "production",
+            "allowed_origins": ["https://app.example.com"],
+            "session_same_site": same_site,
+        }
     )
     client = make(production, base_url="https://app.example.com")
     client.headers["Origin"] = "https://app.example.com"
     result = sign_in(client, password)
     assert "Secure" in result.headers["set-cookie"]
-    assert "SameSite=none" in result.headers["set-cookie"]
+    assert f"SameSite={same_site}" in result.headers["set-cookie"]
     old = client.cookies.get(SESSION_COOKIE)
     sign_in(client, password)
     assert client.cookies.get(SESSION_COOKIE) != old

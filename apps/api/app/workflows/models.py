@@ -245,6 +245,18 @@ class LedgerResponse(Input):
     meta: Meta
 
 
+class LedgerVerification(Input):
+    valid: bool
+    entries_verified: int = Field(ge=0)
+    head_hash: str | None
+    checked_through_sequence: int = Field(ge=0)
+    assurance: str
+
+
+class LedgerVerificationResponse(Input):
+    data: LedgerVerification
+
+
 class ImpactRow(Input):
     period: str
     zone_id: int

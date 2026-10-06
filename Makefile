@@ -1,6 +1,7 @@
 .PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access worker feed-plan
 
 check:
+	python3 scripts/check_migrations.py
 	python3 scripts/validate_handoff.py
 
 setup:

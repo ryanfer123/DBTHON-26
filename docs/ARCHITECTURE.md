@@ -68,3 +68,11 @@ Support request IDs and structured logs with IDs, errors, timing and transition
 names. Exclude hashes, session contents, passwords, exact personal coordinates and
 phone numbers. Provide liveness separately from database readiness. Never claim
 zone availability independence while all transactions share one database process.
+
+## Prepared same-origin option
+
+The optional [consolidated hosting package](CONSOLIDATED_HOSTING.md) serves the
+built SPA through FastAPI and runs the worker separately from the same image.
+It is a prepared replacement, not a cloud deployment. Existing cross-origin
+configuration remains supported. The dashboard uses authenticated ETag/304
+responses; each poll still recomputes scoped counts in PostgreSQL.

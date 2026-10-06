@@ -366,3 +366,46 @@ launcher remains blocked by the Xcode license prompt. Render build logs showed t
 moderate npm audit findings. Next: publish the reviewed frontend/API changes, set
 `VITE_API_BASE_URL` and the AWS exact-origin allowlist, then verify community data,
 deep-link refresh and sign-in against the live AWS API.
+
+## Product hardening and consolidated-package preparation (2026-10-06)
+
+Implemented in `/private/tmp/dbthon-usability` on `feat/product-hardening` from the
+published usability baseline `b42bc0c`. The user's selected notification approach
+is WhatsApp click-to-chat plus the existing in-app inbox. Exchange contacts now
+open an encoded handover message for authorized participants; the member sends it.
+No automated external notification delivery is claimed.
+
+Changed API configuration/static serving, cookie configuration, request logs,
+overview conditional responses, the complete-own-chain verification interface,
+exchange/trust/food UI and tests. Added a non-root multi-stage Docker image, local
+port launcher, replacement Render Blueprint, migration-source CI guard and
+[hosting prerequisites](CONSOLIDATED_HOSTING.md). The
+[hardening audit](PRODUCT_HARDENING.md) records all 15 review areas and unfinished
+work. OpenAPI was regenerated. No schema migration was added.
+
+| Actual command/check | Observed result |
+| --- | --- |
+| `DBTHON_TEST_DATABASE=dbthon_usability_test apps/api/.venv/bin/pytest apps/api/tests --db -q` | 91 passed against real PostgreSQL/PostGIS, including actor-scoped overview validators and catalog privilege checks |
+| Same database pytest on identity/workflow tests with `-k 'secure_production_cookie or overview_etag'` after final contract/cookie updates | 3 passed, 42 deselected; HTTPS Secure cookies tested with both SameSite=None and Lax, rotation preserved, full-chain response model checked |
+| `npm test --prefix apps/web` | 15 passed; conditional 304 reuse/account isolation and WhatsApp URL construction included |
+| `npm run test:e2e --prefix apps/web` | 22 passed, desktop 1505×1045 and mobile 390×844; handover links/full-chain verification, workflows, navigation, dark mode, failure recovery and overflow assertions |
+| Ruff / strict mypy / ESLint / TypeScript / Vite production build | Passed; mypy checked 24 application files |
+| `npm audit --omit=dev --prefix apps/web --json` | Zero reported production dependency vulnerabilities; build tooling audit still reports 3 development dependency findings (1 moderate, 2 critical), not remediated in this iteration |
+| Official Render JSON-schema validation of `deploy/render-single-platform.yaml` | Passed after quoting YAML scalar `off` and PostgreSQL version |
+| Linux amd64 Docker image build | Passed with locked Python/npm dependencies and non-root runtime |
+| Local container port 8080 mapped to loopback 18080 | Homepage/dashboard/help served the built SPA; API liveness returned JSON; unknown API route retained 404. No database credentials supplied and readiness remains closed |
+| OpenAPI `--check`, migration source guard, handoff validation and `git diff --check` | Passed |
+
+Browser screenshots were reviewed locally, including wrapped long listing names
+on the 390px feed. The package check does not establish Render managed-role
+compatibility, worker availability or live sign-in. The current bootstrap's
+BYPASSRLS dependency is an explicit pre-provisioning gate. No cloud resources were
+created, deployment performed, data moved or participant messages sent.
+
+Original `/Volumes/Seagate/dbthon` AWS infrastructure, cloud scripts, deployment
+cost documents, uncommitted RDS migration and working-tree documentation links
+remain locally preserved. Next task: test/reconcile managed-role bootstrap on a
+separate disposable database before building the synthetic public demo/reset.
+P11/P12 remain incomplete; retention/deletion, external checkpoints, safety policy,
+operational metrics/alerts, load evidence, Tamil/PWA and real interviews remain
+pending as detailed in the audit.

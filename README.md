@@ -1,6 +1,11 @@
 # DBTHON-26
 
-**Decentralized Surplus Food & Perishable Redistribution Platform**
+**Second Table: community-operated, zone-partitioned food redistribution**
+
+The course brief retains its original title, “Decentralized Surplus Food &
+Perishable Redistribution Platform”. The implementation uses one shared PostgreSQL
+database with logical zone isolation and local role approval; it does not provide
+independent zone databases, physical partitioning, or distributed consensus.
 
 BCSE302P Database Systems Laboratory project by Ryan Fernandes (24BCE0565) and
 Aritra Ghosh (24BCE0598), aligned with T5/T6 Waste & Circular Economy and Healthcare
@@ -94,3 +99,11 @@ P11 work; real stakeholder/pilot evidence remains P12 work.
 
 Repository: [ryanfer123/DBTHON-26](https://github.com/ryanfer123/DBTHON-26).
 No software license was supplied; adding one is an owner decision.
+
+## Hosting preparation and hardening
+
+The [consolidated hosting package](docs/CONSOLIDATED_HOSTING.md) serves the website
+and API from one origin and supplies a replacement Render Blueprint. Its managed
+database bootstrap gate must pass before provisioning. See the
+[product hardening audit](docs/PRODUCT_HARDENING.md) for implemented changes and
+remaining work from the product review.

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
     app_env: Literal["development", "test", "production"] = "development"
+    static_dist: Path | None = None
+    session_same_site: Literal["lax", "none"] = "none"
     database_url: SecretStr | None = None
     app_database_url: SecretStr | None = None
     auth_database_url: SecretStr | None = None

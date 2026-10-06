@@ -144,3 +144,18 @@ At the exact deadline return 409 `LISTING_EXPIRED`. At insufficient declared
 capacity return 409 `CAPACITY_INSUFFICIENT`. Unverified approved-role absence
 returns 403 `VERIFICATION_REQUIRED`. An invisible zone/object returns 404 rather
 than leaking another zone's identity or transaction details.
+
+## Conditional overview and full-chain verification
+
+`GET /api/v1/workspace/overview` returns an actor-scoped `ETag`. An authenticated
+request with the same `If-None-Match` returns 304 without a body when its data is
+unchanged; server-time-only changes do not invalidate it. The client keeps its
+response only in account-scoped memory; `Cache-Control: private, no-store` remains.
+Authentication and database counts run again for every request.
+
+`GET /api/v1/trust-ledger/mine/verification` returns `data.valid`,
+`entries_verified`, `head_hash`, `checked_through_sequence`, and `assurance`. It
+checks the signed-in member's complete stored chain with the independent Python
+canonicalizer, not just the displayed page. Invalid chains return `valid: false`.
+This is internal consistency evidence; it does not verify an external checkpoint
+or prove that a database owner has never rewritten the chain.

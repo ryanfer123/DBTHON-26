@@ -1,5 +1,8 @@
+import json
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from time import perf_counter
 from typing import Literal
 from uuid import uuid4
 
@@ -21,9 +24,16 @@ from app.core.errors import (
     domain_error_handler,
     validation_error_handler,
 )
+from app.core.static import AppStaticFiles
 from app.routes.identity import router as identity_router
 from app.routes.public import router as public_router
 from app.routes.workflows import router as workflow_router
+
+http_logger = logging.getLogger("second_table.http")
+http_logger.setLevel(logging.INFO)
+if not http_logger.handlers:
+    http_logger.addHandler(logging.StreamHandler())
+http_logger.propagate = False
 
 
 class HealthData(BaseModel):
@@ -68,8 +78,9 @@ def create_app(
             "X-Requested-With",
             "X-CSRF-Token",
             "Idempotency-Key",
+            "If-None-Match",
         ],
-        expose_headers=["Retry-After", "X-Request-ID"],
+        expose_headers=["Retry-After", "X-Request-ID", "ETag"],
     )
     application.state.database = db
     application.state.access = permissions
@@ -81,7 +92,20 @@ def create_app(
     @application.middleware("http")
     async def request_id(request: Request, call_next: RequestResponseEndpoint) -> Response:
         request.state.request_id = uuid4().hex
+        started = perf_counter()
         response = await call_next(request)
+        http_logger.info(
+            json.dumps(
+                {
+                    "event": "http_request",
+                    "request_id": request.state.request_id,
+                    "method": request.method,
+                    "route": getattr(request.scope.get("route"), "path", "unmatched"),
+                    "status": response.status_code,
+                    "duration_ms": round((perf_counter() - started) * 1000, 2),
+                }
+            )
+        )
         response.headers["X-Request-ID"] = request.state.request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         if request.url.path.startswith("/api/v1") and request.url.path not in (
@@ -122,6 +146,8 @@ def create_app(
     application.include_router(public_router, prefix="/api/v1")
     application.include_router(identity_router, prefix="/api/v1")
     application.include_router(workflow_router, prefix="/api/v1")
+    if configured.static_dist is not None:
+        application.mount("/", AppStaticFiles(configured.static_dist), name="web")
     return application
 
 

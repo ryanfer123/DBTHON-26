@@ -1,5 +1,8 @@
 import csv
+import hashlib
 import io
+import json
+from collections.abc import Iterator, Mapping
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Header, Query, Request
@@ -9,6 +12,7 @@ from sqlalchemy import text
 
 from app.core.errors import DomainError
 from app.routes.identity import context
+from app.trust.verify import verify as verify_chain
 from app.workflows import service
 from app.workflows.models import (
     Category,
@@ -20,6 +24,7 @@ from app.workflows.models import (
     ImpactResponse,
     LedgerEntry,
     LedgerResponse,
+    LedgerVerificationResponse,
     ListingInput,
     ListingPatch,
     ListingResponse,
@@ -48,9 +53,18 @@ Cursor = Annotated[int, Query(ge=0)]
 
 
 @router.get("/workspace/overview", response_model=OverviewResponse)
-def workspace_overview(request: Request) -> OverviewResponse:
+def workspace_overview(request: Request, response: Response) -> OverviewResponse | Response:
     with context(request) as c:
-        return service.overview(c)
+        overview = service.overview(c)
+        uid = c.execute(text("SELECT dbthon_actor_id()")).scalar_one()
+    canonical = json.dumps(
+        {"actor": uid, "data": overview.data.model_dump(mode="json")}, sort_keys=True
+    )
+    etag = '"' + hashlib.sha256(canonical.encode()).hexdigest() + '"'
+    if etag in {token.strip() for token in request.headers.get("If-None-Match", "").split(",")}:
+        return Response(status_code=304, headers={"ETag": etag})
+    response.headers["ETag"] = etag
+    return overview
 
 
 @router.post("/listings", response_model=CommandResponse, status_code=201)
@@ -365,3 +379,45 @@ def export_report(
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="second-table-impact.csv"'},
     )
+
+
+@router.get("/trust-ledger/mine/verification", response_model=LedgerVerificationResponse)
+def verify_own_ledger(request: Request) -> dict[str, object]:
+    with context(request) as c:
+        rows = (
+            c.execution_options(stream_results=True)
+            .execute(
+                text("SELECT * FROM trust_ledger WHERE user_id=dbthon_actor_id() ORDER BY sequence")
+            )
+            .mappings()
+        )
+        head: dict[str, object] = {"head_hash": None, "checked_through_sequence": 0}
+
+        def entries() -> Iterator[Mapping[str, object]]:
+            for row in rows:
+                head.update(head_hash=row["curr_hash"], checked_through_sequence=row["sequence"])
+                yield dict(row)
+
+        try:
+            count = verify_chain(entries())
+        except ValueError:
+            return {
+                "data": {
+                    "valid": False,
+                    "entries_verified": 0,
+                    "head_hash": None,
+                    "checked_through_sequence": 0,
+                    "assurance": "Stored chain is inconsistent.",
+                }
+            }
+    return {
+        "data": {
+            "valid": True,
+            "entries_verified": count,
+            **head,
+            "assurance": (
+                "Internal consistency checked independently. A database owner can rewrite "
+                "the full chain; no external checkpoint was checked."
+            ),
+        }
+    }

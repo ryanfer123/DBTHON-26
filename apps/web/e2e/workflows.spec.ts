@@ -85,6 +85,9 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await expect(page).toHaveURL(/\/claims\/\d+$/)
   const claimPath = new URL(page.url()).pathname
   await expect(page.getByText('4.50 kg · Confirmed', { exact: true })).toBeVisible()
+  const whatsapp = page.locator('a[href^="https://wa.me/"]').first()
+  await expect(whatsapp).toBeVisible()
+  expect(new URL((await whatsapp.getAttribute('href'))!).searchParams.get('text')).toContain('Second Table exchange #')
   await workspaceLink(page, 'Dashboard')
   await page.locator('.dashboard-list li').filter({ hasText: food }).getByRole('link', { name: 'Open exchange' }).click()
   await expect(page).toHaveURL(claimPath)
@@ -148,6 +151,8 @@ test('food reaches a receiver through real listing, claim, assignment, delivery,
   await expect(page.locator('.unread-badge:visible')).toHaveText(` (${overview.unread_count})`)
   await workspaceLink(page, 'My trust')
   await expect(page.locator('.ledger-list')).toContainText('pickup · deliver')
+  await page.getByRole('button', { name: 'Verify my complete chain' }).click()
+  await expect(page.getByText(/Internal consistency checked independently/)).toBeVisible()
   await noOverflow(page)
   await signOut(page)
 

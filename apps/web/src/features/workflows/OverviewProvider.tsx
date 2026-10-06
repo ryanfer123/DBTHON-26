@@ -8,13 +8,17 @@ export function OverviewProvider({ children }: { children: ReactNode }) {
   const authRef = useRef(auth)
   useEffect(() => { authRef.current = auth }, [auth])
   const scope = auth.session ? `${auth.session.user.user_id}:${[...auth.session.user.capabilities].sort().join(',')}` : ''
+  const cache = useRef<{ scope: string; etag: string; value: Overview } | null>(null)
   const [revision, setRevision] = useState(0)
   const [state, setState] = useState<{ scope: string; data: Overview | null; error: string; loading: boolean }>({ scope: '', data: null, error: '', loading: true })
   const refresh = useCallback(() => setRevision(value => value + 1), [])
   useEffect(() => {
-    if (!scope) return
+    if (!scope) { cache.current = null; return }
     const controller = new AbortController()
-    api<Overview>('/workspace/overview', { signal: controller.signal }).then(data => {
+    api<Overview>('/workspace/overview', { signal: controller.signal,
+      conditional: cache.current?.scope === scope ? cache.current : undefined,
+      onResult: (value, etag) => { if (!controller.signal.aborted) cache.current = etag ? { scope, etag, value } : null },
+    }).then(data => {
       if (!controller.signal.aborted) {
         setState({ scope, data, loading: false, error: '' })
         const user = authRef.current.session?.user

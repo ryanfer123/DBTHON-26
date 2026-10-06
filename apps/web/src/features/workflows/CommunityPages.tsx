@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { apiUrl } from '../../lib/identity'
+import { api, apiUrl } from '../../lib/identity'
 import { useAuth } from '../identity/AuthContext'
 import { date, params, useCommand, useQuery, type Impact, type Ledger, type Notification, type Rows, type Trust } from './data'
 import { useListLocation } from './useListLocation'
@@ -43,7 +43,8 @@ function TrustHistory({ target, admin = false }: { target: string; admin?: boole
     <QueryStatus {...ledger} />{ledger.data && <><ol className="ledger-list">{ledger.data.data.map(entry => <li key={entry.sequence}><div className="section-heading"><h3>{entry.action_type.replaceAll('.', ' · ')}</h3><span>#{entry.sequence}</span></div><p className="field-help">{date(entry.occurred_at)} · {entry.ref_table} {entry.ref_id}</p>
       <details><summary>View audit record</summary><dl className="audit-hashes"><dt>Previous hash</dt><dd>{entry.prev_hash}</dd><dt>Record hash</dt><dd>{entry.curr_hash}</dd></dl><pre>{JSON.stringify(entry.payload, null, 2)}</pre></details>
     </li>)}</ol>{!ledger.data.data.length && <p className="list-message">No recorded actions in this view.</p>}<Pagination meta={ledger.data.meta} cursor={cursor} setCursor={setCursor} /></>}
-    <p className="workspace-note">Records are linked by hashes. This view displays the stored history; independent chain verification is available through the project’s database verifier.</p>
+    {!admin && <VerifyMyChain />}
+    <p className="workspace-note">Hash chains check stored history. A database owner can rewrite an entire chain; this is not distributed consensus or an external audit.</p>
   </>
 }
 function utcBoundary(value: string) { return `${value}T00:00:00Z` }
@@ -84,4 +85,15 @@ function ImpactResults({ queryString }: { queryString: string }) {
       <p className="workspace-note">Pickup and delivery totals are separate. Participation counts are distinct people within each row; summing daily counts would count returning people again.</p>
     </>}
   </>
+}
+
+function VerifyMyChain() {
+  const [result, setResult] = useState<{ valid: boolean; entries_verified: number; assurance: string } | null>(null)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  return <section className="dashboard-section"><h2>Verify my chain</h2><p>Recalculate every stored event hash, including pages not currently shown.</p><button className="button button-outline button-small" disabled={busy} onClick={async () => {
+    setBusy(true); setError(''); setResult(null)
+    try { setResult((await api<{ data: { valid: boolean; entries_verified: number; assurance: string } }>('/trust-ledger/mine/verification')).data) }
+    catch (error) { setError((error as Error).message) } finally { setBusy(false) }
+  }}>{busy ? 'Verifying…' : 'Verify my complete chain'}</button>{error && <p role="alert" className="notice notice-error">{error}</p>}{result && <p role={result.valid ? 'status' : 'alert'} className="notice">{result.valid ? `${result.entries_verified} events verified. ` : 'Verification failed. '}{result.assurance}</p>}</section>
 }

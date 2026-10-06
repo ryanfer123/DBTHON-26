@@ -1,0 +1,44 @@
+# Reviewable replacement stack. Do not sync over the existing static service.
+# Complete the managed-role bootstrap gate in CONSOLIDATED_HOSTING.md first.
+services:
+  - type: web
+    name: second-table-app
+    runtime: docker
+    region: singapore
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /api/v1/health/ready
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: APP_DATABASE_URL
+        sync: false
+      - key: AUTH_DATABASE_URL
+        sync: false
+  - type: worker
+    name: second-table-worker
+    runtime: docker
+    region: singapore
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    dockerCommand: python scripts/worker.py
+    autoDeployTrigger: "off"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: WORKER_DATABASE_URL
+        sync: false
+databases:
+  - name: second-table-postgis
+    databaseName: second_table_demo
+    postgresMajorVersion: "17"
+    region: singapore
+    plan: basic-256mb
+    ipAllowList: []

@@ -742,6 +742,62 @@
         "title": "LedgerResponse",
         "type": "object"
       },
+      "LedgerVerification": {
+        "additionalProperties": false,
+        "properties": {
+          "assurance": {
+            "title": "Assurance",
+            "type": "string"
+          },
+          "checked_through_sequence": {
+            "minimum": 0.0,
+            "title": "Checked Through Sequence",
+            "type": "integer"
+          },
+          "entries_verified": {
+            "minimum": 0.0,
+            "title": "Entries Verified",
+            "type": "integer"
+          },
+          "head_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Head Hash"
+          },
+          "valid": {
+            "title": "Valid",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid",
+          "entries_verified",
+          "head_hash",
+          "checked_through_sequence",
+          "assurance"
+        ],
+        "title": "LedgerVerification",
+        "type": "object"
+      },
+      "LedgerVerificationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LedgerVerification"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "LedgerVerificationResponse",
+        "type": "object"
+      },
       "Listing": {
         "additionalProperties": false,
         "properties": {
@@ -4314,6 +4370,27 @@
           }
         },
         "summary": "Own Ledger",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/trust-ledger/mine/verification": {
+      "get": {
+        "operationId": "verify_own_ledger_api_v1_trust_ledger_mine_verification_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerVerificationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Verify Own Ledger",
         "tags": [
           "Redistribution"
         ]

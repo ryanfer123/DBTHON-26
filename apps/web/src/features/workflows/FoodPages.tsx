@@ -32,6 +32,7 @@ export function FoodPage({ own = false }: { own?: boolean }) {
       </select></div></>}
       <button className="text-button" onClick={list.clear}>Clear filters</button><button className="text-button" onClick={query.refresh} disabled={query.loading}>Refresh food</button>
     </div>
+    {!own && <p className="field-help">Distances are straight-line estimates from your saved account location, not road travel distances.</p>}
     <QueryStatus {...query} />
     {query.data && <><ul className="food-list">{query.data.data.map(food => <li className="food-row" key={food.listing_id}>
       <div className="food-name"><h2>{food.food_type}</h2><p>{food.donor_name}</p><span className="food-tag">{food.category === 'Veg' ? 'Vegetarian' : 'Non-vegetarian'}</span><strong className="food-weight">{food.quantity_kg} kg</strong></div>
