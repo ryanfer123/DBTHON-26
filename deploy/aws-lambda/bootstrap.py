@@ -13,20 +13,31 @@ sys.path.insert(0, str(ROOT / "apps/api"))
 from alembic import command
 from alembic.config import Config
 from app.core.config import Settings
+from app.core.operator import configure_fixture_admin
 from app.core.provision import provision_login
 from app.seed import IDENTITIES, import_demo
 from sqlalchemy import create_engine, text
 
 
 def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
-    if event.get("operation") != "initialize":
-        raise ValueError("Explicit initialize operation required")
+    operation = event.get("operation")
+    if operation not in {"initialize", "configure_fixture_admin"}:
+        raise ValueError("Explicit operator operation required")
     settings = Settings()
     owner = settings.connection_url()
     if owner is None:
         raise ValueError("Owner configuration required")
     # Fail before changing anything if unexpected tables or existing member data exist.
     engine = create_engine(owner, hide_parameters=True)
+    if operation == "configure_fixture_admin":
+        try:
+            with engine.begin() as c:
+                c.execute(text("SET LOCAL ROLE dbthon_guard"))
+                return configure_fixture_admin(
+                    c, event.get("email", ""), event.get("password_hash", "")
+                )
+        finally:
+            engine.dispose()
     with engine.connect() as c:
         installed = c.execute(
             text("SELECT to_regclass('public.alembic_version') IS NOT NULL")

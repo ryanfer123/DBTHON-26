@@ -23,6 +23,7 @@ in [STATUS.md](STATUS.md).
 | Frontend additions | Dashboard/sidebar/mobile menus and URL-restored filters are published in the prior usability release. TanStack Query adoption, Tamil and volunteer PWA remain pending. |
 | Stakeholder/pilot evidence | Real interviews and controlled pilot are not conducted by code changes. P12 and TRL 4/5 evidence remain pending; no fabricated outcomes. |
 
-Next implementation task: production administrator onboarding, then the separate
-synthetic demonstration/reset workflow. Preserve concurrent AWS/RDS drafts.
+The requested zone 1 fixture administrator is enabled and live-verified; other
+fixture logins remain disabled. Next implementation task: the separate synthetic
+demonstration/reset workflow. Preserve concurrent AWS/RDS drafts.
 Real-data migration remains outside the authorized connection work.

@@ -102,3 +102,15 @@ dashboard refresh, production cookie flags, private reads, CSRF rejection and
 sign-out. It never resets cloud data or prints credentials. The synthetic account
 remains in the database; a duplicate fictional phone or authentication rate limit
 can reject a repeated run. It does not approve roles or establish pilot evidence.
+
+## Private fixture administrator onboarding
+
+The IAM-only bootstrap also accepts `configure_fixture_admin` with `email` and
+`password_hash`. Generate the hash with the application's Argon2id password policy
+in a private operator process; do not pass plaintext passwords to Lambda or commit
+them, hashes, event payloads, or authenticated responses. This operation requires
+the exact installed synthetic fixture and an already active, verified, approved
+Admin account matching its fixture user ID, email and zone. It does not promote
+public registrations or change zone membership. It updates the hash, revokes prior
+sessions and appends a metadata-only audit event in one transaction. No public
+API route or new owner permission is added.

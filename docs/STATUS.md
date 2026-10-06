@@ -474,3 +474,38 @@ restrictions in other browsers remain a split-host limitation. No external messa
 or cloud data migration occurred. Next task: administrator onboarding followed by
 a separate synthetic public demo/reset workflow. P11/P12, monitoring/alerts, privacy
 and food-safety work remain pending in [the audit](PRODUCT_HARDENING.md).
+
+## Zone 1 fixture administrator login (2026-10-07)
+
+The user authorized enabling the existing `z1.admin@example.invalid` account with
+a supplied password. Added private `configure_fixture_admin` operator handling,
+`app/core/operator.py`, three PostgreSQL security tests and the setup procedure.
+The initializer accepts only an application-policy Argon2id hash, checks installed
+fixture integrity and exact active/verified/approved admin identity and zone,
+updates the password hash, revokes old sessions and appends a metadata-only audit
+event in one transaction. It cannot promote public accounts or change roles/zones.
+No password, hash, operator event, session token or authenticated response is saved
+in Git. No schema migration or public route was added.
+
+The reviewed `AdminOnboarding20261007` change set completed on `DbthonRenderApi`.
+The deployed ZIP SHA-256 is
+`196e636d74e11727e0467de77ba2c00bba740ab3d2bf9e62716a90d32e9e2964`.
+IAM-only initializer returned `admin_login_enabled=true`, `user_id=104`, `zone_id=1`.
+Live Chrome verified sign-in 200, Admin capability, the `/admin` Community members
+screen and zone 1 member reads 200; zone 2 member access returned 404. The test
+session was signed out (204). Remaining synthetic fixture logins stay disabled.
+
+Checks: `DATABASE_URL=postgresql+psycopg://dbthon@127.0.0.1:55435/dbthon
+PYTHONPATH=apps/api apps/api/.venv/bin/pytest apps/api/tests/test_operator_db.py --db -q`
+passed all three tests (audit/session revocation, non-admin rejection, malformed
+hash/inactive-admin rejection) against a task-only PostgreSQL/PostGIS container.
+Unit suite: 14 passed, 83 database tests explicitly skipped. Ruff passed; strict
+mypy passed 27 files; migration checker and handoff validator passed. The prior 80
+full database tests remain the preceding release's evidence; this follow-up ran the
+three affected database tests. Temporary test resources were removed after checks.
+
+This enables the requested controlled-demo zone administrator; it does not approve
+other members automatically or establish a real pilot identity-verification process.
+Next task: separate synthetic public demo/reset workflow and the pending P11/P12
+operational, privacy and food-safety evidence. Original workspace drafts remain
+preserved.
