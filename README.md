@@ -107,3 +107,5 @@ and API from one origin and supplies a replacement Render Blueprint. Its managed
 database bootstrap gate must pass before provisioning. See the
 [product hardening audit](docs/PRODUCT_HARDENING.md) for implemented changes and
 remaining work from the product review.
+
+The selected AWS backend connection is described in [AWS/Render integration](docs/AWS_RENDER_CONNECTION.md). It reuses the retained private RDS database and supplies a separate Lambda API/worker stack. See status for live verification.

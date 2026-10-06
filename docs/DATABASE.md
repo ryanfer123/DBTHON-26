@@ -211,3 +211,7 @@ Pending leases survive worker restarts. Retry delay is bounded exponential, up t
 hour; final failures remain inspectable in the outbox. No SMS/Push row is marked sent
 without an external adapter. Idempotency records retain results for at least 24 hours;
 pruning old retry rows is an operational follow-up, not performed by a user request.
+
+## Managed owner compatibility (revision 0004)
+
+The non-login guard role uses explicit FORCE RLS policies without BYPASSRLS on managed PostgreSQL. Bootstrap supplies temporary schema CREATE for ownership changes; migration 0004 revokes it. Runtime logins remain non-owners and cannot adopt guard. See [AWS/Render integration](AWS_RENDER_CONNECTION.md). No table/ER-key changes are introduced.

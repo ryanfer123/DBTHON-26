@@ -526,3 +526,62 @@ def test_multi_role_registration_and_replacing_approved_subset(identity):
     assert newcomer.get("/api/v1/auth/me").json()["data"]["user"]["capabilities"] == ["Volunteer"]
     with db.connect() as c:
         verify(c.execute(text("SELECT * FROM trust_ledger ORDER BY user_id,sequence")).mappings())
+
+
+def test_function_url_round_trips_production_cookies_and_keeps_csrf(identity, monkeypatch):
+    import json
+    from types import SimpleNamespace
+
+    from mangum import Mangum
+
+    from app.core.config import Settings
+    from app.main import create_app
+
+    _, password, _, settings = identity
+    driver = Settings._driver_url
+    monkeypatch.setattr(
+        Settings,
+        "_driver_url",
+        lambda self, url: driver(self, url).update_query_dict({"sslmode": "disable"}),
+    )
+    configured = settings.model_copy(
+        update={
+            "app_env": "production",
+            "session_same_site": "none",
+            "allowed_origins": ["https://dbthon-26.onrender.com"],
+        }
+    )
+    adapter = Mangum(create_app(configured), lifespan="off")
+    event = {
+        "version": "2.0",
+        "routeKey": "$default",
+        "rawPath": "/api/v1/auth/login",
+        "rawQueryString": "",
+        "headers": {
+            "host": "synthetic.lambda-url.ap-south-1.on.aws",
+            "x-forwarded-proto": "https",
+            "content-type": "application/json",
+            "origin": "https://dbthon-26.onrender.com",
+            "x-requested-with": "SecondTable",
+        },
+        "requestContext": {
+            "http": {
+                "method": "POST",
+                "path": "/api/v1/auth/login",
+                "sourceIp": "127.0.0.1",
+            }
+        },
+        "body": json.dumps({"email": "z1.receiver@example.invalid", "password": password}),
+        "isBase64Encoded": False,
+    }
+    result = adapter(event, SimpleNamespace())
+    assert result["statusCode"] == 200
+    assert result["headers"]["access-control-allow-origin"] == "https://dbthon-26.onrender.com"
+    cookie = result["cookies"][0]
+    assert "Secure" in cookie and "HttpOnly" in cookie and "SameSite=none" in cookie
+    event.update(rawPath="/api/v1/auth/me", cookies=[cookie.split(";", 1)[0]], body=None)
+    event["requestContext"]["http"].update(method="GET", path=event["rawPath"])
+    assert adapter(event, SimpleNamespace())["statusCode"] == 200
+    event["rawPath"] = "/api/v1/auth/logout"
+    event["requestContext"]["http"].update(method="POST", path=event["rawPath"])
+    assert adapter(event, SimpleNamespace())["statusCode"] == 403

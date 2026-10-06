@@ -1,6 +1,6 @@
 # Implementation status and session handoff
 
-Updated: 2026-10-06 (Asia/Kolkata). Stage: P01-P10 core prototype implemented.
+Updated: 2026-10-07 (Asia/Kolkata). Stage: P01-P10 core prototype implemented.
 Donor listings, receiver feed/claims, volunteer delivery, expiry/inbox worker,
 ratings/trust/audit and scoped admin reporting are connected. The longer homepage,
 dark-mode preference and share-link behavior were added at the user's request.
@@ -409,3 +409,68 @@ separate disposable database before building the synthetic public demo/reset.
 P11/P12 remain incomplete; retention/deletion, external checkpoints, safety policy,
 operational metrics/alerts, load evidence, Tamil/PWA and real interviews remain
 pending as detailed in the audit.
+
+## AWS backend and Render connection (2026-10-07)
+
+Implemented in isolated `/private/tmp/dbthon-connect` from published `8356311`.
+The user authorized RDS-managed owner credential rotation and AWS deployment.
+The new `DbthonRenderApi` CloudFormation stack in `ap-south-1` is
+`UPDATE_COMPLETE`. The retained RDS instance is available, PostgreSQL 17.11,
+private and deletion-protected, with its managed owner secret active. The old
+failed `DbthonPrototype` stack and original workspace drafts remain untouched.
+No local member database was copied or replaced.
+
+Changed: migration/SQL 0004, managed-owner role preparation and login provisioning,
+Mangum dependency/lock, Lambda API/worker adapters, operator initializer, Linux ZIP
+Dockerfile and CloudFormation template, adapter/cookie tests, and deployment/handoff
+documentation. Migration 0004 adds sealed guard policies under FORCE RLS; it does
+not disable role/zone checks or migrate user data. Owner credentials are restricted
+to the private initializer. API and worker have separate restricted database logins.
+See [deployment details](AWS_RENDER_CONNECTION.md).
+
+Actual cloud initialization first failed on seed sequence UPDATE rights; the seed
+transaction rolled back. Fixed temporary bootstrap sequence privileges, cleanup on
+repeat invocation and saved-anchor reuse. RDS initialization then returned
+`initialized=true`, `synthetic_seed_added=true`, `migration=0004`; its repeat returned
+`synthetic_seed_added=false`. Restricted worker invocation succeeded. EventBridge's
+minute schedule is enabled and CloudWatch records completed 50-second worker runs.
+The synthetic fixture account passwords remain disabled; new public accounts remain
+unverified until administrator approval. Public admin registration stays forbidden.
+A production administrator login/onboarding workflow is still required before a
+real pilot. No public shared demo password has been published.
+
+Render static service `srv-db1u54ks728c73ab1bi0` at
+<https://dbthon-26.onrender.com> has its merged `VITE_API_BASE_URL` set to
+<https://4hdf76oz3c2uxe6hmunb2fgm6m0wluin.lambda-url.ap-south-1.on.aws/api/v1>.
+Environment deploy `dep-db2klf8m7kps7392ar9g` is live. The service was missing the
+repository's SPA rewrite: direct `/register` returned 404. Saved `/*` to
+`/index.html` as a Rewrite through Render settings; direct routes and refresh now
+work. The first browser assertion was ambiguous between two verification messages;
+a retry's fixed fictional phone hit the uniqueness guard. Corrected the smoke
+check's locator and used a unique fictional phone without weakening the app.
+Two clearly synthetic test accounts were created; passwords were ephemeral, never
+printed or committed, and the completed test session was logged out.
+
+| Check / command | Actual result |
+| --- | --- |
+| `apps/api/.venv/bin/pytest apps/api/tests -q` | 14 passed, 80 database tests explicitly skipped |
+| `DATABASE_URL=postgresql+psycopg://dbthon@127.0.0.1:55435/dbthon PYTHONPATH=apps/api apps/api/.venv/bin/pytest apps/api/tests --db -m database -q` | 80 passed, 14 deselected, 70.90 seconds; disposable PostgreSQL/PostGIS |
+| `apps/api/.venv/bin/ruff check apps/api deploy/aws-lambda/bootstrap.py scripts/prepare_cloud_database.py` | Passed |
+| `apps/api/.venv/bin/mypy --config-file apps/api/pyproject.toml apps/api/app` | Passed, 26 files |
+| `python3 scripts/check_migrations.py` | Passed, four authoritative migrations |
+| `python3 scripts/validate_handoff.py` | Passed; does not validate pilot outcomes |
+| CloudFormation template validation and reviewed change sets | Passed; no database replacement; stack update complete |
+| Linux amd64 Lambda ZIP build/import | Passed; final ZIP SHA-256 `f0655f1f4fee2386ceab799d3975239e4b3a47e5f5e9af00d4a5ba56a5bee099` |
+| Non-superuser local initializer repeated | Passed; guard schema CREATE and sequence UPDATE both false afterwards |
+| Live AWS `/health/live`, `/health/ready`, `/zones` | HTTP 200; restricted auth/runtime database checks succeed |
+| Anonymous `/workspace/overview` | HTTP 401 |
+| Live Render Chrome at 390x844 | Registration 201; login 200; dashboard and refresh session continuity; private me/overview 200; CSRF-free logout 403; valid logout 204; no account horizontal overflow |
+| Production session cookie | Secure, HttpOnly, SameSite=None verified in Chrome |
+
+Mangum emits a Python 3.13 event-loop deprecation warning in local adapter tests;
+tests and deployed calls succeed. The existing frontend source was not changed in
+this iteration; prior full UI suites remain historical evidence. Browser cookie
+restrictions in other browsers remain a split-host limitation. No external messages
+or cloud data migration occurred. Next task: administrator onboarding followed by
+a separate synthetic public demo/reset workflow. P11/P12, monitoring/alerts, privacy
+and food-safety work remain pending in [the audit](PRODUCT_HARDENING.md).

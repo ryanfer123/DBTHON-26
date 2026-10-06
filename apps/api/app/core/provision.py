@@ -21,7 +21,8 @@ def provision_login(connection: Connection, name: str, purpose: str, password: s
     group = f"dbthon_{purpose}"
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT rolsuper,rolbypassrls,rolcreaterole,rolcreatedb FROM pg_roles WHERE rolname=%s",
+            "SELECT rolsuper,rolbypassrls,rolcreaterole,rolcreatedb,rolreplication "
+            "FROM pg_roles WHERE rolname=%s",
             (name,),
         )
         existing = cursor.fetchone()
@@ -37,10 +38,11 @@ def provision_login(connection: Connection, name: str, purpose: str, password: s
             raise ValueError("Existing role has unexpected memberships")
         cursor.execute(
             sql.SQL(
-                "{} ROLE {} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE "
+                "ALTER ROLE {} LOGIN NOINHERIT NOCREATEDB NOCREATEROLE PASSWORD {}"
+                if existing is not None
+                else "CREATE ROLE {} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE "
                 "NOREPLICATION NOBYPASSRLS PASSWORD {}"
             ).format(
-                sql.SQL("ALTER" if existing is not None else "CREATE"),
                 sql.Identifier(name),
                 sql.Literal(password),
             )

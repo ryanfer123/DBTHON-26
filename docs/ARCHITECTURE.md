@@ -76,3 +76,13 @@ built SPA through FastAPI and runs the worker separately from the same image.
 It is a prepared replacement, not a cloud deployment. Existing cross-origin
 configuration remains supported. The dashboard uses authenticated ETag/304
 responses; each poll still recomputes scoped counts in PostgreSQL.
+
+## Deployed AWS/Render topology
+
+The selected deployment serves the React website on Render and the FastAPI API on
+AWS Lambda, with the retained private RDS PostgreSQL database. The expiry/inbox
+worker runs separately through an EventBridge minute schedule. The operator-only
+initializer applies migrations and provisions restricted login roles; public API
+and worker functions do not receive the owner credential. See
+[AWS/Render connection](AWS_RENDER_CONNECTION.md) for the template, cookie/origin
+configuration, managed-role migration and operational limits.

@@ -63,3 +63,11 @@ Without restricted database settings, `/`, `/dashboard`, `/help` and liveness
 work while readiness fails closed. This is a packaging smoke check, not proof of
 live end-to-end operation. Actual database/browser tests are recorded in
 [status](STATUS.md). Do not bake credentials into the image or command history.
+
+## Selected deployment (2026-10-07)
+
+The user subsequently selected an AWS backend/database with the existing Render
+frontend. This single-platform Blueprint remains an unapplied alternative.
+Migration 0004 and the managed-owner gate are now validated for the selected RDS
+path; see [AWS/Render connection](AWS_RENDER_CONNECTION.md) and the dated
+[implementation evidence](STATUS.md).

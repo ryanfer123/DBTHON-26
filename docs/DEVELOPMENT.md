@@ -24,7 +24,7 @@ To start each process independently use `make api-dev`, `make web-dev` and `make
 `make db-down` stops PostgreSQL without deleting its named volume. Changing local
 credentials does not update an already initialized volume; preserve the existing
 configuration. Compose installs PostgreSQL/PostGIS; `make migrate` applies revisions
-0001, 0002 and 0003. `make db-access` creates separate restricted auth/runtime/worker logins and
+0001 through 0004. `make db-access` creates separate restricted auth/runtime/worker logins and
 saves their URLs locally without printing credentials. Existing URLs are preserved.
 
 ## Verification
@@ -136,4 +136,5 @@ The defaults remain `dbthon_test` and `dbthon_browser_test`. Any other override 
 rejected. These disposable databases are created/migrated/reset by their harnesses
 and share the existing test-only restricted cluster login roles; do not run suites
 that reprovision those roles concurrently. Application/demo database and login roles
-remain untouched. Feature iteration applies only migrations 0001-0003.
+remain untouched. The published AWS connection adds migration 0004; existing deployed migrations
+remain immutable. See [AWS/Render connection](AWS_RENDER_CONNECTION.md).

@@ -25,7 +25,9 @@ design decisions differ, preserve the source and document the reason for the cha
 
 P01-P10 core prototype workflows are implemented and connected to responsive role
 screens, with a shared dashboard, role navigation, URL filters and help. Revision 0003 supplies guarded listing/claim/delivery/rating commands and
-restricted expiry/inbox worker routines. FR08 remains partial: external SMS/push is
+restricted expiry/inbox worker routines. Revision 0004 adds managed-PostgreSQL guard
+policies without BYPASSRLS. The AWS API/worker and retained private RDS are connected
+to Render; see docs/AWS_RENDER_CONNECTION.md and the dated STATUS evidence. FR08 remains partial: external SMS/push is
 unconfigured. Start P11 for controlled-demo/10k-listing performance evidence; genuine
 stakeholder and pilot evidence belongs to P12.
 When asked to

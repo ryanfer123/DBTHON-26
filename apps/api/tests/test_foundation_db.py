@@ -146,7 +146,7 @@ def test_guard_role_is_private_and_functions_fix_search_path(seeded_db):
                 "WHERE rolname='dbthon_guard'"
             )
         ).one()
-        assert tuple(guard) == (False, False, True)
+        assert tuple(guard) == (False, False, False)
         assert not c.execute(
             text("SELECT pg_has_role('dbthon_runtime','dbthon_guard','MEMBER')")
         ).scalar_one()

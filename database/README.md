@@ -27,3 +27,5 @@ Owner/migration credentials are for local setup; do not deploy the API with them
 See [schema/ER/normalization](../docs/DATABASE.md),
 [course queries](examples.sql), and [verification evidence](../docs/STATUS.md).
 Historical migrations are immutable once published; add new revisions for changes.
+
+Revision 0004 adds managed-owner guard policies without new tables. SQL remains the authoritative migration source; run `python3 scripts/check_migrations.py`.

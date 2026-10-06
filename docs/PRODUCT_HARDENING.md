@@ -2,12 +2,12 @@
 
 The user's 15-point review is a request, not evidence that every alleged omission
 exists. The course PDF remains source evidence. This audit distinguishes observed
-code, changes in this iteration and remaining work; no pilot or deployment is
-claimed.
+code, changes in this iteration and remaining work; pilot evidence remains incomplete. The selected AWS/Render deployment is recorded
+in [STATUS.md](STATUS.md).
 
 | Review area | Current evidence and remaining work |
 | --- | --- |
-| Consolidated hosting | Same-origin container and replacement Render Blueprint prepared and locally checked. Managed-role bootstrap, paid provisioning, live authentication and cutover remain pending. See [hosting gate](CONSOLIDATED_HOSTING.md). |
+| Consolidated hosting | Same-origin container and replacement Render Blueprint prepared and locally checked. The selected AWS/Render topology is deployed with private RDS and verified live authentication. Single-platform Render remains an unapplied alternative. See [connection](AWS_RENDER_CONNECTION.md). |
 | Public demo | Synthetic fixtures and isolated browser-test accounts exist. Public role logins and a safe nightly reset on a separate database remain pending. |
 | Decentralization language | README now says community-operated, zone-partitioned. One shared PostgreSQL database provides logical zone isolation; independent databases/consensus are not implemented. Original course title is retained as provenance. |
 | Matching and notifications | Listing create/update already enqueue same-zone, verified, approved, capacity-eligible receiver notifications within 5 km when the listing is currently collectable. The worker delivers the in-app inbox. Future collection-window activation fan-out needs separate work. Authorized exchange participants now get WhatsApp click-to-chat; sending remains their action. No automated external delivery is claimed. |
@@ -23,6 +23,6 @@ claimed.
 | Frontend additions | Dashboard/sidebar/mobile menus and URL-restored filters are published in the prior usability release. TanStack Query adoption, Tamil and volunteer PWA remain pending. |
 | Stakeholder/pilot evidence | Real interviews and controlled pilot are not conducted by code changes. P12 and TRL 4/5 evidence remain pending; no fabricated outcomes. |
 
-Next implementation task: resolve managed-role bootstrap in a disposable cluster,
-then supply the separate synthetic demonstration/reset workflow. Preserve concurrent
-AWS/RDS drafts. Provisioning and real-data migration require separate authorization.
+Next implementation task: production administrator onboarding, then the separate
+synthetic demonstration/reset workflow. Preserve concurrent AWS/RDS drafts.
+Real-data migration remains outside the authorized connection work.

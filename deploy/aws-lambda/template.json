@@ -1,0 +1,594 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Second Table AWS API and scheduled worker using an existing private RDS database. No CloudFront or database replacement.",
+  "Metadata": {
+    "Purpose": "Render frontend integration; reuse retained RDS; operator-only bootstrap; app roles never receive owner credentials."
+  },
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "SubnetIds": {
+      "Type": "List<AWS::EC2::Subnet::Id>"
+    },
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup::Id"
+    },
+    "DatabaseHost": {
+      "Type": "String",
+      "AllowedPattern": "[a-zA-Z0-9.-]+"
+    },
+    "DatabaseName": {
+      "Type": "String",
+      "Default": "dbthon",
+      "AllowedPattern": "[a-zA-Z0-9_]+"
+    },
+    "OwnerUser": {
+      "Type": "String",
+      "Default": "dbthon_owner",
+      "AllowedPattern": "[a-zA-Z0-9_]+"
+    },
+    "OwnerSecretArn": {
+      "Type": "String",
+      "AllowedPattern": "arn:aws:secretsmanager:.*"
+    },
+    "CodeBucket": {
+      "Type": "String",
+      "AllowedPattern": "[a-z0-9.-]+"
+    },
+    "CodeKey": {
+      "Type": "String",
+      "AllowedPattern": "[a-zA-Z0-9/_.-]+"
+    },
+    "FrontendOrigin": {
+      "Type": "String",
+      "Default": "https://dbthon-26.onrender.com",
+      "AllowedPattern": "https://[^/]+",
+      "Description": "Exact Render HTTPS origin; no trailing slash"
+    },
+    "Activate": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "false",
+        "true"
+      ],
+      "Description": "Enable public API and worker only after operator initialization succeeds"
+    }
+  },
+  "Conditions": {
+    "Active": {
+      "Fn::Equals": [
+        {
+          "Ref": "Activate"
+        },
+        "true"
+      ]
+    }
+  },
+  "Resources": {
+    "AuthSecret": {
+      "Type": "AWS::SecretsManager::Secret",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Description": "Second Table restricted auth database login",
+        "GenerateSecretString": {
+          "SecretStringTemplate": "{}",
+          "GenerateStringKey": "password",
+          "PasswordLength": 40,
+          "ExcludePunctuation": true
+        }
+      }
+    },
+    "RuntimeSecret": {
+      "Type": "AWS::SecretsManager::Secret",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Description": "Second Table restricted runtime database login",
+        "GenerateSecretString": {
+          "SecretStringTemplate": "{}",
+          "GenerateStringKey": "password",
+          "PasswordLength": 40,
+          "ExcludePunctuation": true
+        }
+      }
+    },
+    "WorkerSecret": {
+      "Type": "AWS::SecretsManager::Secret",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Description": "Second Table restricted worker database login",
+        "GenerateSecretString": {
+          "SecretStringTemplate": "{}",
+          "GenerateStringKey": "password",
+          "PasswordLength": 40,
+          "ExcludePunctuation": true
+        }
+      }
+    },
+    "Network": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "GroupDescription": "Second Table Lambda access to private PostgreSQL",
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 5432,
+            "ToPort": 5432,
+            "DestinationSecurityGroupId": {
+              "Ref": "DatabaseSecurityGroup"
+            }
+          }
+        ]
+      }
+    },
+    "DatabaseIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "DatabaseSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": 5432,
+        "ToPort": 5432,
+        "SourceSecurityGroupId": {
+          "Ref": "Network"
+        },
+        "Description": "Second Table Lambda database connections"
+      }
+    },
+    "WorkerFailures": {
+      "Type": "AWS::SQS::Queue",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "SqsManagedSseEnabled": true
+      }
+    },
+    "ApiLog": {
+      "Type": "AWS::Logs::LogGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${AWS::StackName}-api"
+        },
+        "RetentionInDays": 14
+      }
+    },
+    "ApiRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+          }
+        ]
+      }
+    },
+    "ApiFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "ApiLog",
+        "DatabaseIngress"
+      ],
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${AWS::StackName}-api"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "ApiRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.13",
+        "Architectures": [
+          "x86_64"
+        ],
+        "Handler": "app.lambda_handler.handle",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Code": {
+          "S3Bucket": {
+            "Ref": "CodeBucket"
+          },
+          "S3Key": {
+            "Ref": "CodeKey"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "APP_ENV": "production",
+            "ALLOWED_ORIGINS": {
+              "Fn::Sub": "[\"${FrontendOrigin}\"]"
+            },
+            "POSTGRES_HOST": {
+              "Ref": "DatabaseHost"
+            },
+            "POSTGRES_PORT": "5432",
+            "POSTGRES_DB": {
+              "Ref": "DatabaseName"
+            },
+            "SESSION_SAME_SITE": "none",
+            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "DB_AUTH_USER": "dbthon_identity",
+            "DB_AUTH_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${AuthSecret}:SecretString:password}}"
+            },
+            "DB_RUNTIME_USER": "dbthon_app",
+            "DB_RUNTIME_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${RuntimeSecret}:SecretString:password}}"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SubnetIds": {
+            "Ref": "SubnetIds"
+          },
+          "SecurityGroupIds": [
+            {
+              "Ref": "Network"
+            }
+          ]
+        },
+        "ReservedConcurrentExecutions": 5
+      }
+    },
+    "WorkerLog": {
+      "Type": "AWS::Logs::LogGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${AWS::StackName}-worker"
+        },
+        "RetentionInDays": 14
+      }
+    },
+    "WorkerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "WorkerFailureDelivery",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "sqs:SendMessage",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "WorkerFailures",
+                      "Arn"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "WorkerFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "WorkerLog",
+        "DatabaseIngress"
+      ],
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${AWS::StackName}-worker"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "WorkerRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.13",
+        "Architectures": [
+          "x86_64"
+        ],
+        "Handler": "app.lambda_worker.handle",
+        "MemorySize": 128,
+        "Timeout": 60,
+        "Code": {
+          "S3Bucket": {
+            "Ref": "CodeBucket"
+          },
+          "S3Key": {
+            "Ref": "CodeKey"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "APP_ENV": "production",
+            "ALLOWED_ORIGINS": {
+              "Fn::Sub": "[\"${FrontendOrigin}\"]"
+            },
+            "POSTGRES_HOST": {
+              "Ref": "DatabaseHost"
+            },
+            "POSTGRES_PORT": "5432",
+            "POSTGRES_DB": {
+              "Ref": "DatabaseName"
+            },
+            "SESSION_SAME_SITE": "none",
+            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "DB_WORKER_USER": "dbthon_jobs",
+            "DB_WORKER_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${WorkerSecret}:SecretString:password}}"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SubnetIds": {
+            "Ref": "SubnetIds"
+          },
+          "SecurityGroupIds": [
+            {
+              "Ref": "Network"
+            }
+          ]
+        },
+        "ReservedConcurrentExecutions": 1,
+        "DeadLetterConfig": {
+          "TargetArn": {
+            "Fn::GetAtt": [
+              "WorkerFailures",
+              "Arn"
+            ]
+          }
+        }
+      }
+    },
+    "BootstrapLog": {
+      "Type": "AWS::Logs::LogGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${AWS::StackName}-bootstrap"
+        },
+        "RetentionInDays": 14
+      }
+    },
+    "BootstrapRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+          }
+        ]
+      }
+    },
+    "BootstrapFunction": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": [
+        "BootstrapLog",
+        "DatabaseIngress"
+      ],
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${AWS::StackName}-bootstrap"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "BootstrapRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.13",
+        "Architectures": [
+          "x86_64"
+        ],
+        "Handler": "bootstrap.handle",
+        "MemorySize": 512,
+        "Timeout": 180,
+        "Code": {
+          "S3Bucket": {
+            "Ref": "CodeBucket"
+          },
+          "S3Key": {
+            "Ref": "CodeKey"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "APP_ENV": "production",
+            "ALLOWED_ORIGINS": {
+              "Fn::Sub": "[\"${FrontendOrigin}\"]"
+            },
+            "POSTGRES_HOST": {
+              "Ref": "DatabaseHost"
+            },
+            "POSTGRES_PORT": "5432",
+            "POSTGRES_DB": {
+              "Ref": "DatabaseName"
+            },
+            "SESSION_SAME_SITE": "none",
+            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "DB_AUTH_USER": "dbthon_identity",
+            "DB_AUTH_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${AuthSecret}:SecretString:password}}"
+            },
+            "DB_RUNTIME_USER": "dbthon_app",
+            "DB_RUNTIME_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${RuntimeSecret}:SecretString:password}}"
+            },
+            "DB_WORKER_USER": "dbthon_jobs",
+            "DB_WORKER_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${WorkerSecret}:SecretString:password}}"
+            },
+            "POSTGRES_USER": {
+              "Ref": "OwnerUser"
+            },
+            "POSTGRES_PASSWORD": {
+              "Fn::Sub": "{{resolve:secretsmanager:${OwnerSecretArn}:SecretString:password}}"
+            }
+          }
+        },
+        "VpcConfig": {
+          "SubnetIds": {
+            "Ref": "SubnetIds"
+          },
+          "SecurityGroupIds": [
+            {
+              "Ref": "Network"
+            }
+          ]
+        }
+      }
+    },
+    "Url": {
+      "Type": "AWS::Lambda::Url",
+      "Condition": "Active",
+      "Properties": {
+        "TargetFunctionArn": {
+          "Ref": "ApiFunction"
+        },
+        "AuthType": "NONE"
+      }
+    },
+    "UrlPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Condition": "Active",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ApiFunction"
+        },
+        "Action": "lambda:InvokeFunctionUrl",
+        "Principal": "*",
+        "FunctionUrlAuthType": "NONE"
+      }
+    },
+    "InvokePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Condition": "Active",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ApiFunction"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "*",
+        "InvokedViaFunctionUrl": true
+      }
+    },
+    "Schedule": {
+      "Type": "AWS::Events::Rule",
+      "Condition": "Active",
+      "Properties": {
+        "ScheduleExpression": "rate(1 minute)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "WorkerFunction",
+                "Arn"
+              ]
+            },
+            "Id": "Worker",
+            "Input": "{\"duration_seconds\":50}",
+            "RetryPolicy": {
+              "MaximumRetryAttempts": 0,
+              "MaximumEventAgeInSeconds": 60
+            }
+          }
+        ]
+      }
+    },
+    "SchedulePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Condition": "Active",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "WorkerFunction"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "Schedule",
+            "Arn"
+          ]
+        },
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ApiUrl": {
+      "Condition": "Active",
+      "Value": {
+        "Fn::GetAtt": [
+          "Url",
+          "FunctionUrl"
+        ]
+      }
+    },
+    "BootstrapFunction": {
+      "Value": {
+        "Ref": "BootstrapFunction"
+      }
+    },
+    "WorkerFunction": {
+      "Value": {
+        "Ref": "WorkerFunction"
+      }
+    }
+  }
+}
