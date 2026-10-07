@@ -125,3 +125,15 @@ availability and real validation cannot be silently counted as complete. Record
 the exact limitation and next action. Post-Expo roadmap: role-specific profiles,
 cross-city physical deployment/partitioning, operational notification expansion and
 independent ledger checkpoints after measured need and authorization.
+
+## Requested donor reliability extension
+
+Source implementation is prepared on `feat/donor-safety-alerts`. Release gates:
+
+- [ ] DF01: configure an eligible provider/consenting recipient, verify send budget/consent/leases and observe actual receipt.
+- [ ] DF02–DF04: exercise new schema, schedules, batch declarations, filter cursors and existing guarded workflows against real PostgreSQL.
+- [ ] DF05: verify install/offline/online transitions on mobile and browser privacy boundaries.
+- [ ] DF06: collect permission-based campus mess and NGO notes; use `pilot/INTERVIEW_GUIDE.md` and `pilot/BOUNDED_PILOT.md`.
+- [ ] Complete regression/review before migrations/API deployment, then publish frontend.
+
+P11/P12 remain open. This extension does not supply pilot evidence or certify safety.

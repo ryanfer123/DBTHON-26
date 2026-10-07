@@ -7,6 +7,7 @@ import { AccountGate } from "./features/identity/AccountGate";
 import { SignInPage } from "./features/identity/SignInPage";
 import { RegisterPage } from "./features/identity/RegisterPage";
 import { ProfilePage } from "./features/identity/ProfilePage";
+import { DonorSchedulesPage } from "./features/workflows/DonorSchedules";
 import { SettingsPage } from "./features/identity/SettingsPage";
 import { AdminPage } from "./features/identity/AdminPage";
 import { ZoneConfirmationPage } from "./features/identity/ZoneConfirmationPage";
@@ -113,6 +114,15 @@ const routes = [
     element: (
       <AccountGate admin>
         <AdminPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/donations/schedules",
+    handle: { title: "Recurring donations" },
+    element: (
+      <AccountGate>
+        <DonorSchedulesPage />
       </AccountGate>
     ),
   },

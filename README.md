@@ -122,3 +122,11 @@ remaining work from the product review.
 The selected AWS backend connection is described in [AWS/Render integration](docs/AWS_RENDER_CONNECTION.md). It reuses the retained private RDS database and supplies a separate Lambda API/worker stack. See status for live verification.
 
 The UI experience release and its verification/limitations are tracked in [UI/UX implementation evidence](docs/UI_UX_IMPLEMENTATION.md).
+
+## Donor reliability feature branch
+
+Daily donor reminders, batch handling/allergen declarations, diet/allergen filters
+and an installable offline guidance shell are prepared on `feat/donor-safety-alerts`.
+Real alert setup: [provider demo guide](docs/REAL_ALERTS.md). Stakeholder materials:
+[interview guide](docs/pilot/INTERVIEW_GUIDE.md) and [bounded pilot worksheet](docs/pilot/BOUNDED_PILOT.md).
+Release/runtime evidence remains pending as recorded in STATUS.md.

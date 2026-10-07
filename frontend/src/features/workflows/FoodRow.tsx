@@ -45,6 +45,16 @@ export function FoodRow({
         <span className="food-tag">
           {food.category === "Veg" ? "Vegetarian" : "Non-vegetarian"}
         </span>
+        {!!food.diet_tags?.length && (
+          <p className="food-tag">
+            {food.diet_tags.join(" · ")} (donor declared)
+          </p>
+        )}
+        <p className="field-help">
+          {food.safety_confirmed_at
+            ? `Allergens: ${food.allergens?.join(", ") || "none known"}`
+            : "Allergen checklist not supplied"}
+        </p>
         <strong className="food-weight">{food.quantity_kg} kg</strong>
       </div>
       <div className="food-timing">
@@ -87,6 +97,14 @@ export function FoodRow({
         >
           View food
         </Link>
+        {own && (
+          <Link
+            className="text-button"
+            to={`/donations/schedules?listing=${food.listing_id}`}
+          >
+            Schedule daily
+          </Link>
+        )}
         {own && food.status === "Cancelled" && onHideCancelled && (
           <button className="text-button" onClick={onHideCancelled}>
             Remove from my list

@@ -26,6 +26,7 @@ from app.core.errors import (
 )
 from app.core.static import AppStaticFiles
 from app.routes.community import router as community_router
+from app.routes.donor_schedules import router as donor_schedules_router
 from app.routes.identity import router as identity_router
 from app.routes.public import router as public_router
 from app.routes.workflows import router as workflow_router
@@ -73,7 +74,7 @@ def create_app(
         CORSMiddleware,
         allow_origins=configured.allowed_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "PUT", "OPTIONS"],
         allow_headers=[
             "Content-Type",
             "X-Requested-With",
@@ -148,6 +149,7 @@ def create_app(
     application.include_router(identity_router, prefix="/api/v1")
     application.include_router(workflow_router, prefix="/api/v1")
     application.include_router(community_router, prefix="/api/v1")
+    application.include_router(donor_schedules_router, prefix="/api/v1")
     if configured.static_dist is not None:
         application.mount("/", AppStaticFiles(configured.static_dist), name="web")
     return application

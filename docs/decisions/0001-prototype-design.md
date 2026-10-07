@@ -49,3 +49,17 @@ fixtures, requirements and tests in the same change.
 - [PostGIS distance filtering](https://postgis.net/docs/ST_DWithin.html).
 - [PostgreSQL row security](https://www.postgresql.org/docs/17/ddl-rowsecurity.html).
 - [PostGIS Docker image](https://github.com/postgis/docker-postgis).
+
+## Donor reliability extension
+
+Use the existing worker/outbox instead of provisioning new queues or notification
+services. An optional Twilio adapter supports one consenting demo number with an
+atomic daily attempt cap (default three, maximum ten) and provider receipt polling.
+An uncertain network send fails without automatic resend, trading demo reliability
+for duplicate-charge avoidance. Real external evidence remains a separate release gate.
+
+Recurring donations are daily templates/reminders with fresh donor publication.
+Scheduling cannot establish future food availability or ingredient/handling truth.
+The PWA stores only public static assets and an offline guidance page; private API
+responses and food mutations remain online-only. Pilot notes require actual consenting
+participants; prepared questions cannot substitute for interviews.

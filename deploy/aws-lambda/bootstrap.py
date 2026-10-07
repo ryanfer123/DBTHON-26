@@ -35,15 +35,31 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                 revision = c.execute(
                     text("SELECT version_num FROM alembic_version")
                 ).scalar_one()
-                zones = c.execute(
-                    text("SELECT zone_id,zone_name,city,pincode_range FROM zones ORDER BY zone_id")
-                ).mappings().all()
-                flags = c.execute(text("""
+                zones = (
+                    c.execute(
+                        text(
+                            "SELECT zone_id,zone_name,city,pincode_range FROM zones ORDER BY zone_id"
+                        )
+                    )
+                    .mappings()
+                    .all()
+                )
+                flags = (
+                    c.execute(
+                        text("""
                     SELECT to_regclass('public.food_requests') IS NOT NULL AS community_present,
                       has_column_privilege('dbthon_runtime','public.users',
                         'zone_review_required','SELECT') AS runtime_review_flag_select
-                """)).mappings().one()
-            return {"migration": revision, "zones": [dict(row) for row in zones], **flags}
+                """)
+                    )
+                    .mappings()
+                    .one()
+                )
+            return {
+                "migration": revision,
+                "zones": [dict(row) for row in zones],
+                **flags,
+            }
         finally:
             engine.dispose()
     if operation == "migrate":
@@ -57,11 +73,19 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                 current = c.execute(
                     text("SELECT version_num FROM alembic_version")
                 ).scalar_one()
-                if current not in {"0005", "0006", "0007", "0008", "0009"}:
+                if current not in {
+                    "0005",
+                    "0006",
+                    "0007",
+                    "0008",
+                    "0009",
+                    "0010",
+                    "0011",
+                }:
                     raise ValueError(
                         f"Refusing to migrate unexpected revision {current}"
                     )
-            if current in {"0005", "0006", "0007", "0008"}:
+            if current in {"0005", "0006", "0007", "0008", "0009", "0010"}:
                 command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
             with engine.connect() as c:
                 revision = c.execute(

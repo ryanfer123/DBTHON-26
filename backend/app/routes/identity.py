@@ -38,15 +38,16 @@ from app.identity.security import (
     guard_write,
     session_token,
 )
+from app.workflows.alerts import channels
 
 router = APIRouter(tags=["Identity"])
 
 
-def notification_preferences_data(c: Connection) -> NotificationPreferencesData:
+def notification_preferences_data(c: Connection, settings: Settings) -> NotificationPreferencesData:
     row = (
         c.execute(
             text("""
-      SELECT sms_enabled,push_enabled FROM notification_preferences
+      SELECT sms_enabled,push_enabled,whatsapp_enabled FROM notification_preferences
       WHERE user_id=dbthon_actor_id()
     """)
         )
@@ -56,7 +57,9 @@ def notification_preferences_data(c: Connection) -> NotificationPreferencesData:
     return NotificationPreferencesData(
         sms_enabled=bool(row["sms_enabled"]) if row else False,
         push_enabled=bool(row["push_enabled"]) if row else False,
-        sms_configured=False,
+        sms_configured="SMS" in channels(settings, require_credential=False),
+        whatsapp_enabled=bool(row["whatsapp_enabled"]) if row else False,
+        whatsapp_configured="WhatsApp" in channels(settings, require_credential=False),
         push_configured=False,
     )
 
@@ -64,7 +67,9 @@ def notification_preferences_data(c: Connection) -> NotificationPreferencesData:
 @router.get("/settings/notifications", response_model=NotificationPreferencesResponse)
 def get_notification_preferences(request: Request) -> NotificationPreferencesResponse:
     with context(request) as c:
-        return NotificationPreferencesResponse(data=notification_preferences_data(c))
+        return NotificationPreferencesResponse(
+            data=notification_preferences_data(c, request.app.state.settings)
+        )
 
 
 @router.patch("/settings/notifications", response_model=NotificationPreferencesResponse)
@@ -73,13 +78,16 @@ def save_notification_preferences(
 ) -> NotificationPreferencesResponse:
     with context(request, write=True) as c:
         c.execute(
-            text("SELECT dbthon_save_notification_preferences(:sms,:push)"),
+            text("SELECT dbthon_save_external_preferences(:sms,:push,:whatsapp)"),
             {
+                "whatsapp": body.whatsapp_enabled,
                 "sms": body.sms_enabled,
                 "push": body.push_enabled,
             },
         )
-        return NotificationPreferencesResponse(data=notification_preferences_data(c))
+        return NotificationPreferencesResponse(
+            data=notification_preferences_data(c, request.app.state.settings)
+        )
 
 
 @contextmanager

@@ -294,3 +294,30 @@ Grants the runtime role SELECT only on the new `zone_review_required` column and
 updates `users_scope` to permit the named bootstrap Admin's cross-zone member
 review. Other members retain same-zone verified-member visibility; ordinary Admins
 remain limited to their own zone. Password-hash access and runtime DML stay revoked.
+
+## Donor reliability migrations
+
+Revision `0010` adds listing `storage_handling`, `packed`, `allergens`, `diet_tags` and
+`safety_confirmed_at`, with validated tags, incompatible nut declarations rejected,
+and GIN indexes. Legacy rows remain undeclared. It updates the guarded legacy listing
+command while preserving the community pickup-agreement wrapper, locking, full-body
+idempotency and atomic audit/outbox. `donor_schedules` stores donor/template FKs,
+daily local clock, IANA zone, next UTC occurrence and enabled state, with per-owner
+RLS, bounded reads and restricted save/worker functions. Workers commit one schedule
+per transaction and serialize through its template listing before user audit locks.
+
+Revision `0011` adds opt-in WhatsApp preferences, the external outbox channel, provider
+SID/status and a guarded `external_alert_budget(day,reserved)` table. Notification
+insert triggers enqueue consenting channels atomically. Worker-only functions enforce
+one demo recipient, freshness, consent, active account, leases and a daily budget.
+Accepted provider receipts and final provider delivery status are distinct.
+
+```mermaid
+erDiagram
+    USERS ||--o{ DONOR_SCHEDULES : owns
+    FOOD_LISTINGS ||--o{ DONOR_SCHEDULES : supplies_template
+    USERS ||--o| NOTIFICATION_PREFERENCES : chooses_channels
+    NOTIFICATIONS ||--o{ NOTIFICATION_OUTBOX : sends
+```
+
+Both migrations are forward-only drafts pending real PostgreSQL release checks.

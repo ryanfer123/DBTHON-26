@@ -90,6 +90,7 @@ def test_openapi_lists_only_implemented_endpoints():
             "/api/v1/notifications/clear",
             "/api/v1/notifications/{notification_id}/read",
             "/api/v1/settings/notifications",
+            "/api/v1/donor-schedules",
             "/api/v1/listings/{listing_id}/hide-cancelled",
             "/api/v1/users/{user_id}/trust",
             "/api/v1/trust-ledger/mine",

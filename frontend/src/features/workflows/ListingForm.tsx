@@ -5,6 +5,7 @@ import { LocationFields } from "../identity/FormParts";
 import { useOverview } from "./OverviewContext";
 import { localInput, useCommand, type Listing } from "./data";
 import { thumbnail } from "./photo";
+import { allergens, diets } from "./foodTags";
 import { Feedback } from "./Workspace";
 
 function remembered(
@@ -83,6 +84,10 @@ export function ListingForm({
         preset === "custom"
           ? new Date(String(form.get("end"))).toISOString()
           : new Date(now.getTime() + Number(preset) * 3600000).toISOString(),
+      storage_handling: form.get("storage_handling"),
+      packed: form.get("packed") === "yes",
+      allergens: form.getAll("allergens"),
+      diet_tags: form.getAll("diet_tags"),
       pickup_lat: form.get("latitude"),
       pickup_long: form.get("longitude"),
       ...(photo !== undefined ? { photo_base64: photo } : {}),
@@ -191,6 +196,81 @@ export function ListingForm({
               </small>
             </div>
           </div>
+          <fieldset>
+            <legend>Food-handling checklist</legend>
+            <p className="field-help">
+              Confirm this batch. These declarations do not certify safety.
+            </p>
+            <div className="field">
+              <label htmlFor="storage-handling">How has it been stored?</label>
+              <select
+                id="storage-handling"
+                name="storage_handling"
+                defaultValue={editing ? (food?.storage_handling ?? "") : ""}
+                required
+              >
+                <option value="">Choose handling</option>
+                <option value="Hot">Hot</option>
+                <option value="Cold">Cold / refrigerated</option>
+                <option value="Ambient">At room temperature</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="packed">Packed for collection?</label>
+              <select
+                id="packed"
+                name="packed"
+                defaultValue={
+                  editing && food?.packed !== null
+                    ? food?.packed
+                      ? "yes"
+                      : "no"
+                    : ""
+                }
+                required
+              >
+                <option value="">Choose packing</option>
+                <option value="yes">Yes</option>
+                <option value="no">No — receiver needs containers</option>
+              </select>
+            </div>
+            <fieldset>
+              <legend>Known allergens</legend>
+              {allergens.map((tag) => (
+                <label className="review-check" key={tag}>
+                  <input
+                    type="checkbox"
+                    name="allergens"
+                    value={tag}
+                    defaultChecked={editing && food?.allergens?.includes(tag)}
+                  />
+                  {tag}
+                </label>
+              ))}
+              <label className="review-check">
+                <input type="checkbox" required />I reviewed the ingredients.
+                Unchecked allergens mean none known, not guaranteed absent.
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Diet declarations (optional)</legend>
+              {diets.map((tag) => (
+                <label className="review-check" key={tag}>
+                  <input
+                    type="checkbox"
+                    name="diet_tags"
+                    value={tag}
+                    defaultChecked={editing && food?.diet_tags?.includes(tag)}
+                  />
+                  {tag}
+                </label>
+              ))}
+              <p className="field-help">
+                Only select tags you can support. Nut-free is incompatible with
+                declared nuts and does not exclude cross-contact.
+              </p>
+            </fieldset>
+          </fieldset>
           <fieldset className="collection-presets">
             <legend>Collect within…</legend>
             <div className="actions">

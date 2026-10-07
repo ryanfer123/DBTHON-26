@@ -145,3 +145,20 @@ Other workflow timestamps display the device timezone.
 
 Do not present meal-equivalent as observed meals served or estimates as measured
 environmental savings. Record factor version/source alongside exported reports.
+
+## Daily donation routines and donor declarations
+
+A schedule generates a daily reminder, never an unconfirmed available listing. The
+donor opens a fresh template and confirms today's actual surplus, quantity, window,
+storage, packing and ingredients. Repeated listings do not reuse checklist answers.
+Only current active, verified Donors in the template's zone receive reminders; stale
+missed occurrences advance to the next local day instead of sending a backlog.
+
+Halal/Jain/nut-free are donor assertions, not certifications. Nut-free cannot coexist
+with declared peanuts/tree nuts. No known allergens does not prove allergen absence
+or exclude cross-contact. Existing listings without declarations stay visibly unknown.
+Allergen-exclusion filtering never treats an undeclared listing as allergen-free.
+
+External alerts require explicit channel consent and current active account, and are
+restricted to one configured demonstration phone. Domain/audit/outbox commit together;
+network calls happen afterward. Provider acceptance does not prove device delivery.

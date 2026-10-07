@@ -231,3 +231,22 @@ or prove that a database owner has never rewritten the chain.
   Daily medians are never averaged to construct the overall median.
 - Overview 304 responses include `X-Server-Time`; CORS exposes it so cache hits
   retain current server-anchored countdowns without changing content ETags.
+
+## Donor reliability API additions (feature branch)
+
+- Listing create/update accepts `storage_handling` (Hot/Cold/Ambient), `packed`,
+  `allergens` and `diet_tags`; listing reads include these fields and `safety_confirmed_at`.
+  New UI publication requires a fresh batch checklist. Legacy clients may omit it:
+  no declaration is then inferred, and the listing shows the missing checklist.
+- GET `/listings` accepts repeated `diet_tags` and `exclude_allergens` query values.
+  All selected diets must match; excluded allergens must not overlap; unknown
+  checklists are omitted when an exclusion is requested. These filters bind cursors.
+- GET `/donor-schedules?cursor=0` returns at most ten owned schedules and a next cursor.
+- PUT `/donor-schedules` accepts `template_listing_id`, `local_time`, `time_zone`
+  (default Asia/Kolkata), `enabled`; approved same-zone donor and CSRF required.
+  The donor's template pair is the natural upsert key; maximum ten templates.
+- Notification settings include `whatsapp_enabled`/`whatsapp_configured`. Provider
+  configuration presence is distinct from an observed receipt. Push remains unconfigured.
+
+Generated OpenAPI contains the precise enum/field schema. No recipient phones or
+provider credentials are exposed by these additions.

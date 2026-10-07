@@ -5,6 +5,11 @@ export const tools: Destination[] = [
     label: "Food requests",
     roles: ["Donor", "Receiver", "Volunteer", "Admin"],
   },
+  {
+    to: "/donations/schedules",
+    label: "Recurring donations",
+    roles: ["Donor"],
+  },
   { to: "/donations", label: "My donations", roles: ["Donor"] },
   { to: "/food", label: "Find food", roles: ["Receiver"] },
   { to: "/claims", label: "My exchanges", roles: ["Donor", "Receiver"] },

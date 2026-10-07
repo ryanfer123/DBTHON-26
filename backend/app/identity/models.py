@@ -95,11 +95,14 @@ class ZoneSelection(Input):
 
 
 class NotificationPreferences(Input):
+    whatsapp_enabled: bool = False
     sms_enabled: bool
     push_enabled: bool
 
 
 class NotificationPreferencesData(BaseModel):
+    whatsapp_enabled: bool = False
+    whatsapp_configured: bool = False
     sms_enabled: bool
     push_enabled: bool
     sms_configured: bool

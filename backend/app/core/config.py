@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     app_database_url: SecretStr | None = None
     auth_database_url: SecretStr | None = None
     worker_database_url: SecretStr | None = None
+    twilio_account_sid: str = ""
+    twilio_auth_token: SecretStr | None = None
+    twilio_sms_from: str = ""
+    twilio_whatsapp_from: str = ""
+    twilio_whatsapp_content_sid: str = ""
+    alert_demo_phone: str = Field(default="", pattern=r"^(\+[1-9][0-9]{7,14})?$")
+    alert_daily_limit: int = Field(default=3, ge=1, le=10)
     worker_interval_seconds: int = Field(default=5, ge=1, le=60)
     allowed_origins: list[str] = [
         "http://127.0.0.1:5173",

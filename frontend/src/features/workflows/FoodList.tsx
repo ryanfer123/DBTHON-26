@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Freshness } from "../../components/Freshness";
+import { allergens, diets } from "./foodTags";
 import { FoodRow } from "./FoodRow";
 import { useAuth } from "../identity/AuthContext";
 import { useListLocation } from "./useListLocation";
@@ -23,6 +24,8 @@ export function FoodPage({ own = false }: { own?: boolean }) {
   const larger = list.value("larger") === "true";
   const [selected, setSelected] = useState<number | null>(null);
   const category = list.value("category", "", ["", "Veg", "NonVeg"]);
+  const diet = list.value("diet_tags", "", ["", ...diets]);
+  const excluded = list.value("exclude_allergens", "", ["", ...allergens]);
   const radius = list.value("radius_m", "5000", ["1000", "3000", "5000"]);
   const status = list.value("status", "", [
     "",
@@ -36,7 +39,7 @@ export function FoodPage({ own = false }: { own?: boolean }) {
   const q = list.value("q").slice(0, 80);
   const { cursor, setCursor } = list;
   const query = useQuery<Rows<Listing>>(
-    `${own ? "/listings/mine" : "/listings"}?${params(own ? { status, q, cursor: cursor ?? 0 } : { category, radius_m: radius, q, cursor, include_over_capacity: String(larger) })}`,
+    `${own ? "/listings/mine" : "/listings"}?${params(own ? { status, q, cursor: cursor ?? 0 } : { category, diet_tags: diet, exclude_allergens: excluded, radius_m: radius, q, cursor, include_over_capacity: String(larger) })}`,
     { deferNewRows: !own, poll: true },
   );
   const hideCommand = useCommand();
@@ -140,6 +143,42 @@ export function FoodPage({ own = false }: { own?: boolean }) {
               </div>
             </>
           )}
+          {!own && (
+            <>
+              <div className="field">
+                <label htmlFor="diet-filter">Diet tag</label>
+                <select
+                  id="diet-filter"
+                  value={diet}
+                  onChange={(e) =>
+                    list.setFilters({ diet_tags: e.target.value })
+                  }
+                >
+                  <option value="">Any diet</option>
+                  {diets.map((tag) => (
+                    <option key={tag}>{tag}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="allergen-filter">
+                  Exclude declared allergen
+                </label>
+                <select
+                  id="allergen-filter"
+                  value={excluded}
+                  onChange={(e) =>
+                    list.setFilters({ exclude_allergens: e.target.value })
+                  }
+                >
+                  <option value="">No exclusion</option>
+                  {allergens.map((tag) => (
+                    <option key={tag}>{tag}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
           <button className="text-button" onClick={list.clear}>
             Clear filters
           </button>
@@ -153,8 +192,11 @@ export function FoodPage({ own = false }: { own?: boolean }) {
         </div>
         {!own && (
           <p className="field-help">
-            Distances are straight-line estimates from your saved account
-            location, not road travel distances.
+            Diet and allergen filters use donor declarations, not
+            certifications. Listings without a checklist are excluded when an
+            allergen exclusion is selected. Distances are straight-line
+            estimates from your saved account location, not road travel
+            distances.
           </p>
         )}
         {query.newCount > 0 && (

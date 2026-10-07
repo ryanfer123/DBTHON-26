@@ -15,9 +15,11 @@ from app.routes.identity import context
 from app.trust.verify import verify as verify_chain
 from app.workflows import service
 from app.workflows.models import (
+    Allergen,
     Category,
     ClaimStatus,
     CommandResponse,
+    DietTag,
     Empty,
     ExchangeResponse,
     ExchangesResponse,
@@ -87,10 +89,22 @@ def food_feed(
     limit: Limit = 20,
     q: Annotated[str | None, Query(max_length=80)] = None,
     include_over_capacity: bool = False,
+    diet_tags: Annotated[list[DietTag] | None, Query(max_length=3)] = None,
+    exclude_allergens: Annotated[list[Allergen] | None, Query(max_length=10)] = None,
 ) -> ListingsResponse:
     with context(request) as c:
         data, meta = service.feed(
-            c, latitude, longitude, radius_m, category, cursor, limit, q, include_over_capacity
+            c,
+            latitude,
+            longitude,
+            radius_m,
+            category,
+            cursor,
+            limit,
+            q,
+            include_over_capacity,
+            diet_tags,
+            exclude_allergens,
         )
         return ListingsResponse(data=data, meta=meta)
 

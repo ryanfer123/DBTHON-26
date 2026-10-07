@@ -618,3 +618,37 @@ cases passed. Frontend lint/type checks also passed after adding that coverage.
 The requested community release gate is complete. The original workspace's
 infrastructure/cost drafts remain untouched. SMS/push delivery remains unconfigured;
 P11 performance and P12 stakeholder/pilot evidence remain separate unfinished work.
+
+## Donor reliability implementation (2026-10-07, awaiting release)
+
+Prepared `feat/donor-safety-alerts` from `c81b7ea`: migration 0010 adds guarded
+handling/packing/allergen/diet declarations and owned daily reminder schedules;
+0011 adds WhatsApp consent, bounded external leases, atomic daily budget and
+provider acceptance/delivery metadata. API/frontend changes include feed filters,
+fresh per-batch checklist, recurring-donation pause/resume, SMS/WhatsApp settings,
+manifest/icons, install guidance and a public offline shell. Interviews and a
+one-collection worksheet are prepared under `docs/pilot/`; no real quotes or
+pilot data were collected. Deployment review is in `DONOR_RELIABILITY.md` and
+provider setup requirements are in `REAL_ALERTS.md`.
+
+Observed static/build checks in `/private/tmp/dbthon-donor-safety-alerts`:
+
+- `/Volumes/Seagate/dbthon/backend/.venv/bin/ruff check` on changed application,
+  loader/bootstrap and supporting fixture/contract files: passed.
+- `/private/tmp/dbthon-account-controls-latest/backend/.venv/bin/python -m mypy
+  --config-file backend/pyproject.toml backend/app`: passed, 31 source files.
+- `npm run typecheck`, `npm run lint`, `npm run build` from `frontend/`: passed;
+  initial JavaScript 120,107 bytes gzip, within 204,800-byte budget.
+- `python3 scripts/check_migrations.py`: passed, 12 authoritative SQL scripts.
+- `python3 scripts/validate_handoff.py`: passed.
+- OpenAPI regenerated and drift check passed; `git diff --check` passed.
+
+The original checkout's old Python environment lacked Pillow/Mangum; static API
+export/type checking used the existing complete isolated environment instead.
+No new tests were added or run. PostgreSQL migration/role/concurrency, external
+provider and browser/offline runtime checks remain required before release; prior
+110/25/6 test results apply to the earlier community release only. No AWS migration,
+provider credential change, external message, deployment or pilot action was
+performed for this feature branch. The requested secret skill `aws-secrets-manager`
+was not available; actual provider credential configuration remains pending.
+Existing unrelated AWS drafts stay in the original workspace.

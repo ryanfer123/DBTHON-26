@@ -937,6 +937,25 @@
       "Listing": {
         "additionalProperties": false,
         "properties": {
+          "allergens": {
+            "items": {
+              "enum": [
+                "milk",
+                "eggs",
+                "fish",
+                "shellfish",
+                "tree-nuts",
+                "peanuts",
+                "wheat",
+                "soy",
+                "sesame",
+                "other"
+              ],
+              "type": "string"
+            },
+            "title": "Allergens",
+            "type": "array"
+          },
           "approaching_expiry": {
             "title": "Approaching Expiry",
             "type": "boolean"
@@ -969,6 +988,18 @@
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "diet_tags": {
+            "items": {
+              "enum": [
+                "halal",
+                "jain",
+                "nut-free"
+              ],
+              "type": "string"
+            },
+            "title": "Diet Tags",
+            "type": "array"
           },
           "distance_m": {
             "anyOf": [
@@ -1033,6 +1064,17 @@
             "title": "Listing Id",
             "type": "integer"
           },
+          "packed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packed"
+          },
           "pickup_lat": {
             "title": "Pickup Lat",
             "type": "string"
@@ -1050,6 +1092,18 @@
             "title": "Quantity Kg",
             "type": "string"
           },
+          "safety_confirmed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Safety Confirmed At"
+          },
           "seconds_remaining": {
             "title": "Seconds Remaining",
             "type": "integer"
@@ -1065,6 +1119,22 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "storage_handling": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Hot",
+                  "Cold",
+                  "Ambient"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Handling"
           },
           "updated_at": {
             "format": "date-time",
@@ -1101,6 +1171,26 @@
       "ListingInput": {
         "additionalProperties": false,
         "properties": {
+          "allergens": {
+            "items": {
+              "enum": [
+                "milk",
+                "eggs",
+                "fish",
+                "shellfish",
+                "tree-nuts",
+                "peanuts",
+                "wheat",
+                "soy",
+                "sesame",
+                "other"
+              ],
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Allergens",
+            "type": "array"
+          },
           "category": {
             "enum": [
               "Veg",
@@ -1108,6 +1198,19 @@
             ],
             "title": "Category",
             "type": "string"
+          },
+          "diet_tags": {
+            "items": {
+              "enum": [
+                "halal",
+                "jain",
+                "nut-free"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Diet Tags",
+            "type": "array"
           },
           "expiry_window_end": {
             "format": "date-time",
@@ -1124,6 +1227,17 @@
             "minLength": 1,
             "title": "Food Type",
             "type": "string"
+          },
+          "packed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packed"
           },
           "photo_base64": {
             "anyOf": [
@@ -1182,6 +1296,22 @@
               }
             ],
             "title": "Quantity Kg"
+          },
+          "storage_handling": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Hot",
+                  "Cold",
+                  "Ambient"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Handling"
           }
         },
         "required": [
@@ -1200,6 +1330,26 @@
       "ListingPatch": {
         "additionalProperties": false,
         "properties": {
+          "allergens": {
+            "items": {
+              "enum": [
+                "milk",
+                "eggs",
+                "fish",
+                "shellfish",
+                "tree-nuts",
+                "peanuts",
+                "wheat",
+                "soy",
+                "sesame",
+                "other"
+              ],
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Allergens",
+            "type": "array"
+          },
           "category": {
             "anyOf": [
               {
@@ -1214,6 +1364,19 @@
               }
             ],
             "title": "Category"
+          },
+          "diet_tags": {
+            "items": {
+              "enum": [
+                "halal",
+                "jain",
+                "nut-free"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Diet Tags",
+            "type": "array"
           },
           "expiry_window_end": {
             "anyOf": [
@@ -1251,6 +1414,17 @@
               }
             ],
             "title": "Food Type"
+          },
+          "packed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packed"
           },
           "photo_base64": {
             "anyOf": [
@@ -1325,6 +1499,22 @@
               }
             ],
             "title": "Quantity Kg"
+          },
+          "storage_handling": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Hot",
+                  "Cold",
+                  "Ambient"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Handling"
           }
         },
         "title": "ListingPatch",
@@ -1666,6 +1856,11 @@
           "sms_enabled": {
             "title": "Sms Enabled",
             "type": "boolean"
+          },
+          "whatsapp_enabled": {
+            "default": false,
+            "title": "Whatsapp Enabled",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1691,6 +1886,16 @@
           },
           "sms_enabled": {
             "title": "Sms Enabled",
+            "type": "boolean"
+          },
+          "whatsapp_configured": {
+            "default": false,
+            "title": "Whatsapp Configured",
+            "type": "boolean"
+          },
+          "whatsapp_enabled": {
+            "default": false,
+            "title": "Whatsapp Enabled",
             "type": "boolean"
           }
         },
@@ -2289,31 +2494,77 @@
         "title": "RoleIntroduction",
         "type": "object"
       },
-      "ScheduleInput": {
-        "additionalProperties": false,
+      "ScheduleData": {
         "properties": {
-          "scheduled_time": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "food_type": {
+            "title": "Food Type",
+            "type": "string"
+          },
+          "local_time": {
+            "format": "time",
+            "title": "Local Time",
+            "type": "string"
+          },
+          "next_due_at": {
+            "format": "date-time",
+            "title": "Next Due At",
+            "type": "string"
+          },
+          "schedule_id": {
+            "title": "Schedule Id",
+            "type": "integer"
+          },
+          "template_listing_id": {
+            "title": "Template Listing Id",
+            "type": "integer"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schedule_id",
+          "template_listing_id",
+          "food_type",
+          "local_time",
+          "time_zone",
+          "enabled",
+          "next_due_at"
+        ],
+        "title": "ScheduleData",
+        "type": "object"
+      },
+      "SchedulesResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleData"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "next_cursor": {
             "anyOf": [
               {
-                "format": "date-time",
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Scheduled Time"
-          },
-          "version": {
-            "exclusiveMinimum": 0.0,
-            "title": "Version",
-            "type": "integer"
+            "title": "Next Cursor"
           }
         },
         "required": [
-          "version"
+          "data",
+          "next_cursor"
         ],
-        "title": "ScheduleInput",
+        "title": "SchedulesResponse",
         "type": "object"
       },
       "SessionData": {
@@ -2993,6 +3244,66 @@
           "meta"
         ],
         "title": "ZonesResponse",
+        "type": "object"
+      },
+      "app__routes__community__ScheduleInput": {
+        "additionalProperties": false,
+        "properties": {
+          "scheduled_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled Time"
+          },
+          "version": {
+            "exclusiveMinimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "ScheduleInput",
+        "type": "object"
+      },
+      "app__routes__donor_schedules__ScheduleInput": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "local_time": {
+            "format": "time",
+            "title": "Local Time",
+            "type": "string"
+          },
+          "template_listing_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Template Listing Id",
+            "type": "integer"
+          },
+          "time_zone": {
+            "default": "Asia/Kolkata",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "template_listing_id",
+          "local_time"
+        ],
+        "title": "ScheduleInput",
         "type": "object"
       }
     }
@@ -4739,7 +5050,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScheduleInput"
+                "$ref": "#/components/schemas/app__routes__community__ScheduleInput"
               }
             }
           },
@@ -5046,6 +5357,93 @@
         ]
       }
     },
+    "/api/v1/donor-schedules": {
+      "get": {
+        "operationId": "schedules_api_v1_donor_schedules_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schedules",
+        "tags": [
+          "Recurring donations"
+        ]
+      },
+      "put": {
+        "operationId": "save_schedule_api_v1_donor_schedules_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__routes__donor_schedules__ScheduleInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "title": "Response Save Schedule Api V1 Donor Schedules Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Schedule",
+        "tags": [
+          "Recurring donations"
+        ]
+      }
+    },
     "/api/v1/health/live": {
       "get": {
         "operationId": "live_api_v1_health_live_get",
@@ -5217,6 +5615,63 @@
               "default": false,
               "title": "Include Over Capacity",
               "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "diet_tags",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "halal",
+                      "jain",
+                      "nut-free"
+                    ],
+                    "type": "string"
+                  },
+                  "maxItems": 3,
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Diet Tags"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exclude_allergens",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "enum": [
+                      "milk",
+                      "eggs",
+                      "fish",
+                      "shellfish",
+                      "tree-nuts",
+                      "peanuts",
+                      "wheat",
+                      "soy",
+                      "sesame",
+                      "other"
+                    ],
+                    "type": "string"
+                  },
+                  "maxItems": 10,
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exclude Allergens"
             }
           }
         ],

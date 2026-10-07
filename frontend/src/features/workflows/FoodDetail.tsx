@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
+import { FoodDeclarations } from "./FoodDeclarations";
 import { Freshness } from "../../components/Freshness";
 import { ListingPhoto } from "../../components/ListingPhoto";
 import { DonorTrust } from "./FoodRow";
@@ -85,6 +86,7 @@ export function FoodDetailPage() {
               />
             )}
             <DonorTrust food={food} />
+            <FoodDeclarations food={food} />
             {food.has_photo && session?.user.capabilities.includes("Admin") && (
               <button
                 className="text-button"

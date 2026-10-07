@@ -46,3 +46,7 @@ has an active listing, claim, or pickup; old listing zone snapshots remain intac
 Revision 0008 retains the exact live zone-repair migration, including its conditional
 column creation. Revision 0009 adds the missing runtime read grant for the review
 flag and aligns member-read RLS with the explicit bootstrap-admin predicate.
+
+- `0010_donor_safety_schedules.sql`: guarded donor declarations and daily reminder schedules.
+- `0011_external_alerts.sql`: consenting channel outbox, demo budget and provider receipts.
+These drafts are not applied to AWS; validate them on disposable PostGIS before release.

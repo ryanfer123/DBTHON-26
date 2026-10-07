@@ -39,7 +39,29 @@ class PhotoInput(Input):
     photo_base64: str | None = Field(default=None, max_length=204800)
 
 
-class ListingInput(PhotoInput):
+StorageHandling = Literal["Hot", "Cold", "Ambient"]
+DietTag = Literal["halal", "jain", "nut-free"]
+Allergen = Literal[
+    "milk", "eggs", "fish", "shellfish", "tree-nuts", "peanuts", "wheat", "soy", "sesame", "other"
+]
+
+
+class SafetyInput(PhotoInput):
+    storage_handling: StorageHandling | None = None
+    packed: bool | None = None
+    allergens: list[Allergen] = Field(default_factory=list, max_length=10)
+    diet_tags: list[DietTag] = Field(default_factory=list, max_length=3)
+
+    @model_validator(mode="after")
+    def declarations(self) -> Self:
+        if "nut-free" in self.diet_tags and set(self.allergens) & {"peanuts", "tree-nuts"}:
+            raise ValueError("Nut-free conflicts with declared nuts")
+        if self.storage_handling is not None and self.packed is None:
+            raise ValueError("Confirm whether food is packed")
+        return self
+
+
+class ListingInput(SafetyInput):
     food_type: str = Field(min_length=1, max_length=80)
     category: Category
     quantity_kg: Decimal = Field(gt=0, max_digits=8, decimal_places=2)
@@ -59,7 +81,7 @@ class ListingInput(PhotoInput):
         return self
 
 
-class ListingPatch(PhotoInput):
+class ListingPatch(SafetyInput):
     food_type: str | None = Field(default=None, min_length=1, max_length=80)
     category: Category | None = None
     quantity_kg: Decimal | None = Field(default=None, gt=0, max_digits=8, decimal_places=2)
@@ -115,6 +137,11 @@ class Listing(Input):
     seconds_remaining: int
     approaching_expiry: bool
     distance_m: float | None = None
+    storage_handling: StorageHandling | None = None
+    packed: bool | None = None
+    allergens: list[Allergen] = Field(default_factory=list)
+    diet_tags: list[DietTag] = Field(default_factory=list)
+    safety_confirmed_at: datetime | None = None
     has_photo: bool = False
     donor_verified: bool = False
     donor_rating_avg: str | None = None

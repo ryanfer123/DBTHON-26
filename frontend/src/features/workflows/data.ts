@@ -27,6 +27,11 @@ export type Listing = {
   distance_m: number | null;
   seconds_remaining: number;
   approaching_expiry: boolean;
+  storage_handling?: "Hot" | "Cold" | "Ambient" | null;
+  packed?: boolean | null;
+  allergens?: string[];
+  diet_tags?: string[];
+  safety_confirmed_at?: string | null;
   has_photo: boolean;
   donor_verified: boolean;
   donor_rating_avg: string | null;

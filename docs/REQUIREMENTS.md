@@ -55,3 +55,16 @@ These are additional user-requested capabilities beyond the source PDF's FR01-FR
 All writes use existing guarded PostgreSQL routines, restricted roles, RLS, CSRF,
 idempotency, trust-ledger and in-app notification outbox. Feature verification
 appears in [STATUS.md](STATUS.md).
+
+## Donor reliability extensions
+
+| ID | Capability | Release gate |
+| --- | --- | --- |
+| DF01 | Real SMS/WhatsApp demo alerts | Opt-in, one approved recipient, database daily cap, provider acceptance and separately observed delivery; no claimed free permanent transport. |
+| DF02 | Daily donor schedules | Approved donor saves an owned listing template and local clock/time zone; one due reminder per occurrence; fresh donor confirmation before publication; pause/resume. |
+| DF03 | Handling and ingredient checklist | Donor declares hot/cold/ambient handling, packing, known allergens and optional diet tags; timestamped on listing; no safety certification. |
+| DF04 | Diet/allergen feed filters | Halal/Jain/nut-free and explicit allergens validated server-side, filter-bound cursors, unknown declarations excluded from allergen-exclusion results. |
+| DF05 | Installable mobile shell | Manifest/icons, install guidance and offline collection guidance; private data and writes never cached or queued. |
+| DF06 | Real pilot evidence | Permission-based campus mess and NGO notes/quotes plus a separately approved collection; templates are not evidence. |
+
+Implementation is on the feature branch. Release checks and provider/pilot evidence remain open; see STATUS.md.

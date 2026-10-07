@@ -1,5 +1,6 @@
 import base64
 import json
+from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import Connection, text
@@ -79,7 +80,7 @@ PROFILE_POINT = """(SELECT ST_SetSRID(
 LISTING_COLUMNS = """
   l.listing_id,l.donor_id,coalesce(u.name,'Donor unavailable') AS donor_name,l.zone_id,
   l.food_type,l.category,l.quantity_kg::text,l.prepared_at,l.expiry_window_start,l.expiry_window_end,
-  l.pickup_lat::text,l.pickup_long::text,l.status,l.created_at,l.updated_at,
+  l.pickup_lat::text,l.pickup_long::text,l.status,l.created_at,l.updated_at,l.storage_handling,l.packed,l.allergens,l.diet_tags,l.safety_confirmed_at,
   greatest(0,floor(extract(epoch FROM l.expiry_window_end-CAST(:now AS
       timestamptz))))::integer AS seconds_remaining,
   (l.expiry_window_end>CAST(:now AS timestamptz) AND l.expiry_window_end<=CAST(:now AS
@@ -111,7 +112,10 @@ FEED_FILTER = f"""l.zone_id=dbthon_actor_zone() AND l.status='Available'
   AND {DONOR_READY} AND ST_DWithin(l.pickup_location,{PROFILE_POINT},5000)
   AND ST_DWithin(l.pickup_location,
     ST_SetSRID(ST_MakePoint(:longitude,:latitude),4326)::geography,:radius)
-  AND (CAST(:category AS text) IS NULL OR l.category=:category)"""
+  AND (CAST(:category AS text) IS NULL OR l.category=:category)
+  AND l.diet_tags @> CAST(:diet_tags AS text[])
+  AND NOT (l.allergens && CAST(:exclude_allergens AS text[]))
+  AND (cardinality(CAST(:exclude_allergens AS text[]))=0 OR l.safety_confirmed_at IS NOT NULL)"""
 
 
 def feed(
@@ -124,6 +128,8 @@ def feed(
     limit: int,
     q: str | None = None,
     include_over_capacity: bool = False,
+    diet_tags: Sequence[str] | None = None,
+    exclude_allergens: Sequence[str] | None = None,
 ) -> tuple[list[Listing], Meta]:
     require(connection, "Receiver")
     profile = connection.execute(
@@ -133,7 +139,9 @@ def feed(
     lon = longitude if longitude is not None else float(profile.longitude)
     now = clock(connection)
     search = (q or "").strip().lower()
-    scope = [lat, lon, radius, category, search, include_over_capacity]
+    diets = sorted(set(diet_tags or []))
+    excluded = sorted(set(exclude_allergens or []))
+    scope = [lat, lon, radius, category, search, include_over_capacity, diets, excluded]
     after_time, after_distance, after_id = datetime.min.replace(tzinfo=UTC), -1.0, 0
     if cursor:
         try:
@@ -167,6 +175,8 @@ def feed(
                 "longitude": lon,
                 "radius": radius,
                 "category": category,
+                "diet_tags": diets,
+                "exclude_allergens": excluded,
                 "search": search_pattern(search),
                 "after_time": after_time,
                 "after_distance": after_distance,
@@ -201,6 +211,8 @@ def feed(
             "longitude": lon,
             "radius": radius,
             "category": category,
+            "diet_tags": diets,
+            "exclude_allergens": excluded,
             "search": search_pattern(search),
         },
     ).scalar_one()

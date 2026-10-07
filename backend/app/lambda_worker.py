@@ -15,7 +15,7 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, int]:
     until = time.monotonic() + min(int(event.get("duration_seconds", 0)), 50)
     try:
         while True:
-            for key, value in tick(access).items():
+            for key, value in tick(access, settings=settings).items():
                 totals[key] = totals.get(key, 0) + value
             if time.monotonic() >= until or context.get_remaining_time_in_millis() < 8000:
                 return totals
