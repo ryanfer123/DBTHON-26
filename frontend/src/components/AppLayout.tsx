@@ -7,6 +7,7 @@ import { useOverview } from "../features/workflows/OverviewContext";
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { session } = useAuth();
+  const { pathname } = useLocation();
   const overview = useOverview();
   const roles =
     overview.data?.data.capabilities ?? session?.user.capabilities ?? [];
@@ -14,6 +15,20 @@ export function AppLayout({ children }: { children: ReactNode }) {
     !item.roles || item.roles.some((role) => roles.includes(role));
   const work = tools.filter(allowed),
     administration = admin.filter(allowed);
+  const secondaryPaths = new Set([
+    "/saved",
+    "/my-impact",
+    "/reports",
+    "/donations/schedules",
+  ]);
+  const primaryWork = work.filter((item) => !secondaryPaths.has(item.to));
+  const secondaryWork = work.filter((item) => secondaryPaths.has(item.to));
+  const account: Destination[] = [
+    { to: "/account", label: "Your account" },
+    { to: "/settings", label: "Settings" },
+    { to: "/trust", label: "My trust" },
+    { to: "/help", label: "Help" },
+  ];
   const unread =
     overview.error || !overview.data ? null : overview.data.data.unread_count;
   const label = "Inbox";
@@ -86,34 +101,46 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {item.to === "/inbox" && badge}
       </NavLink>
     ));
+  const group = (title: string, items: Destination[]) =>
+    items.length > 0 && (
+      <details
+        className="nav-disclosure"
+        open={
+          items.some(
+            (item) =>
+              pathname === item.to || pathname.startsWith(`${item.to}/`),
+          ) || undefined
+        }
+      >
+        <summary>{title}</summary>
+        <div>{links(items)}</div>
+      </details>
+    );
   return (
     <PageShell>
       <div className="app-layout">
         <aside className="workspace-sidebar">
           <nav aria-label="Community workspace">
-            {links([{ to: "/dashboard", label: "Dashboard" }])}
-            {!!work.length && (
+            {links([
+              { to: "/dashboard", label: "Dashboard" },
+              { to: "/inbox", label },
+            ])}
+            {!!primaryWork.length && (
               <div className="nav-group">
                 <h2>Food sharing</h2>
-                {links(work)}
+                {links(primaryWork)}
               </div>
             )}
             <div className="nav-group">
-              <h2>Community</h2>
               {links([
-                { to: "/inbox", label },
-                { to: "/settings", label: "Settings" },
-                { to: "/trust", label: "My trust" },
-                { to: "/help", label: "Help" },
                 { to: "/community/updates", label: "Community updates" },
               ])}
             </div>
-            {!!administration.length && (
-              <div className="nav-group">
-                <h2>Administration</h2>
-                {links(administration)}
-              </div>
-            )}
+            <div className="nav-secondary">
+              {group("Personal tools", secondaryWork)}
+              {group("Administration", administration)}
+              {group("Account & help", account)}
+            </div>
           </nav>
         </aside>
         <div className="workspace-content">{children}</div>

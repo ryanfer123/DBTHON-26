@@ -720,3 +720,21 @@ session endpoint was mocked as signed out for this presentation-only check. Brow
 plugin was unavailable; regular Playwright was used. Screenshots are saved outside
 Git at `/private/tmp/second-table-logo-desktop.png` and
 `/private/tmp/second-table-logo-mobile-dark.png`.
+
+### 2026-10-07 - Simplified workspace navigation
+
+Reduced desktop navigation to Dashboard, Inbox, approved day-to-day food tools and
+Community updates. Relocated saved listings, impact, reports and recurring reminders
+into Personal tools; grouped administration and account/help in native keyboard
+accessible disclosures. A group containing the current route opens automatically.
+The sidebar is 250 px wide; role restrictions and mobile Tasks/More remain intact.
+Changed `AppLayout.tsx` and `styles/workspace.css`; no migration or API changes.
+ESLint, TypeScript and production build passed (124,009 initial JS bytes gzip).
+Fixture-session Chrome checks passed for all-role desktop/light, 390 px mobile/dark,
+and pending-member desktop: disclosure keyboard toggling, role visibility, unread
+badge, mobile Tasks/More access, Escape focus restoration and no horizontal overflow
+or page errors. Temporary QA script/screenshots are outside Git under
+`/private/tmp/check-second-table-navigation.mjs` and
+`/private/tmp/second-table-sidebar-*.png`. These are presentation checks, not new
+backend/database feature evidence. Next unfinished project work remains the real
+PostgreSQL/browser release gates for migrations 0010-0012 recorded above and P11/P12.

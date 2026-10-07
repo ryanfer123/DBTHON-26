@@ -1,7 +1,7 @@
 /* Shared signed-in navigation and dashboard. */
 .app-layout {
   display: grid;
-  grid-template-columns: 270px minmax(0, 1fr);
+  grid-template-columns: 250px minmax(0, 1fr);
   min-height: calc(100vh - 190px);
 }
 .workspace-sidebar {
@@ -36,6 +36,37 @@
   color: var(--muted);
   padding: 0 18px;
   margin: 0 0 10px;
+}
+.nav-secondary {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 12px;
+}
+.nav-disclosure {
+  margin: 4px 0;
+}
+.nav-disclosure summary {
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+}
+.nav-disclosure summary:hover {
+  background: var(--sage);
+  color: var(--green);
+}
+.nav-disclosure summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.nav-disclosure > div {
+  margin-left: 10px;
+  border-left: 1px solid var(--line);
+}
+.nav-disclosure a {
+  font-size: 16px;
+  padding: 10px 18px;
 }
 .workspace-content {
   min-width: 0;
@@ -79,9 +110,15 @@
   border-bottom: 1px solid var(--line);
   padding: 20px 0 26px;
 }
-.settings-section h2 { margin: 0 0 10px; }
-.settings-section > p { line-height: 1.6; }
-.settings-section .review-check { margin-top: 18px; }
+.settings-section h2 {
+  margin: 0 0 10px;
+}
+.settings-section > p {
+  line-height: 1.6;
+}
+.settings-section .review-check {
+  margin-top: 18px;
+}
 .dashboard-summary {
   display: flex;
   margin: 0 0 30px;
