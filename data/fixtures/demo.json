@@ -5,27 +5,27 @@
   "zones": [
     {
       "zone_id": 1,
-      "zone_name": "Demo zone 1",
-      "city": "Demo Vellore",
-      "pincode_range": "DEMO-1"
+      "zone_name": "Vellore Fort",
+      "city": "Vellore",
+      "pincode_range": "632004"
     },
     {
       "zone_id": 2,
-      "zone_name": "Demo zone 2",
-      "city": "Demo Vellore",
-      "pincode_range": "DEMO-2"
+      "zone_name": "Sathuvachari",
+      "city": "Vellore",
+      "pincode_range": "632009"
     },
     {
       "zone_id": 3,
-      "zone_name": "Demo zone 3",
-      "city": "Demo Vellore",
-      "pincode_range": "DEMO-3"
+      "zone_name": "Shenbakkam",
+      "city": "Vellore",
+      "pincode_range": "632008"
     },
     {
       "zone_id": 4,
-      "zone_name": "Demo zone 4",
-      "city": "Demo Chennai",
-      "pincode_range": "DEMO-4"
+      "zone_name": "Katpadi",
+      "city": "Vellore",
+      "pincode_range": "632007"
     }
   ],
   "users": [

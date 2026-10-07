@@ -90,6 +90,10 @@ class Verification(Input):
         return self
 
 
+class ZoneSelection(Input):
+    zone_id: int = Field(gt=0)
+
+
 class NotificationPreferences(Input):
     sms_enabled: bool
     push_enabled: bool
@@ -136,6 +140,7 @@ class UserData(BaseModel):
     roles: list[RoleData]
     capabilities: list[Role]
     capacity_kg: str | None
+    zone_review_required: bool = False
 
 
 class UserResponse(BaseModel):

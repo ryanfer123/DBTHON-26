@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router";
 import { useListLocation } from "../workflows/useListLocation";
 import { useQuery } from "../workflows/data";
@@ -11,6 +11,8 @@ import {
   type Page,
   type PublicRole,
   type User,
+  type Zone,
+  loadZones,
 } from "../../lib/identity";
 import { useAuth } from "./AuthContext";
 
@@ -137,7 +139,9 @@ function AdminGrantForm({
   const [error, setError] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const reason = String(new FormData(event.currentTarget).get("reason")).trim();
+    const reason = String(
+      new FormData(event.currentTarget).get("reason"),
+    ).trim();
     setBusy(true);
     setError("");
     try {
@@ -161,9 +165,20 @@ function AdminGrantForm({
           <label htmlFor={`admin-reason-${user.user_id}`}>
             Why should {user.name} be an administrator?
           </label>
-          <textarea id={`admin-reason-${user.user_id}`} name="reason" required minLength={3} maxLength={300} rows={2} />
+          <textarea
+            id={`admin-reason-${user.user_id}`}
+            name="reason"
+            required
+            minLength={3}
+            maxLength={300}
+            rows={2}
+          />
         </div>
-        {error && <p className="notice notice-error" role="alert">{error}</p>}
+        {error && (
+          <p className="notice notice-error" role="alert">
+            {error}
+          </p>
+        )}
         <button className="button button-small" type="submit">
           {busy ? "Granting access…" : "Grant administrator access"}
         </button>
@@ -173,6 +188,9 @@ function AdminGrantForm({
 }
 
 export function AdminPage() {
+  const auth = useAuth();
+  const isBootstrapAdmin =
+    auth.session?.user.email === "z1.admin@example.invalid";
   const location = useLocation();
   const list = useListLocation();
   const filter = list.value("filter", "pending", [
@@ -183,6 +201,14 @@ export function AdminPage() {
   const { cursor, setCursor } = list;
   const [reviewing, setReviewing] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
+  const [zones, setZones] = useState<Zone[]>([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    loadZones(controller.signal)
+      .then(setZones)
+      .catch(() => setZones([]));
+    return () => controller.abort();
+  }, []);
   const suffix = filter === "all" ? "" : `&verified=${filter === "verified"}`;
   const query = useQuery<Page<User>>(
     `/admin/users?limit=20&cursor=${cursor ?? 0}${suffix}`,
@@ -202,7 +228,11 @@ export function AdminPage() {
         <div className="page-heading">
           <div>
             <h1>Community members</h1>
-            <p>Review requested roles in your community area.</p>
+            <p>
+              {isBootstrapAdmin
+                ? "Review requested roles across all community areas."
+                : "Review requested roles in your community area."}
+            </p>
           </div>
           <Link className="text-link" to="/account">
             Back to your account
@@ -258,6 +288,11 @@ export function AdminPage() {
                     <h2>{user.name}</h2>
                     <p>{user.email}</p>
                     <p>{user.phone}</p>
+                    <p className="field-help">
+                      Community area:{" "}
+                      {zones.find((zone) => zone.zone_id === user.zone_id)
+                        ?.zone_name ?? `Area ${user.zone_id}`}
+                    </p>
                     <p className="field-help">
                       {user.roles
                         .map(
@@ -316,12 +351,15 @@ export function AdminPage() {
                       <details className="review-panel">
                         <summary>Grant administrator access</summary>
                         <p className="field-help">
-                          This grants Admin access in your community area. Public roles still require a separate review.
+                          This grants Admin access in your community area.
+                          Public roles still require a separate review.
                         </p>
                         <AdminGrantForm
                           user={user}
                           onComplete={() => {
-                            setNotice(`Administrator access granted to ${user.name}.`);
+                            setNotice(
+                              `Administrator access granted to ${user.name}.`,
+                            );
                             reload();
                           }}
                         />

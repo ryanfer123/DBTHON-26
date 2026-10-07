@@ -1,6 +1,22 @@
 {
   "components": {
     "schemas": {
+      "AdminGrant": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "AdminGrant",
+        "type": "object"
+      },
       "CommandData": {
         "additionalProperties": false,
         "properties": {
@@ -1420,6 +1436,65 @@
         "title": "Notification",
         "type": "object"
       },
+      "NotificationPreferences": {
+        "additionalProperties": false,
+        "properties": {
+          "push_enabled": {
+            "title": "Push Enabled",
+            "type": "boolean"
+          },
+          "sms_enabled": {
+            "title": "Sms Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sms_enabled",
+          "push_enabled"
+        ],
+        "title": "NotificationPreferences",
+        "type": "object"
+      },
+      "NotificationPreferencesData": {
+        "properties": {
+          "push_configured": {
+            "title": "Push Configured",
+            "type": "boolean"
+          },
+          "push_enabled": {
+            "title": "Push Enabled",
+            "type": "boolean"
+          },
+          "sms_configured": {
+            "title": "Sms Configured",
+            "type": "boolean"
+          },
+          "sms_enabled": {
+            "title": "Sms Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sms_enabled",
+          "push_enabled",
+          "sms_configured",
+          "push_configured"
+        ],
+        "title": "NotificationPreferencesData",
+        "type": "object"
+      },
+      "NotificationPreferencesResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/NotificationPreferencesData"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "NotificationPreferencesResponse",
+        "type": "object"
+      },
       "NotificationsResponse": {
         "additionalProperties": false,
         "properties": {
@@ -2183,6 +2258,11 @@
           "zone_id": {
             "title": "Zone Id",
             "type": "integer"
+          },
+          "zone_review_required": {
+            "default": false,
+            "title": "Zone Review Required",
+            "type": "boolean"
           }
         },
         "required": [
@@ -2332,6 +2412,21 @@
         "title": "ZoneData",
         "type": "object"
       },
+      "ZoneSelection": {
+        "additionalProperties": false,
+        "properties": {
+          "zone_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Zone Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "zone_id"
+        ],
+        "title": "ZoneSelection",
+        "type": "object"
+      },
       "ZonesResponse": {
         "properties": {
           "data": {
@@ -2361,6 +2456,47 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/account/confirm-zone": {
+      "post": {
+        "operationId": "confirm_zone_api_v1_account_confirm_zone_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneSelection"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm Zone",
+        "tags": [
+          "Identity"
+        ]
+      }
+    },
     "/api/v1/admin/claims": {
       "get": {
         "operationId": "admin_claims_api_v1_admin_claims_get",
@@ -2876,6 +3012,59 @@
           }
         },
         "summary": "Admin Users",
+        "tags": [
+          "Identity",
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}/admin": {
+      "post": {
+        "operationId": "grant_admin_api_v1_admin_users__user_id__admin_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminGrant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Grant Admin",
         "tags": [
           "Identity",
           "Administration"
@@ -4315,6 +4504,52 @@
         ]
       }
     },
+    "/api/v1/listings/{listing_id}/hide-cancelled": {
+      "post": {
+        "operationId": "hide_cancelled_listing_api_v1_listings__listing_id__hide_cancelled_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Hide Cancelled Listing Api V1 Listings  Listing Id  Hide Cancelled Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hide Cancelled Listing",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
     "/api/v1/listings/{listing_id}/photo": {
       "get": {
         "operationId": "listing_photo_api_v1_listings__listing_id__photo_get",
@@ -4411,6 +4646,31 @@
           }
         },
         "summary": "Inbox",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/notifications/clear": {
+      "post": {
+        "operationId": "clear_inbox_api_v1_notifications_clear_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "title": "Response Clear Inbox Api V1 Notifications Clear Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Clear Inbox",
         "tags": [
           "Redistribution"
         ]
@@ -4652,6 +4912,66 @@
         "summary": "Public Impact",
         "tags": [
           "Community"
+        ]
+      }
+    },
+    "/api/v1/settings/notifications": {
+      "get": {
+        "operationId": "get_notification_preferences_api_v1_settings_notifications_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Notification Preferences",
+        "tags": [
+          "Identity"
+        ]
+      },
+      "patch": {
+        "operationId": "save_notification_preferences_api_v1_settings_notifications_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationPreferences"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Notification Preferences",
+        "tags": [
+          "Identity"
         ]
       }
     },
