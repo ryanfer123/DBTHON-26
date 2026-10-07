@@ -738,3 +738,66 @@ or page errors. Temporary QA script/screenshots are outside Git under
 `/private/tmp/second-table-sidebar-*.png`. These are presentation checks, not new
 backend/database feature evidence. Next unfinished project work remains the real
 PostgreSQL/browser release gates for migrations 0010-0012 recorded above and P11/P12.
+
+## 2026-10-07: live experience backend and themed dropdown repair
+
+The user's screenshots showed My impact, Saved listings, My reports and Recurring
+donations failing. Read the live public OpenAPI contract: all corresponding new
+routes were absent. The frontend had reached Render before the matching AWS release.
+
+Applied the matching operator package through reviewed CloudFormation change set
+`ExperienceBootstrap0012Fixed`, retaining the previous template and other parameters.
+The operator migration returned `previous_migration=0009`, `migration=0012` without
+an error. Then reviewed/executed `ExperienceApi0012`, updating existing API/worker
+code and their schedule references; the stack returned `UPDATE_COMPLETE`. Artifact
+SHA-256: `adadb62d296860256eb2d7d44de84ef930253267c1976082fd49045d664eeb6d`.
+No replacement database, network or compute topology was provisioned.
+Live OpenAPI now includes all four screenshot page routes; readiness returned 200
+and anonymous requests to the protected routes returned 401. Operator inspection
+confirmed revision 0012, existing community tables and restricted review grants.
+Authenticated cloud journeys were not exercised with a real member's credentials.
+
+Before applying 0012 to production, corrected its report command's ambiguous `body`
+parameter references. The issue was found on disposable PostgreSQL by reporting a
+specific exchange message. Also corrected operator migration progression from 0011
+to 0012 and maintained browser fixture cleanup for the new FK tables. Revision 0012
+is now deployed and must only be changed through a new forward migration.
+
+Dropdown repair covers every native `select`, including controls outside `.field`:
+shared theme colours, border/radius, 46px minimum height, chevron with dark variant,
+option colours, focus/disabled states and native keyboard/mobile behavior. Added
+spacing to period/status filters and themed unwrapped report/chat textareas. Replaced
+hardcoded experience-card borders with the theme line token. Sidebar donation links
+use exact matching so schedules and donations are not simultaneously active.
+Preserved concurrent main commits for the logo and grouped secondary navigation.
+
+Observed checks:
+
+- Existing backend regression: **110 passed** in 94.75s on allowlisted disposable
+  `dbthon_usability_test`. An initial run incorrectly injected all root environment
+  settings and caused two no-database checks to fail; rerunning with only POSTGRES_*
+  inputs corrected the setup. No application change was needed for those failures.
+- Focused real-PostGIS diagnostic: new page reads, saved-listing projection, daily
+  schedule save, claim/pickup agreement, participant chat, admin chat denial, selected
+  message reporting and scoped admin review passed. No production fixture reset.
+- Existing frontend unit tests: **25 passed**. Existing desktop/mobile usability
+  Playwright suite: **6 passed** in 21.1s. Lint, TypeScript/build and migration/handoff
+  checks passed. Final initial bundle after latest main integration: 124,038 gzip bytes.
+- Targeted Chrome diagnostic rendered the actual My impact page, changed 30 to 90
+  days with a successful API response, checked light/dark styles at 1505px/390px,
+  rendered all other screenshot pages without errors, and verified one active sidebar
+  destination. Screenshots and rerunnable diagnostic are saved locally under
+  `/private/tmp/dbthon-experience-release/` (`ui-launch.py`, `ui-check.cjs`).
+  Browser plugin skill was unavailable; used installed Chrome through Playwright.
+
+Reproduce regression with the configured local PostGIS and complete environment:
+`DBTHON_TEST_DATABASE=dbthon_usability_test python -m pytest backend/tests --db -q`,
+`npm run test --prefix frontend`, `npm run build --prefix frontend`, and
+`DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix frontend -- usability.spec.ts`.
+The targeted diagnostic explicitly uses synthetic credentials and allowlisted browser
+DB only; its screenshots contain synthetic fixture data, not pilot evidence.
+
+Frontend fixes are prepared for main's existing automatic Render deployment. SMS/
+WhatsApp remains disabled without provider setup; P11/P12 evidence is still pending.
+Further new-feature concurrency/rate-limit/privacy edge cases remain follow-up
+coverage, separate from the observed regression and targeted diagnostic above.
