@@ -22,7 +22,6 @@
 }
 .workspace-sidebar a.active {
   background: var(--sage);
-  font-weight: 700;
 }
 .nav-group {
   margin-top: 28px;
