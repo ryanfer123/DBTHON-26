@@ -69,9 +69,9 @@ BEGIN
  IF NOT public.dbthon_verified_actor() THEN RAISE EXCEPTION 'VERIFICATION_REQUIRED'; END IF;
  IF operation NOT IN('bookmark.save','bookmark.remove','message.send','issue.open','issue.review')
  OR request_key IS NULL OR length(request_key) NOT BETWEEN 8 AND 128 OR request_key !~ '^[A-Za-z0-9_.:-]+$'
- OR jsonb_typeof(body)<>'object' THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+ OR jsonb_typeof(dbthon_experience_command.body)<>'object' THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
  op_key:=operation||':'||wanted_id;
- fingerprint:=encode(public.digest(convert_to(body::text,'UTF8'),'sha256'),'hex');
+ fingerprint:=encode(public.digest(convert_to(dbthon_experience_command.body::text,'UTF8'),'sha256'),'hex');
  PERFORM pg_advisory_xact_lock(hashtextextended(actor||':'||op_key||':'||request_key,0));
  IF operation='message.send' THEN
    SELECT listing_id INTO ref_id FROM public.claims WHERE claim_id=wanted_id;
@@ -105,7 +105,7 @@ BEGIN
  END IF;
  moment:=clock_timestamp();
  IF operation IN('bookmark.save','bookmark.remove') THEN
-   IF body<>'{}' THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+   IF dbthon_experience_command.body<>'{}' THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
    IF operation='bookmark.save' THEN
      DELETE FROM public.saved_listings s USING public.food_listings old
        WHERE s.user_id=actor AND s.listing_id=old.listing_id AND
@@ -118,45 +118,45 @@ BEGIN
    result:=jsonb_build_object('data',jsonb_build_object('id',wanted_id));
    PERFORM public.dbthon_record_event(ARRAY[actor],operation,'food_listings',wanted_id,NULL,'{}');
  ELSIF operation='message.send' THEN
-   IF body-ARRAY['body']<>'{}' OR body->>'body' IS NULL OR length(trim(body->>'body')) NOT BETWEEN 1 AND 1000 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+   IF dbthon_experience_command.body-ARRAY['body']<>'{}' OR dbthon_experience_command.body->>'body' IS NULL OR length(trim(dbthon_experience_command.body->>'body')) NOT BETWEEN 1 AND 1000 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
    IF c.status<>'Confirmed' OR l.status NOT IN('Claimed','PickedUp') OR l.expiry_window_end<=moment THEN RAISE EXCEPTION 'ACTION_NOT_ALLOWED'; END IF;
    IF (SELECT count(*) FROM public.exchange_messages WHERE sender_id=actor AND created_at>moment-interval '10 minutes')>=20 THEN RAISE EXCEPTION 'RATE_LIMITED'; END IF;
    INSERT INTO public.exchange_messages(claim_id,sender_id,recipient_ids,body)
-   VALUES(wanted_id,actor,affected,trim(body->>'body')) RETURNING message_id INTO ref_id;
+   VALUES(wanted_id,actor,affected,trim(dbthon_experience_command.body->>'body')) RETURNING message_id INTO ref_id;
    result:=jsonb_build_object('data',jsonb_build_object('id',ref_id));
    PERFORM public.dbthon_record_event(affected,'exchange.message_sent','exchange_messages',ref_id,wanted_id,jsonb_build_object('claim_id',wanted_id));
    -- Never put the private message body in a ledger or external alert.
    PERFORM public.dbthon_notify(ARRAY(SELECT unnest(affected) EXCEPT SELECT actor),'message:'||ref_id,'ExchangeMessage','A participant sent a message in exchange #'||wanted_id||'. Open the exchange to read it.');
  ELSIF operation='issue.open' THEN
-   IF body-ARRAY['category','detail','claim_id','message_id']<>'{}' OR body->>'category' NOT IN('FoodSafety','NoShow','MisleadingListing','AbusiveMessage','Other')
-   OR body->>'category' IS NULL OR body->>'detail' IS NULL OR length(trim(body->>'detail')) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
-   IF body->>'claim_id' IS NOT NULL THEN
-     SELECT * INTO c FROM public.claims WHERE claim_id=(body->>'claim_id')::bigint AND listing_id=l.listing_id;
+   IF dbthon_experience_command.body-ARRAY['category','detail','claim_id','message_id']<>'{}' OR dbthon_experience_command.body->>'category' NOT IN('FoodSafety','NoShow','MisleadingListing','AbusiveMessage','Other')
+   OR dbthon_experience_command.body->>'category' IS NULL OR dbthon_experience_command.body->>'detail' IS NULL OR length(trim(dbthon_experience_command.body->>'detail')) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+   IF dbthon_experience_command.body->>'claim_id' IS NOT NULL THEN
+     SELECT * INTO c FROM public.claims WHERE claim_id=(dbthon_experience_command.body->>'claim_id')::bigint AND listing_id=l.listing_id;
      IF NOT FOUND OR NOT public.dbthon_can_view_claim(c.claim_id) THEN RAISE EXCEPTION 'NOT_FOUND'; END IF;
    END IF;
-   IF body->>'message_id' IS NOT NULL THEN
-     SELECT * INTO supplied_message FROM public.exchange_messages WHERE message_id=(body->>'message_id')::bigint;
+   IF dbthon_experience_command.body->>'message_id' IS NOT NULL THEN
+     SELECT * INTO supplied_message FROM public.exchange_messages WHERE message_id=(dbthon_experience_command.body->>'message_id')::bigint;
      IF NOT FOUND OR supplied_message.claim_id IS DISTINCT FROM c.claim_id OR NOT public.dbthon_chat_participant(c.claim_id)
      OR NOT (supplied_message.sender_id=actor OR actor=ANY(supplied_message.recipient_ids)) THEN RAISE EXCEPTION 'NOT_FOUND'; END IF;
    END IF;
-   IF body->>'category'='AbusiveMessage' AND supplied_message.message_id IS NULL THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+   IF dbthon_experience_command.body->>'category'='AbusiveMessage' AND supplied_message.message_id IS NULL THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
    IF (SELECT count(*) FROM public.community_issues WHERE reporter_id=actor AND created_at>moment-interval '1 day')>=5 THEN RAISE EXCEPTION 'RATE_LIMITED'; END IF;
    IF EXISTS(SELECT FROM public.community_issues WHERE reporter_id=actor AND listing_id=wanted_id
    AND coalesce(claim_id,0)=coalesce(c.claim_id,0) AND coalesce(message_id,0)=coalesce(supplied_message.message_id,0) AND status IN('Open','Reviewing')) THEN RAISE EXCEPTION 'ISSUE_EXISTS'; END IF;
    INSERT INTO public.community_issues(reporter_id,zone_id,listing_id,claim_id,message_id,category,detail)
-   VALUES(actor,l.zone_id,wanted_id,c.claim_id,supplied_message.message_id,body->>'category',trim(body->>'detail')) RETURNING issue_id INTO ref_id;
+   VALUES(actor,l.zone_id,wanted_id,c.claim_id,supplied_message.message_id,dbthon_experience_command.body->>'category',trim(dbthon_experience_command.body->>'detail')) RETURNING issue_id INTO ref_id;
    result:=jsonb_build_object('data',jsonb_build_object('id',ref_id));
-   PERFORM public.dbthon_record_event(ARRAY[actor],'issue.opened','community_issues',ref_id,c.claim_id,jsonb_build_object('listing_id',wanted_id,'category',body->>'category'));
+   PERFORM public.dbthon_record_event(ARRAY[actor],'issue.opened','community_issues',ref_id,c.claim_id,jsonb_build_object('listing_id',wanted_id,'category',dbthon_experience_command.body->>'category'));
    PERFORM public.dbthon_notify(ARRAY(SELECT u.user_id FROM public.users u JOIN public.user_roles r USING(user_id)
      WHERE (u.zone_id=l.zone_id OR u.email='z1.admin@example.invalid') AND u.active AND u.verified_status AND r.role='Admin' AND r.approved_at IS NOT NULL),
      'issue:'||ref_id,'IssueReported','A community member submitted report #'||ref_id||'. Open issue review to inspect it.');
  ELSIF operation='issue.review' THEN
-   IF body-ARRAY['status','note']<>'{}' OR body->>'status' NOT IN('Reviewing','Resolved','Dismissed') OR body->>'status' IS NULL
-   OR body->>'note' IS NULL OR length(trim(body->>'note')) NOT BETWEEN 3 AND 500 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
+   IF dbthon_experience_command.body-ARRAY['status','note']<>'{}' OR dbthon_experience_command.body->>'status' NOT IN('Reviewing','Resolved','Dismissed') OR dbthon_experience_command.body->>'status' IS NULL
+   OR dbthon_experience_command.body->>'note' IS NULL OR length(trim(dbthon_experience_command.body->>'note')) NOT BETWEEN 3 AND 500 THEN RAISE EXCEPTION 'INVALID_INPUT'; END IF;
    IF issue.status IN('Resolved','Dismissed') THEN RAISE EXCEPTION 'ACTION_NOT_ALLOWED'; END IF;
-   UPDATE public.community_issues SET status=body->>'status',review_note=trim(body->>'note'),reviewed_at=moment,reviewed_by=actor WHERE issue_id=wanted_id;
+   UPDATE public.community_issues SET status=dbthon_experience_command.body->>'status',review_note=trim(dbthon_experience_command.body->>'note'),reviewed_at=moment,reviewed_by=actor WHERE issue_id=wanted_id;
    result:=jsonb_build_object('data',jsonb_build_object('id',wanted_id));
-   PERFORM public.dbthon_record_event(affected,'issue.reviewed','community_issues',wanted_id,issue.claim_id,jsonb_build_object('status',body->>'status'));
+   PERFORM public.dbthon_record_event(affected,'issue.reviewed','community_issues',wanted_id,issue.claim_id,jsonb_build_object('status',dbthon_experience_command.body->>'status'));
    PERFORM public.dbthon_notify(ARRAY[issue.reporter_id],'issue-review:'||wanted_id||':'||request_key,'IssueReviewed','An administrator updated report #'||wanted_id||'. Open your reports to see the result.');
  END IF;
  INSERT INTO public.idempotency_keys(actor_id,operation,key,request_hash,response_status,response_body,created_at,expires_at)

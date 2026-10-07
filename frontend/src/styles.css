@@ -9,7 +9,7 @@
 .experience-card {
   padding: 1.5rem;
   margin-block: 1.5rem;
-  border: 1px solid var(--border, #ccd7cd);
+  border: 1px solid var(--line);
   border-radius: 0.75rem;
 }
 .message-list {
@@ -18,7 +18,7 @@
 }
 .message-list > li {
   padding-block: 1rem;
-  border-bottom: 1px solid var(--border, #ccd7cd);
+  border-bottom: 1px solid var(--line);
 }
 .message-body {
   white-space: pre-wrap;

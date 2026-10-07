@@ -56,7 +56,8 @@ def main() -> None:
     with engine.begin() as c:
         c.execute(
             text("""
-          TRUNCATE pickup_confirmations,pickup_proposals,food_request_offers,food_requests,
+          TRUNCATE saved_listings,exchange_messages,community_issues,donor_schedules,external_alert_budget,
+            pickup_confirmations,pickup_proposals,food_request_offers,food_requests,
             hidden_listings,notification_preferences,admin_grants,
             community_suggestions,community_updates,listing_photos,verification_reviews,auth_rate_limits,seed_runs,idempotency_keys,sessions,
             notification_outbox,notifications,trust_ledger,ratings,pickups,claims,

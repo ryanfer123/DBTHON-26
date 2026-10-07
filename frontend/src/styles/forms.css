@@ -632,3 +632,78 @@ input[type="checkbox"] {
   border-color: var(--green);
   color: var(--green);
 }
+
+/* Shared native controls retain keyboard and mobile picker support. */
+select,
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 46px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 11px 42px 11px 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--green);
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23173d2d' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+.field select {
+  padding-inline-end: 42px;
+}
+select:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+select option,
+select optgroup {
+  color: var(--green);
+  background: var(--bg);
+}
+[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23e5f0e7' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+select[multiple] {
+  background-image: none;
+  padding-inline-end: 14px;
+  cursor: default;
+}
+@media (forced-colors: active) {
+  select,
+  .field select {
+    appearance: auto;
+    background-image: none;
+  }
+}
+.control-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.experience-card .form-fields > label,
+.experience-report .form-fields > label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+.experience-card textarea,
+.experience-report textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 13px 14px;
+  color: var(--green);
+  background: var(--bg);
+  resize: vertical;
+}

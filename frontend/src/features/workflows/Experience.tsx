@@ -264,7 +264,7 @@ export function IssuesPage({ admin = false }: { admin?: boolean }) {
       }
     >
       {admin && (
-        <label>
+        <label className="control-filter">
           Status{" "}
           <select
             value={status}
@@ -499,7 +499,7 @@ export function PersonalImpactPage() {
       title="My impact"
       intro="Your recorded participation in this community area."
     >
-      <label>
+      <label className="control-filter">
         Period{" "}
         <select value={days} onChange={(event) => setDays(event.target.value)}>
           <option value="30">Last 30 days</option>

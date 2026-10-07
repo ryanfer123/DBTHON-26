@@ -85,7 +85,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <NavLink
         key={item.to}
         to={item.to}
-        end={item.to === "/admin"}
+        end={["/admin", "/donations"].includes(item.to)}
         title={
           item.to === "/inbox"
             ? unread === null
