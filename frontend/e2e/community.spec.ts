@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { submitLogin, workspaceLink } from "./workspaceHelpers";
 
 function localTime(time: number) {
@@ -23,6 +24,54 @@ async function signOut(page: Page) {
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(page).toHaveURL("/");
 }
+
+test("community tools remain accessible with keyboard navigation and dark mode", async ({
+  page,
+}, info) => {
+  await signIn(page, "receiver");
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  for (const [name, menu, path] of [
+    ["Food requests", "Tasks", "/requests"],
+    ["Community updates", "More", "/community/updates"],
+  ]) {
+    if (info.project.name === "mobile") {
+      await page.getByRole("button", { name: menu, exact: true }).focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await page
+        .getByRole("dialog")
+        .getByRole("link", { name, exact: true })
+        .focus();
+    } else {
+      await page
+        .getByRole("navigation", { name: "Community workspace", exact: true })
+        .getByRole("link", { name, exact: true })
+        .focus();
+    }
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(path);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    if (path === "/requests") {
+      await page.getByLabel("Search food requests").focus();
+      await page.keyboard.press("Tab");
+      await expect(page.getByLabel("Request status")).toBeFocused();
+    } else {
+      await page.getByLabel("Title", { exact: true }).focus();
+      await page.keyboard.press("Tab");
+      await expect(page.getByLabel("Details", { exact: true })).toBeFocused();
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBeTruthy();
+    expect(
+      (await new AxeBuilder({ page }).analyze()).violations.filter(
+        (violation) => ["serious", "critical"].includes(violation.impact ?? ""),
+      ),
+    ).toEqual([]);
+  }
+});
 
 test("food request offers, claims and pickup agreements follow the shared workflow", async ({
   page,

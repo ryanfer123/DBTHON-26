@@ -606,6 +606,15 @@ parameters now use the tested package SHA-256
 The live API contract exactly matched `docs/openapi.json`; readiness returned 200,
 anonymous requests/updates/settings returned 401, and the credentialed Render-origin
 CORS preflight returned 200. No database, VPC or API URL replacement occurred.
-GitHub `main`/Render publication is the remaining release step. The original
-workspace's infrastructure/cost drafts remain untouched. SMS/push delivery remains
-unconfigured.
+Published application revision `7347550aca9471a29f717ac3f41d094a87b476f6` to GitHub
+`main` without force; the remote ref matched. Render deployment
+`dep-db35s415efls73c1u060` reported that revision live. Live `/`, `/requests`,
+`/community/updates` and `/dashboard` returned 200, and the deployed frontend bundle
+contains the community tools and configured AWS API URL. The new desktop/mobile
+keyboard/dark-mode cases passed (2 tests, 11.9 seconds), including focused form
+controls, keyboard destination activation, 390 px overflow checks and no serious or
+critical axe findings. Together with the four workflow cases, six community browser
+cases passed. Frontend lint/type checks also passed after adding that coverage.
+The requested community release gate is complete. The original workspace's
+infrastructure/cost drafts remain untouched. SMS/push delivery remains unconfigured;
+P11 performance and P12 stakeholder/pilot evidence remain separate unfinished work.

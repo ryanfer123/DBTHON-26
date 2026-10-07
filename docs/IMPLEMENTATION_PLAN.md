@@ -111,7 +111,7 @@ Implemented alongside P09, without changing the remaining P11/P12 gates:
 - [x] **CF03 - Zone updates and suggestions.** Admin-authored announcements and
   curated partner resources; member suggestions stay unpublished until review;
   pending members can read current updates in their own zone.
-- [ ] Release gate: complete PostgreSQL regression, desktop/mobile browser journeys,
+- [x] Release gate: complete PostgreSQL regression, desktop/mobile browser journeys,
   OpenAPI/handoff checks, deploy the guarded migration before the frontend, then
   verify live routes and revision. Do not mark published until STATUS.md records
   actual outcomes.
