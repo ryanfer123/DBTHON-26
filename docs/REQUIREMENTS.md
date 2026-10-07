@@ -41,3 +41,17 @@ Record partial requirements explicitly rather than marking the entire prototype 
 ## UI/UX extension coverage
 
 The usability extension preserves FR01-FR10 and NFR01-NFR06; map discovery and bounded thumbnails extend FR02/FR03, safe trust projections extend FR07, and exact chart/public aggregation extends FR09. CSRF, whole-quantity allocation, row locks, zone RLS and atomic audit/outbox remain mandatory. Verification is recorded in [UI implementation evidence](UI_UX_IMPLEMENTATION.md).
+
+## Community feature extensions
+
+These are additional user-requested capabilities beyond the source PDF's FR01-FR10:
+
+| ID | Capability | Acceptance criteria |
+| --- | --- | --- |
+| CF01 | Food-needs board | Approved same-zone Receivers post dated needs; approved Donors link their own live whole listing; recipients use the existing claim path; needs close on owner/admin action, deadline, or fully delivered target quantity. |
+| CF02 | Pickup-time agreement | Volunteer proposes; donor and receiver accept; any participant can reschedule; every new version resets agreement and collection is blocked until all three current participants accept. |
+| CF03 | Community updates | Zone Admins publish announcements/partner resources; approved members suggest; admins publish/reject; pending members can read only current published updates in their zone. |
+
+All writes use existing guarded PostgreSQL routines, restricted roles, RLS, CSRF,
+idempotency, trust-ledger and in-app notification outbox. Feature verification
+appears in [STATUS.md](STATUS.md).

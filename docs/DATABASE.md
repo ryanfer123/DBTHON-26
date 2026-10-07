@@ -49,8 +49,14 @@ evidence. Sessions/outbox maintenance can use targeted cleanup rules.
 | `user_roles` | `(user_id, role)` composite PK; role CHECK Donor/Receiver/Volunteer/Admin; `approved_at` nullable until admin verification, `approved_by` nullable FK users; admin grants must be bootstrap/admin-only |
 | `receiver_profiles` | `user_id` PK/FK users, `capacity_kg` numeric(8,2) CHECK >0; per-claim maximum, not simultaneous warehouse inventory |
 | `food_listings` | `listing_id` PK, `donor_id` FK users, `zone_id` FK zones (immutable snapshot), `food_type` varchar(80), `category` Veg/NonVeg, `quantity_kg` numeric(8,2) CHECK >0, `prepared_at`, `expiry_window_start`, `expiry_window_end`, `pickup_lat` numeric(9,6), `pickup_long` numeric(9,6), generated `pickup_location` geography(Point,4326), `status`, `created_at`, `updated_at` |
+| `food_requests` | `request_id` PK, `receiver_id` FK users, `zone_id` FK zones, food type/category, target quantity, needed_by, note, optional close time/reason; status is derived from closure, deadline and fully delivered offer mass |
+| `food_request_offers` | `offer_id` PK, `request_id` FK food_requests, `listing_id` UNIQUE/FK food_listings, created_at; one whole live listing per offer and no claim bypass |
 | `claims` | `claim_id` PK, `listing_id` FK listings, `receiver_id` FK users, `claimed_at`, `status` Confirmed/Cancelled/Expired/Completed, `ended_at` nullable, `cancellation_reason` nullable; Pending deferred because acceptance is synchronous |
 | `pickups` | `(claim_id, pickup_id)` composite PK with claim FK, `pickup_id` identity partial key, `volunteer_id` FK users, `scheduled_time`, `accepted_at`, `actual_pickup_time` nullable, `delivery_time` nullable, `ended_at` nullable, `status` Scheduled/PickedUp/Delivered/Missed/Cancelled/Failed, `reason` nullable |
+| `pickup_proposals` | `(claim_id,pickup_id,version)` PK, exact proposed time, proposer FK users, created_at; composite FK retains pickup attempt identity |
+| `pickup_confirmations` | `(claim_id,pickup_id,version,user_id)` PK, participant confirmation timestamp; composite FK binds acceptance to one proposal version |
+| `community_updates` | `update_id` PK, zone and author FKs, Announcement/PartnerResource kind, title/body, optional HTTPS link, end/creation/archive times |
+| `community_suggestions` | `suggestion_id` PK, zone and author FKs, proposed update content/end time, Pending/Published/Rejected status, optional reviewer/reason/time and published update FK |
 | `ratings` | `rating_id` PK, `claim_id` FK claims, `rater_id` FK users, `target_user_id` FK users, `score` smallint CHECK 1..5, `comments` varchar(300) nullable, `created_at`; CHECK rater != target; UNIQUE(claim_id,rater_id,target_user_id) |
 | `trust_ledger` | `ledger_id` PK, `user_id` FK users, `sequence` bigint, `action_type` varchar(40), `ref_table` varchar(40), `ref_id` bigint, `claim_id` nullable FK claims, `occurred_at`, `payload` jsonb, `payload_version` integer, `prev_hash` char(64), `curr_hash` char(64); UNIQUE(user_id,sequence) |
 | `notifications` | `notification_id` PK, `user_id` FK users, `event_id` text, `message` varchar(200), `type` varchar(30), `created_at`, `sent_at` nullable, `read_at` nullable; UNIQUE(user_id,event_id) |
@@ -238,3 +244,17 @@ no person, contact, precise coordinate, listing ID, or per-zone breakdown. This
 explicit public aggregate interface does not broaden private report access.
 Revision 0004 is immutable; 0005 grants temporary schema CREATE for function owner
 transfer and revokes it within the migration. No login gains guard membership.
+
+## Revision 0006: community tools and coordinated pickup times
+
+Adds zone-scoped `food_requests` and one-listing `food_request_offers`, editorial
+`community_updates` and admin-reviewed `community_suggestions`, plus versioned
+`pickup_proposals` and `pickup_confirmations` keyed by the existing composite
+pickup identity. Existing scheduled attempts are backfilled as version 1 with
+the volunteer's original acceptance so rollout does not invalidate live
+appointments. Guarded request/update/suggestion commands and the versioned
+schedule routine use CSRF, idempotency, row locking, sorted participant event
+appends and inbox outbox rows. `dbthon_request_status` derives expiry/fulfilment;
+no periodic request-status mutation is required. The API role receives reads
+through RLS and execute-only access to writes. This additive migration has no
+automatic downgrade because community data must be retained and reviewed.

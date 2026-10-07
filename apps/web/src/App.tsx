@@ -24,6 +24,13 @@ import {
   TrustPage,
 } from "./features/workflows/CommunityPages";
 import { DashboardPage } from "./features/workflows/DashboardPage";
+import {
+  RequestsPage,
+  NewRequestPage,
+  RequestDetailPage,
+  UpdatesPage,
+  AdminCommunityPage,
+} from "./features/workflows/CommunityTools";
 import { HelpPage } from "./features/workflows/HelpPage";
 import { OverviewProvider } from "./features/workflows/OverviewProvider";
 import { Access } from "./features/workflows/Workspace";
@@ -177,6 +184,51 @@ const routes = [
     element: (
       <AccountGate>
         <DeliveriesPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/requests",
+    handle: { title: "Food requests" },
+    element: (
+      <AccountGate>
+        <RequestsPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/requests/new",
+    handle: { title: "Post a food need" },
+    element: (
+      <AccountGate>
+        <NewRequestPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/requests/:id",
+    handle: { title: "Food request" },
+    element: (
+      <AccountGate>
+        <RequestDetailPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/community/updates",
+    handle: { title: "Community updates" },
+    element: (
+      <AccountGate>
+        <UpdatesPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/admin/community",
+    handle: { title: "Community publishing" },
+    element: (
+      <AccountGate admin>
+        <AdminCommunityPage />
       </AccountGate>
     ),
   },

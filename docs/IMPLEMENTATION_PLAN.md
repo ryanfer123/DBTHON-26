@@ -98,6 +98,22 @@ Implemented alongside P09, without changing the remaining P11/P12 gates:
 - [x] PostgreSQL, component and desktop/mobile browser verification, dark/long-content
   QA and updated API/design/handoff evidence. See STATUS.md for actual commands.
 
+## Requested community tools extension
+
+- [x] **CF01 - Zone food-needs board.** Approved Receivers publish dated needs;
+  Donors link an owned live listing and normal claim safeguards remain authoritative.
+  Needs derive expiry and fulfilment from database time and delivered mass.
+- [x] **CF02 - Pickup-time agreement.** Versioned volunteer proposal, three-party
+  agreement, participant counter-proposals and stale-version rejection. Collection
+  is gated on all current confirmations; prior proposals retain audit history.
+- [x] **CF03 - Zone updates and suggestions.** Admin-authored announcements and
+  curated partner resources; member suggestions stay unpublished until review;
+  pending members can read current updates in their own zone.
+- [ ] Release gate: complete PostgreSQL regression, desktop/mobile browser journeys,
+  OpenAPI/handoff checks, deploy the guarded migration before the frontend, then
+  verify live routes and revision. Do not mark published until STATUS.md records
+  actual outcomes.
+
 ## Completion definition
 
 A prototype is done only when runnable apps, reproducible migrations/seeds, core

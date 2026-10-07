@@ -40,6 +40,7 @@ export async function workspaceLink(page: Page, name: string) {
   } else {
     const menu = [
       "My donations",
+      "Food requests",
       "Find food",
       "My exchanges",
       "Deliveries",

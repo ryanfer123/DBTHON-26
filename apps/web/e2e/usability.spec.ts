@@ -120,7 +120,8 @@ test("dashboard menus, help, search and browser history provide working destinat
     expect(searchButtonBox).not.toBeNull();
     expect(
       Math.abs(
-        inputBox!.y + inputBox!.height -
+        inputBox!.y +
+          inputBox!.height -
           (searchButtonBox!.y + searchButtonBox!.height),
       ),
     ).toBeLessThanOrEqual(1);

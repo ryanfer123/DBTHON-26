@@ -264,7 +264,12 @@ EXCHANGE_COLUMNS = """
   coalesce(r.name,'Community receiver') AS receiver_name,r.phone AS receiver_phone,
   r.latitude::text AS receiver_latitude,r.longitude::text AS receiver_longitude,
   p.pickup_id,p.volunteer_id,v.name AS volunteer_name,p.status AS pickup_status,
-  p.scheduled_time,p.actual_pickup_time,p.delivery_time,
+  p.scheduled_time,p.actual_pickup_time,p.delivery_time,p.schedule_version,
+  ARRAY(
+    SELECT pc.user_id FROM pickup_confirmations pc
+    WHERE pc.claim_id=p.claim_id AND pc.pickup_id=p.pickup_id
+      AND pc.version=p.schedule_version ORDER BY pc.user_id
+  ) AS schedule_confirmed_by,
   (SELECT rating.score FROM ratings rating WHERE rating.claim_id=c.claim_id AND
       rating.rater_id=dbthon_actor_id()) AS my_rating"""
 EXCHANGE_FROM = """FROM claims c JOIN food_listings l USING(listing_id)

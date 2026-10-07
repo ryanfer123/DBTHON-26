@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../identity/AuthContext";
 import { LocationFields } from "../identity/FormParts";
 import { useOverview } from "./OverviewContext";
@@ -37,6 +37,7 @@ export function ListingForm({
     overview = useOverview();
   const navigate = useNavigate(),
     command = useCommand();
+  const [search] = useSearchParams();
   const [photo, setPhoto] = useState<string | null | undefined>(undefined);
   const [photoBusy, setPhotoBusy] = useState(false),
     [photoError, setPhotoError] = useState("");
@@ -100,7 +101,12 @@ export function ListingForm({
       } catch {
         /* Saving location is optional. */
       }
-      navigate(`/food/${result.data.listing_id}`);
+      const requestId = search.get("request_id");
+      navigate(
+        requestId && /^\d+$/.test(requestId)
+          ? `/requests/${requestId}?new_listing=${result.data.listing_id}`
+          : `/food/${result.data.listing_id}`,
+      );
     }
   }
   return (

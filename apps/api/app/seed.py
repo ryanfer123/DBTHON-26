@@ -100,6 +100,21 @@ def import_demo(connection: Connection, anchor: datetime, path: Path = FIXTURE) 
                 "payload": json.dumps({"synthetic": True, "fixture_version": 1}),
             },
         )
+    if connection.execute(text("SELECT to_regclass('public.pickup_proposals')")).scalar_one():
+        connection.execute(
+            text("""
+          INSERT INTO pickup_proposals(claim_id,pickup_id,version,scheduled_time,proposed_by)
+          SELECT claim_id,pickup_id,1,scheduled_time,volunteer_id FROM pickups
+        """)
+        )
+        connection.execute(
+            text("""
+          INSERT INTO pickup_confirmations(claim_id,pickup_id,version,user_id)
+          SELECT p.claim_id,p.pickup_id,1,participant FROM pickups p JOIN claims c USING(claim_id)
+          JOIN food_listings l USING(listing_id)
+          CROSS JOIN LATERAL unnest(ARRAY[l.donor_id,c.receiver_id,p.volunteer_id]) participant
+        """)
+        )
     for table, column in IDENTITIES.items():
         connection.execute(
             text(

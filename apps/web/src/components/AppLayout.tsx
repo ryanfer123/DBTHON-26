@@ -104,6 +104,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 { to: "/inbox", label },
                 { to: "/trust", label: "My trust" },
                 { to: "/help", label: "Help" },
+                { to: "/community/updates", label: "Community updates" },
               ])}
             </div>
             {!!administration.length && (
@@ -180,6 +181,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               { to: "/account", label: "Your account" },
               { to: "/trust", label: "My trust" },
               { to: "/help", label: "Help" },
+              { to: "/community/updates", label: "Community updates" },
               ...administration,
             ])}
             <Link to="/" onClick={close}>
@@ -195,7 +197,9 @@ export function Breadcrumbs() {
   const { pathname, state } = useLocation();
   const { session } = useAuth();
   let parent: Destination | null = null;
-  if (/^\/donations\/(new|\d+\/edit)$/.test(pathname))
+  if (/^\/requests\/(new|\d+)$/.test(pathname))
+    parent = { to: "/requests", label: "Food requests" };
+  else if (/^\/donations\/(new|\d+\/edit)$/.test(pathname))
     parent = { to: "/donations", label: "My donations" };
   else if (/^\/food\/\d+$/.test(pathname))
     parent = session?.user.capabilities.includes("Receiver")

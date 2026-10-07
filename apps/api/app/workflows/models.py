@@ -182,6 +182,8 @@ class Exchange(Input):
     actual_pickup_time: datetime | None
     delivery_time: datetime | None
     my_rating: int | None
+    schedule_version: int | None = None
+    schedule_confirmed_by: list[int] = []
 
 
 class ExchangesResponse(Input):

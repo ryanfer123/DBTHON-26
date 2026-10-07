@@ -47,6 +47,7 @@ def workflow(seeded_db, identity_settings):
                 )
                 assert login.status_code == 200
                 value.headers["X-CSRF-Token"] = login.json()["data"]["csrf_token"]
+                value.actor_client = client
                 clients[uid] = value
             return clients[uid]
 
@@ -95,7 +96,20 @@ def accept(client, cid):
         {"scheduled_time": (datetime.now(UTC) + timedelta(minutes=1)).isoformat()},
     )
     assert result.status_code == 201, result.text
-    return result.json()["data"]["pickup_id"]
+    pid = result.json()["data"]["pickup_id"]
+    confirm_booking(client, cid, pid)
+    return pid
+
+
+def confirm_booking(volunteer, cid, pid):
+    exchange = volunteer.get(f"/api/v1/claims/{cid}").json()["data"]
+    for uid in [exchange["donor_id"], exchange["receiver_id"]]:
+        response = post(
+            volunteer.actor_client(uid),
+            f"/claims/{cid}/pickups/{pid}/schedule",
+            {"version": exchange["schedule_version"]},
+        )
+        assert response.status_code == 200, response.text
 
 
 def deliver(client, cid, pid):
@@ -488,6 +502,7 @@ def test_picked_up_deadline_failure_retains_mass(workflow):
     )
     assert response.status_code == 201, response.text
     pid = response.json()["data"]["pickup_id"]
+    confirm_booking(volunteer, cid, pid)
     assert post(volunteer, f"/claims/{cid}/pickups/{pid}/picked-up", {}).status_code == 200
     time.sleep(2.1)
     assert post(volunteer, f"/claims/{cid}/pickups/{pid}/delivered", {}).status_code == 409

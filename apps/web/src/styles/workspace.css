@@ -351,3 +351,60 @@
     grid-template-columns: 1fr;
   }
 }
+
+.community-cards {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+.community-cards li,
+.community-summary,
+.pickup-agreement {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  background: var(--bg);
+  min-width: 0;
+}
+.community-cards h2,
+.community-cards h3,
+.pickup-agreement h3 {
+  font-size: 26px;
+  margin: 14px 0;
+}
+.community-cards a {
+  overflow-wrap: anywhere;
+}
+.community-cards p {
+  font-size: 16px;
+}
+.community-copy {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.community-form {
+  max-width: 680px;
+}
+.community-form details,
+details.community-form {
+  margin: 28px 0;
+}
+.community-cards form,
+.pickup-agreement form {
+  margin-top: 20px;
+}
+.community-summary,
+.pickup-agreement {
+  background: var(--sage);
+  margin-bottom: 24px;
+}
+.pickup-agreement ul {
+  padding-left: 22px;
+  font-size: 16px;
+}
+.pickup-agreement .field {
+  margin-top: 18px;
+}

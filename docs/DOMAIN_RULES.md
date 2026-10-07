@@ -78,6 +78,35 @@ listings become Expired. A PickedUp attempt passing expiry becomes Failed and cl
 listing Expired. Preserve actual pickup time and failure reason; do not count it as
 delivered. Recheck these conditions inside every command regardless of worker timing.
 
+### Pickup time agreement
+
+The volunteer's accepted schedule is proposal version 1 and counts as the
+volunteer's confirmation. The donor and receiver must confirm that version before
+collection. Any participant may propose a new time while the attempt remains
+Scheduled; this increments the version, records the proposer as accepted and
+invalidates every earlier confirmation. The other two participants must accept
+the new proposal. Collection is rejected until exactly the three current
+participants have confirmed the current version. All proposals remain associated
+with `(claim_id,pickup_id)`; prior versions remain available for audit.
+
+## Community requests and updates
+
+Only approved Receivers create same-zone needs with a positive target quantity
+and future deadline. Needs are visible inside their zone to authenticated
+members. An approved Donor can link one of their own live zone listings; the
+listing is still claimed whole through the normal receiver flow and rechecks
+capacity, distance, eligibility and deadline under the existing listing lock.
+Multiple completed offers may satisfy a target; merely linking or claiming an
+offer does not. Owner closure, a zone Admin closure with reason, reaching the
+needed-by time, or completed deliveries meeting the target closes the need.
+
+Zone Admins may publish announcements and curated partner resources with
+optional HTTPS links and end times. Approved members may suggest the same
+content, but suggestions stay unpublished until an admin publishes or rejects
+them with a reason. Signed-in members, including pending members, can read
+current published updates in their own zone. Every mutation uses the standard
+guarded command, idempotency, CSRF, trust-ledger and inbox outbox transaction.
+
 ## Ratings and reputation
 
 Only the donor and receiver on a Completed claim may rate each other, once per

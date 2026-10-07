@@ -63,6 +63,8 @@ export type Exchange = {
   actual_pickup_time: string | null;
   delivery_time: string | null;
   my_rating: number | null;
+  schedule_version?: number | null;
+  schedule_confirmed_by?: number[];
 };
 export type Task = Pick<
   Exchange,
@@ -138,6 +140,7 @@ export type Impact = {
 };
 export type Command = {
   data: {
+    id?: number;
     listing_id: number | null;
     claim_id: number | null;
     pickup_id: number | null;

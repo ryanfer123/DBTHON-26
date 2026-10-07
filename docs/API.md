@@ -118,6 +118,38 @@ Create-listing request example (times must be replaced with live eligible values
 Both claim_id and pickup_id are needed to address a pickup. Do not simplify the
 weak entity's composite key away in route handlers or frontend state.
 
+## Community needs, pickup agreements and zone updates
+
+All these routes require an authenticated session and derive the member's zone
+from the session. Reads are private/no-store. Writes require CSRF and
+`Idempotency-Key`; guarded database routines repeat authorization and persist
+ledger and inbox events in the same transaction.
+
+| Method / path | Input | Authorization / result |
+| --- | --- | --- |
+| GET `/requests` | status, mine, q, cursor, limit | Signed-in same-zone member; expired and fulfilled states are derived at read time |
+| POST `/requests` | food_type, category, quantity_kg, needed_by, note | Approved Receiver; creates a zone request |
+| GET `/requests/{id}` | none | Same-zone member; request plus linked listing offers, never another zone |
+| POST `/requests/{id}/offers` | listing_id | Approved owner Donor; links one live same-zone listing; standard claim rules remain authoritative |
+| POST `/requests/{id}/close` | reason | Request owner or same-zone Admin; records the close reason |
+| POST `/claims/{id}/pickups/{pickup_id}/schedule` | current version; optional scheduled_time | Assigned Donor, Receiver or Volunteer; accept current proposal or counter-propose, incrementing version |
+| GET `/community/updates` | cursor, limit | Any authenticated same-zone member, including pending members; published, unexpired updates only |
+| POST `/community/suggestions` | kind, title, body, optional HTTPS link, ends_at | Approved community member; submits a suggestion for zone-admin review |
+| GET `/community/suggestions/mine` | cursor, limit | Authenticated member; own suggestions only |
+| GET `/admin/community/suggestions` | status, cursor, limit | Same-zone Admin; review queue |
+| POST `/admin/community/suggestions/{id}/publish` | empty object | Same-zone Admin; publishes a pending, unexpired suggestion |
+| POST `/admin/community/suggestions/{id}/reject` | reason | Same-zone Admin; records rejection reason |
+| POST `/admin/community/updates` | kind, title, body, optional HTTPS link, ends_at | Same-zone Admin; publishes an announcement or curated partner resource |
+| POST `/admin/community/updates/{id}/archive` | empty object | Same-zone Admin; removes an update from member reads |
+
+Pickup agreement is versioned: a new proposal starts a fresh agreement; the
+proposer is counted as accepting, and the other two participants must accept
+that exact version before collection. A version mismatch returns 409
+`STALE_PROPOSAL`; collection before all three confirmations returns 409
+`SCHEDULE_UNCONFIRMED`. Food requests close by owner/admin action, expiry, or when
+fully delivered linked listing quantities meet the target. Listings are never
+split to satisfy a request.
+
 ## Inbox, ledger and reports
 
 | Method / path | Input | Authorization / result |

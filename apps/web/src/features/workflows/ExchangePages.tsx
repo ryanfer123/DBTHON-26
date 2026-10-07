@@ -1,3 +1,4 @@
+import { PickupAgreement } from "./PickupAgreement";
 import { LocationMap } from "../../components/maps/LocationMap";
 import { WhatsAppContact } from "../../components/WhatsAppContact";
 import { useListLocation } from "./useListLocation";
@@ -77,7 +78,9 @@ function ExchangeActions({
             <>
               <button
                 className="button button-small"
-                disabled={command.busy}
+                disabled={
+                  command.busy || exchange.schedule_confirmed_by?.length !== 3
+                }
                 onClick={() => void change(`${pickup}/picked-up`)}
               >
                 Record pickup
@@ -343,6 +346,7 @@ function ExchangeDetails({
           </>
         )}
       </dl>
+      <PickupAgreement exchange={exchange} refresh={refresh} />
       <ExchangeActions exchange={exchange} refresh={refresh} admin={admin} />
     </>
   );

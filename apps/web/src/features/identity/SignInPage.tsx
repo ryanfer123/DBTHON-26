@@ -13,7 +13,7 @@ export function SignInPage() {
   const requested = location.state?.from;
   const destination =
     typeof requested === "string" &&
-    /^\/(dashboard|help|account|admin|donations|food|claims|deliveries|inbox|trust)(\/|\?|$)/.test(
+    /^\/(dashboard|help|account|admin|donations|food|claims|deliveries|inbox|trust|requests|community)(\/|\?|$)/.test(
       requested,
     )
       ? requested

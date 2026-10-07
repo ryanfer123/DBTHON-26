@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
@@ -35,6 +37,10 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
     diagnostic = getattr(error.orig, "diag", None) if isinstance(error, DBAPIError) else None
     code = str(getattr(diagnostic, "message_primary", "")).strip()
     mappings = {
+        "REQUEST_CLOSED": (409, "This food request is closed or fulfilled. Refresh the board."),
+        "OFFER_EXISTS": (409, "This listing already answers a request. Choose another listing."),
+        "STALE_PROPOSAL": (409, "Pickup time changed; refresh to review it."),
+        "SCHEDULE_UNCONFIRMED": (409, "All participants must agree before collection."),
         "UNAUTHENTICATED": (401, "Sign in to continue."),
         "INVALID_CREDENTIALS": (401, "Email or password is incorrect."),
         "CSRF_INVALID": (403, "Refresh your session and retry."),
@@ -91,6 +97,9 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
         return error_response(
             request, DomainError("INVALID_INPUT", 422, "Check the supplied fields and zone.")
         )
+    logging.getLogger("second_table.database").error(
+        "Database command failed with SQLSTATE %s and code %s", state, code
+    )
     return error_response(
         request,
         DomainError("SERVICE_UNAVAILABLE", 503, "The service is temporarily unavailable.", 5),
