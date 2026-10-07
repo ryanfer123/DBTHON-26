@@ -525,3 +525,17 @@ evidence: [UI/UX implementation record](UI_UX_IMPLEMENTATION.md).
 The help and food search rows also received a follow-up alignment fix: their field
 bottom margin no longer offsets adjacent controls. The focused desktop/mobile
 browser check asserts the help input/button bottom edges align; both variants pass.
+
+
+## Repository layout (2026-10-07)
+
+Moved the application source to root `backend/` and `frontend/` directories. Updated
+Render to build from `frontend/`, AWS container and Lambda packaging to load `backend/`,
+CI, Make targets, shared scripts, and current development documentation. The SQL
+settings/archive draft is revision 0006 after the existing listing-photo revision 0005.
+AWS infrastructure drafts and cost/deployment documents remain in the workspace.
+
+Checks for this structural change: `python3 scripts/check_migrations.py`,
+`python3 scripts/validate_handoff.py`, `git diff --check`, and frontend production
+build. Application tests were not rerun. Historical command records above intentionally
+retain the paths that were used at the time.

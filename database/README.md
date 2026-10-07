@@ -10,6 +10,9 @@ auth and runtime login accounts are provisioned separately with `make db-access`
 Revision `0003` applies [0003_workflows.sql](0003_workflows.sql): domain commands,
 ratings, trust summaries, expiry and in-app delivery. The separately provisioned
 worker login can execute only its maintenance routines; it cannot read all users.
+Revision `0004` provides RDS-compatible function-owner row policies. Revision `0005`
+adds listing-photo metadata; `0006` adds account settings and audited user-view
+controls while preserving domain and audit records.
 
 `make migrate`, `make seed ANCHOR=2026-10-05T12:00:00Z`, `make ledger-verify` apply,
 import and independently check the fixture. Seeding requires empty application

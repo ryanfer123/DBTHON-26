@@ -5,7 +5,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "apps/api"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
@@ -23,7 +23,7 @@ def main() -> None:
     anchors.add_argument("--anchor", help="Timezone-aware ISO-8601 UTC import anchor")
     anchors.add_argument("--anchor-now", action="store_true")
     args = parser.parse_args()
-    config = Config(str(ROOT / "apps/api/alembic.ini"))
+    config = Config(str(ROOT / "backend/alembic.ini"))
     url = Settings().connection_url()
     if url is None:
         parser.error("Configure PostgreSQL first with make setup")

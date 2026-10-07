@@ -2,7 +2,7 @@ services:
   - type: web
     name: dbthon-26-web
     runtime: static
-    rootDir: apps/web
+    rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
     envVars:

@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from threading import Event, Thread
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "apps/api"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 import uvicorn
 from alembic import command
@@ -48,7 +48,7 @@ def main() -> None:
             c.execute(text(f'CREATE DATABASE "{name}"'))
     bootstrap.dispose()
     engine = create_engine(owner.set(database=name), hide_parameters=True)
-    config = Config(str(ROOT / "apps/api/alembic.ini"))
+    config = Config(str(ROOT / "backend/alembic.ini"))
     with engine.connect() as c:
         config.attributes["connection"] = c
         command.upgrade(config, "head")

@@ -1,6 +1,6 @@
 # Developer setup and working commands
 
-P01-P10 core prototype workflows are implemented. Prerequisites: Python 3.13 (selected in apps/api/.python-version),
+P01-P10 core prototype workflows are implemented. Prerequisites: Python 3.13 (selected in backend/.python-version),
 uv, Node 22.13+ and npm, Docker Engine/Desktop with Compose v2.
 
 ## Start locally
@@ -60,7 +60,7 @@ The Browser plugin was not available in this session, so verification used Playw
 with installed Chrome. Native concept viewport: 1505x1045; mobile: 390x844. Connected role workflows, expanded homepage and light/dark modes are implemented. Built-in IAB was also checked and reported unavailable.
 
 `docs/openapi.json` describes only implemented routes. `make openapi` regenerates
-it; `uv run --project apps/api python scripts/export_openapi.py --check` detects drift.
+it; `uv run --project backend python scripts/export_openapi.py --check` detects drift.
 `GET /api/v1/health/live` returns 200 when the process is alive.
 `GET /api/v1/health/ready` requires PostgreSQL/PostGIS and both restricted pools with
 their migration-provided routines. It returns
@@ -79,7 +79,7 @@ Seed supports an explicit UTC anchor, or `make seed` selects the current time.
 Retain that timestamp for repeat imports: same anchor/hash is a no-op; a different
 anchor fails without changing existing records. Import requires empty application
 tables. Synthetic account hashes are initially disabled; enable a local fixture
-account using `uv run --project apps/api python scripts/demo_password.py --user 104`.
+account using `uv run --project backend python scripts/demo_password.py --user 104`.
 Password entry is interactive and never stored in Git. See [IDENTITY.md](IDENTITY.md)
 for request headers, session/CSRF protocol and admin bootstrap.
 
@@ -128,8 +128,8 @@ Tests may use allowlisted isolated databases without touching another checkout's
 default test databases:
 
 ```sh
-DBTHON_TEST_DATABASE=dbthon_usability_test apps/api/.venv/bin/python -m pytest apps/api/tests --db -q
-DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix apps/web
+DBTHON_TEST_DATABASE=dbthon_usability_test backend/.venv/bin/python -m pytest backend/tests --db -q
+DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix frontend
 ```
 
 The defaults remain `dbthon_test` and `dbthon_browser_test`. Any other override is

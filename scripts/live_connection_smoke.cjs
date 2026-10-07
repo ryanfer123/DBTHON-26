@@ -1,6 +1,6 @@
 // Operator smoke check: creates a synthetic pending account; never resets data.
 const path=require('node:path');
-const {chromium,expect}=require(require.resolve('@playwright/test',{paths:[path.resolve(__dirname,'../apps/web')]}));
+const {chromium,expect}=require(require.resolve('@playwright/test',{paths:[path.resolve(__dirname,'../frontend')]}));
 const frontend=process.env.DBTHON_FRONTEND_ORIGIN;
 const apiBase=process.env.DBTHON_API_BASE_URL;
 if(process.env.DBTHON_LIVE_SMOKE!=='create-synthetic-account'||!frontend||!apiBase){

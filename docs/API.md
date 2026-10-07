@@ -122,8 +122,13 @@ weak entity's composite key away in route handlers or frontend state.
 
 | Method / path | Input | Authorization / result |
 | --- | --- | --- |
+| GET `/settings/notifications` | none | Own SMS/push choices and provider availability |
+| PATCH `/settings/notifications` | `sms_enabled`, `push_enabled` | Own preferences; CSRF protected |
 | GET `/notifications` | unread_only, cursor | Self inbox only |
 | POST `/notifications/{id}/read` | empty object; Idempotency-Key | Owner; idempotent read_at assignment; only first read changes the ledger |
+| POST `/notifications/clear` | empty object | Hides own inbox entries while preserving audit records |
+| POST `/listings/{id}/hide-cancelled` | empty object | Donor hides own cancelled listing from `/listings/mine` |
+| POST `/admin/users/{id}/admin` | required `reason` | Active same-zone Admin grants Admin; public roles remain separate |
 | GET `/users/{id}/trust` | none | Safe average/count for permitted visible profile |
 | GET `/trust-ledger/mine` | cursor | Own chain, redacted canonical event payload |
 | GET `/admin/users/{id}/trust-ledger` | cursor | Scoped Admin audit |

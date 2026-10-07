@@ -230,7 +230,7 @@
               "Ref": "DatabaseName"
             },
             "SESSION_SAME_SITE": "none",
-            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "PYTHONPATH": "/var/task/backend:/var/task",
             "DB_AUTH_USER": "dbthon_identity",
             "DB_AUTH_PASSWORD": {
               "Fn::Sub": "{{resolve:secretsmanager:${AuthSecret}:SecretString:password}}"
@@ -352,7 +352,7 @@
               "Ref": "DatabaseName"
             },
             "SESSION_SAME_SITE": "none",
-            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "PYTHONPATH": "/var/task/backend:/var/task",
             "DB_WORKER_USER": "dbthon_jobs",
             "DB_WORKER_PASSWORD": {
               "Fn::Sub": "{{resolve:secretsmanager:${WorkerSecret}:SecretString:password}}"
@@ -458,7 +458,7 @@
               "Ref": "DatabaseName"
             },
             "SESSION_SAME_SITE": "none",
-            "PYTHONPATH": "/var/task/apps/api:/var/task",
+            "PYTHONPATH": "/var/task/backend:/var/task",
             "DB_AUTH_USER": "dbthon_identity",
             "DB_AUTH_PASSWORD": {
               "Fn::Sub": "{{resolve:secretsmanager:${AuthSecret}:SecretString:password}}"

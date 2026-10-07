@@ -5,7 +5,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 used = set()
-for revision in sorted((root / "apps/api/alembic/versions").glob("*.py")):
+for revision in sorted((root / "backend/alembic/versions").glob("*.py")):
     tree = ast.parse(revision.read_text())
     upgrade = next(
         node

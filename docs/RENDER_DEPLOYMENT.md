@@ -12,7 +12,7 @@ defines the frontend build and single-page-app route fallback.
 2. When Render prompts for `VITE_API_BASE_URL`, enter the AWS API's public HTTPS URL
    ending in `/api/v1`, for example `https://api.example.com/api/v1`. This value is
    compiled into the browser bundle and must not contain credentials or secrets.
-3. Render builds from `apps/web` with `npm ci && npm run build`, then publishes
+3. Render builds from `frontend` with `npm ci && npm run build`, then publishes
    `dist`. Its rewrite sends client-side routes such as `/account` and `/admin` to
    `index.html`.
 4. Use the exact HTTPS site origin Render assigns (for example,

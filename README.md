@@ -50,6 +50,17 @@ searchable `/help` preserve useful destinations. See [usability details](docs/de
 | Local prerequisites and commands | [Development](docs/DEVELOPMENT.md) |
 | Render static website configuration | [Render deployment](docs/RENDER_DEPLOYMENT.md), [Blueprint](render.yaml) |
 
+## Repository layout
+
+| Directory | Contents |
+| --- | --- |
+| `backend/` | FastAPI application, Alembic migrations, and Python tests |
+| `frontend/` | React/Vite application and browser tests; deployed as the Render static site |
+| `database/`, `infra/`, `deploy/` | SQL migrations, AWS infrastructure, and deployment packaging |
+| `docs/`, `scripts/`, `data/` | Project documentation, shared tooling, and synthetic fixtures |
+
+The API and database remain on AWS; Render hosts the frontend.
+
 ## Run locally
 
 ```sh
@@ -80,7 +91,7 @@ Compose starts PostgreSQL/PostGIS; `make migrate` installs the application schem
 Optional synthetic import: `make seed ANCHOR=2026-10-05T12:00:00Z`, then
 `make ledger-verify`. Use a current UTC anchor for live claim examples and retain it
 for repeat imports. Enable a synthetic account with a locally entered password:
-`uv run --project apps/api python scripts/demo_password.py --user 104` (zone-1 admin).
+`uv run --project backend python scripts/demo_password.py --user 104` (zone-1 admin).
 See [identity setup and API headers](docs/IDENTITY.md); no shared password is in Git.
 Local startup and real API readiness have been verified.
 The selected image is amd64, so Compose explicitly requests emulation on Apple

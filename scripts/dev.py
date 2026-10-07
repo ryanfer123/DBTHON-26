@@ -9,24 +9,24 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-uvicorn = ROOT / "apps/api/.venv/bin/uvicorn"
+uvicorn = ROOT / "backend/.venv/bin/uvicorn"
 npm = shutil.which("npm")
-if not uvicorn.is_file() or not npm or not (ROOT / "apps/web/node_modules").is_dir():
+if not uvicorn.is_file() or not npm or not (ROOT / "frontend/node_modules").is_dir():
     sys.exit("Install dependencies with make install before starting development.")
 children: list[subprocess.Popen] = []
 
 try:
     children.append(subprocess.Popen(
-        [str(uvicorn), "app.main:app", "--app-dir", str(ROOT / "apps/api"),
-         "--reload", "--reload-dir", str(ROOT / "apps/api/app"),
+        [str(uvicorn), "app.main:app", "--app-dir", str(ROOT / "backend"),
+         "--reload", "--reload-dir", str(ROOT / "backend/app"),
          "--host", "127.0.0.1", "--port", "8000"],
         cwd=ROOT, start_new_session=True,
     ))
     children.append(subprocess.Popen(
-        [npm, "run", "dev"], cwd=ROOT / "apps/web", start_new_session=True,
+        [npm, "run", "dev"], cwd=ROOT / "frontend", start_new_session=True,
     ))
     children.append(subprocess.Popen(
-        [str(ROOT / 'apps/api/.venv/bin/python'), str(ROOT / 'scripts/worker.py')],
+        [str(ROOT / 'backend/.venv/bin/python'), str(ROOT / 'scripts/worker.py')],
         cwd=ROOT, start_new_session=True,
     ))
     print("Frontend: http://127.0.0.1:5173 | API docs: http://127.0.0.1:8000/api/docs", flush=True)

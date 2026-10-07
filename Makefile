@@ -1,4 +1,4 @@
-.PHONY: check setup install dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access worker feed-plan
+.PHONY: check setup install dev backend-dev frontend-dev api-dev web-dev lint typecheck test build e2e openapi db-config db-up db-down migrate seed db-test ledger-verify reset-test db-access worker feed-plan
 
 check:
 	python3 scripts/check_migrations.py
@@ -8,56 +8,60 @@ setup:
 	python3 scripts/setup_local.py
 
 install:
-	uv sync --project apps/api --locked
-	npm ci --prefix apps/web
+	uv sync --project backend --locked
+	npm ci --prefix frontend
 
 dev:
 	python3 scripts/dev.py
 
+backend-dev: api-dev
+
+frontend-dev: web-dev
+
 api-dev:
-	uv run --project apps/api --locked uvicorn app.main:app --app-dir apps/api --reload --reload-dir apps/api/app --host 127.0.0.1 --port 8000
+	uv run --project backend --locked uvicorn app.main:app --app-dir backend --reload --reload-dir backend/app --host 127.0.0.1 --port 8000
 
 web-dev:
-	npm run dev --prefix apps/web
+	npm run dev --prefix frontend
 
 lint:
-	uv run --project apps/api --locked ruff check apps/api
-	npm run lint --prefix apps/web
+	uv run --project backend --locked ruff check backend
+	npm run lint --prefix frontend
 
 typecheck:
-	uv run --project apps/api --locked mypy --config-file apps/api/pyproject.toml apps/api/app
-	npm run typecheck --prefix apps/web
+	uv run --project backend --locked mypy --config-file backend/pyproject.toml backend/app
+	npm run typecheck --prefix frontend
 
 test:
-	uv run --project apps/api --locked pytest apps/api/tests
-	npm test --prefix apps/web
+	uv run --project backend --locked pytest backend/tests
+	npm test --prefix frontend
 
 build:
-	npm run build --prefix apps/web
+	npm run build --prefix frontend
 
 e2e:
-	npm run test:e2e --prefix apps/web
+	npm run test:e2e --prefix frontend
 
 openapi:
-	uv run --project apps/api --locked python scripts/export_openapi.py
+	uv run --project backend --locked python scripts/export_openapi.py
 
 migrate:
-	uv run --project apps/api --locked python scripts/database.py migrate
+	uv run --project backend --locked python scripts/database.py migrate
 
 db-access:
-	uv run --project apps/api --locked python scripts/provision_access.py
+	uv run --project backend --locked python scripts/provision_access.py
 
 seed:
-	uv run --project apps/api --locked python scripts/database.py seed $(if $(ANCHOR),--anchor $(ANCHOR),--anchor-now)
+	uv run --project backend --locked python scripts/database.py seed $(if $(ANCHOR),--anchor $(ANCHOR),--anchor-now)
 
 db-test:
-	uv run --project apps/api --locked pytest apps/api/tests --db
+	uv run --project backend --locked pytest backend/tests --db
 
 ledger-verify:
-	uv run --project apps/api --locked python scripts/database.py verify
+	uv run --project backend --locked python scripts/database.py verify
 
 reset-test:
-	uv run --project apps/api --locked python scripts/database.py reset-test
+	uv run --project backend --locked python scripts/database.py reset-test
 
 db-config:
 	docker compose config --quiet
@@ -69,7 +73,7 @@ db-down:
 	docker compose down
 
 worker:
-	uv run --project apps/api --locked python scripts/worker.py
+	uv run --project backend --locked python scripts/worker.py
 
 feed-plan:
-	uv run --project apps/api --locked python scripts/feed_plan.py
+	uv run --project backend --locked python scripts/feed_plan.py
