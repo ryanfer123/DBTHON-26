@@ -783,3 +783,155 @@ def test_overview_etag_is_actor_scoped_and_verification_checks_complete_chain(wo
     assert result["valid"] is True and result["entries_verified"] > 0
     assert result["checked_through_sequence"] == result["entries_verified"]
     assert len(result["head_hash"]) == 64
+
+
+def test_capacity_count_trust_projection_and_cursor_scope(workflow):
+    db, client, _ = workflow
+    donor, receiver = client(101), client(102)
+    small = create(donor, food_type="Capacity_% exact", quantity_kg="4.00")
+    large = create(donor, food_type="Capacity_% exact", quantity_kg="99.00")
+    create(client(201), food_type="Capacity_% exact", quantity_kg="99.00")
+    feed = receiver.get("/api/v1/listings", params={"q": "  CAPACITY_% exact ", "limit": 1}).json()
+    assert [row["listing_id"] for row in feed["data"]] == [small]
+    assert feed["meta"]["hidden_over_capacity_count"] == 1
+    expanded = receiver.get(
+        "/api/v1/listings",
+        params={"q": "Capacity_% exact", "include_over_capacity": True, "limit": 1},
+    ).json()
+    cursor = expanded["meta"]["next_cursor"]
+    assert cursor is not None
+    assert (
+        receiver.get(
+            "/api/v1/listings", params={"q": "Capacity_% exact", "cursor": cursor}
+        ).status_code
+        == 422
+    )
+    next_page = receiver.get(
+        "/api/v1/listings",
+        params={"q": "Capacity_% exact", "include_over_capacity": True, "cursor": cursor},
+    ).json()
+    assert next_page["meta"]["hidden_over_capacity_count"] == 1
+    assert next_page["data"][0]["listing_id"] == large
+    assert next_page["data"][0]["claim_eligible"] is False
+    assert "capacity" in next_page["data"][0]["claim_ineligible_reason"]
+    assert post(receiver, f"/listings/{large}/claims", {}).status_code == 409
+    detail = receiver.get(f"/api/v1/listings/{small}").json()["data"]
+    trust = receiver.get("/api/v1/users/101/trust").json()["data"]
+    assert detail["donor_verified"] is True
+    assert detail["donor_rating_avg"] == trust["average_score"]
+    assert detail["donor_rating_count"] == trust["rating_count"]
+    assert not any(
+        key in detail for key in ["email", "phone", "donor_phone", "donor_email", "password_hash"]
+    )
+    assert client(106).get("/api/v1/listings").status_code == 403
+    with db.begin() as c:
+        c.execute(
+            text(
+                "UPDATE user_roles SET approved_at=NULL,approved_by=NULL "
+                "WHERE user_id=101 AND role='Donor'"
+            )
+        )
+    assert receiver.get("/api/v1/listings", params={"q": "Capacity_% exact"}).json()["data"] == []
+    revoked = receiver.get(f"/api/v1/listings/{small}").json()["data"]
+    assert not revoked["donor_verified"] and not revoked["claim_eligible"]
+    assert revoked["donor_rating_avg"] is None
+
+
+def test_thumbnail_upload_is_atomic_scoped_metadata_free_and_moderated(workflow):
+    import base64
+
+    from PIL import Image
+
+    db, client, _ = workflow
+    donor, receiver, admin, outsider = client(101), client(102), client(104), client(201)
+    image = Image.new("RGB", (900, 600), "green")
+    exif = Image.Exif()
+    exif[0x010E] = "Synthetic metadata must be removed"
+    output = io.BytesIO()
+    image.save(output, format="JPEG", exif=exif)
+    photo = base64.b64encode(output.getvalue()).decode()
+    payload = body(food_type="Photo synthetic food", photo_base64=photo)
+    key = secrets.token_hex(16)
+    created = post(donor, "/listings", payload, key)
+    assert created.status_code == 201, created.text
+    lid = created.json()["data"]["listing_id"]
+    assert post(donor, "/listings", payload, key).json() == created.json()
+    response = receiver.get(f"/api/v1/listings/{lid}/photo")
+    assert response.status_code == 200 and response.headers["content-type"] == "image/jpeg"
+    with Image.open(io.BytesIO(response.content)) as result:
+        assert max(result.size) <= 800
+        assert not result.getexif()
+    assert len(response.content) <= 153600
+    assert outsider.get(f"/api/v1/listings/{lid}/photo").status_code == 404
+    assert client(106).get(f"/api/v1/listings/{lid}/photo").status_code == 403
+    assert receiver.get(f"/api/v1/listings/{lid}").json()["data"]["has_photo"] is True
+    before = donor.get("/api/v1/listings/mine").json()["data"]
+    assert post(donor, "/listings", body(photo_base64="NotBase64")).status_code == 422
+    assert [row["listing_id"] for row in donor.get("/api/v1/listings/mine").json()["data"]] == [
+        row["listing_id"] for row in before
+    ]
+    assert post(donor, "/listings", body(photo_base64="A" * 204804)).status_code == 422
+    assert post(receiver, f"/admin/listings/{lid}/photo/remove", {}).status_code == 403
+    removed = post(admin, f"/admin/listings/{lid}/photo/remove", {})
+    assert removed.status_code == 200, removed.text
+    assert receiver.get(f"/api/v1/listings/{lid}/photo").status_code == 404
+    with db.connect() as c:
+        assert (
+            c.execute(
+                text(
+                    "SELECT count(*) FROM trust_ledger "
+                    "WHERE ref_id=:id AND action_type='photo.removed'"
+                ),
+                {"id": lid},
+            ).scalar_one()
+            == 2
+        )
+        assert (
+            verify(
+                c.execute(text("SELECT * FROM trust_ledger ORDER BY user_id,sequence")).mappings()
+            )
+            > 0
+        )
+
+
+def test_public_impact_only_aggregates_and_report_median_matches_sql(workflow):
+    db, client, _ = workflow
+    receiver = client(102)
+    public = receiver.get("/api/v1/public/impact")
+    assert public.status_code == 200, public.text
+    assert set(public.json()["data"]) == {
+        "delivered_kg",
+        "estimated_meals",
+        "active_listings",
+        "includes_demo_data",
+        "month_start",
+        "server_time",
+        "meal_weight_kg",
+    }
+    assert public.json()["data"]["includes_demo_data"] is True
+    start = (datetime.now(UTC) - timedelta(days=7)).isoformat()
+    end = (datetime.now(UTC) + timedelta(days=1)).isoformat()
+    admin = client(104)
+    report = admin.get(
+        "/api/v1/admin/impact", params={"from": start, "to": end, "grouping": "zone"}
+    )
+    assert report.status_code == 200, report.text
+    summary = report.json()["summary"]
+    with db.connect() as c:
+        median = c.execute(
+            text(
+                "SELECT percentile_cont(.5) WITHIN GROUP "
+                "(ORDER BY extract(epoch FROM c.claimed_at-l.created_at)) "
+                "FROM claims c JOIN food_listings l USING(listing_id) "
+                "WHERE l.zone_id=1 AND c.claimed_at>=:start AND c.claimed_at<:end"
+            ),
+            {"start": datetime.fromisoformat(start), "end": datetime.fromisoformat(end)},
+        ).scalar_one()
+    assert summary["median_claim_latency_seconds"] == median
+    csv_response = admin.get(
+        "/api/v1/admin/impact/export", params={"from": start, "to": end, "grouping": "zone"}
+    )
+    row = next(csv.DictReader(io.StringIO(csv_response.text)))
+    for key in ["delivered_kg", "picked_up_kg", "expired_kg", "cancelled_listing_kg"]:
+        assert Decimal(row[key]) == Decimal(report.json()["data"][0][key])
+    assert admin.get("/api/v1/admin/impact", params={"zone_id": 2}).status_code == 404

@@ -1,0 +1,634 @@
+.account-page {
+  padding-block: 64px 80px;
+  min-height: calc(100vh - 165px);
+}
+.account-page h1 {
+  font-size: clamp(40px, 4vw, 64px);
+  line-height: 1.06;
+  margin-bottom: 16px;
+}
+.account-page h2 {
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 0 0 26px;
+}
+.account-page p {
+  line-height: 1.5;
+}
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12%;
+  align-items: start;
+}
+.account-intro {
+  position: sticky;
+  top: 48px;
+  padding-top: 24px;
+}
+.account-intro h1 {
+  font-size: clamp(52px, 5.5vw, 78px);
+  margin-bottom: 28px;
+}
+.account-intro > p {
+  font-size: 25px;
+  margin: 0 0 22px;
+}
+.account-intro .intro-detail {
+  color: var(--muted);
+  font-size: 18px;
+  max-width: 360px;
+  margin-bottom: 30px;
+}
+.form-section {
+  max-width: 520px;
+  width: 100%;
+}
+.form-section h2 {
+  margin-bottom: 26px;
+}
+fieldset {
+  min-width: 0;
+}
+.form-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.field {
+  margin-bottom: 24px;
+}
+.field label,
+legend {
+  display: block;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin-bottom: 9px;
+}
+.field input,
+.field select,
+.field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 13px 14px;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--green);
+  background: var(--bg);
+}
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: #769781;
+}
+.field textarea {
+  resize: vertical;
+}
+.field small,
+.role-option small {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.password-control {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.password-control input {
+  border: 0;
+}
+.password-control button {
+  border: 0;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  background: transparent;
+  cursor: pointer;
+}
+.role-options,
+.location-fields,
+.review-roles {
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: 24px 0 0;
+  margin: 30px 0;
+}
+.role-options legend,
+.location-fields legend,
+.review-roles legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+.field-help {
+  clear: both;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.role-option:has(input:checked) {
+  background: var(--sage);
+  border-color: #73977e;
+}
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+  margin: 2px 0 0;
+  flex-shrink: 0;
+}
+.role-option strong {
+  font-size: 15px;
+}
+.role-option small {
+  margin-top: 4px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.location-fields .field {
+  margin-bottom: 10px;
+}
+.notice {
+  background: var(--sage);
+  border-left: 3px solid #48845a;
+  padding: 14px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
+.notice-error {
+  background: var(--error-bg);
+  border-color: #a14824;
+  color: var(--error-text);
+}
+.notice p {
+  margin: 0 0 12px;
+}
+.form-submit {
+  width: 100%;
+  font-size: 17px;
+  padding-block: 16px;
+}
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.page-heading p {
+  color: var(--muted);
+  font-size: 18px;
+  margin: 0;
+}
+.profile-layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 12%;
+}
+.account-summary {
+  padding: 30px;
+  background: var(--sage);
+  border-radius: 10px;
+  align-self: start;
+}
+.account-summary h2 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.status-dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #a55e1d;
+}
+.status-dot.approved {
+  background: #39764d;
+}
+.role-status-list {
+  margin: 24px 0;
+  padding: 0;
+  list-style: none;
+}
+.role-status-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.role-status-list span {
+  color: var(--muted);
+}
+.account-details {
+  margin-block: 28px;
+}
+.account-details dt {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.account-details dd {
+  margin: 0 0 18px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.admin-link {
+  margin-top: 24px;
+}
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.admin-toolbar .field {
+  margin: 0;
+  width: 270px;
+}
+.member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.member-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 24px;
+  align-items: center;
+  padding-block: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.member-info {
+  min-width: 0;
+}
+.member-info h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.member-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.member-info .field-help {
+  font-size: 13px;
+  margin-top: 10px;
+}
+.member-status {
+  font-size: 13px;
+  color: var(--muted);
+}
+.review-panel {
+  grid-column: 1 / -1;
+  background: var(--sage);
+  padding: 24px;
+  border-radius: 8px;
+}
+.review-panel h3 {
+  font-size: 20px;
+  margin: 0 0 10px;
+}
+.review-form {
+  max-width: 620px;
+}
+.review-check {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 15px;
+  margin-right: 24px;
+  margin-bottom: 12px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+.list-message {
+  padding-block: 36px;
+  color: var(--muted);
+}
+.pagination {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+@media (max-width: 1200px) {
+  .hero {
+    grid-template-columns: 1fr 1fr;
+    gap: 6%;
+    min-height: 510px;
+  }
+  h1 {
+    font-size: clamp(45px, 5.8vw, 69px);
+  }
+  .welcome > p {
+    font-size: 22px;
+  }
+  .how-it-works h2 {
+    font-size: 30px;
+    white-space: normal;
+  }
+  .steps li {
+    column-gap: 22px;
+    min-height: 138px;
+  }
+  .steps h3 {
+    font-size: 25px;
+  }
+  .steps p {
+    font-size: 19px;
+  }
+  .community-section h2 {
+    font-size: 44px;
+  }
+}
+@media (max-width: 800px) {
+  .container {
+    width: 88%;
+  }
+  .header-content {
+    height: 80px;
+  }
+  .wordmark {
+    font-size: 31px;
+  }
+  nav {
+    gap: 20px;
+    font-size: 16px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 55px;
+    padding-block: 48px;
+  }
+  h1 {
+    font-size: clamp(58px, 10vw, 82px);
+  }
+  .welcome > p {
+    max-width: 560px;
+  }
+  .button {
+    font-size: 19px;
+    padding: 16px 25px;
+  }
+  .how-it-works h2 {
+    font-size: 34px;
+    margin-bottom: 26px;
+  }
+  .steps li {
+    min-height: 125px;
+  }
+  .steps li > div {
+    padding-top: 4px;
+    padding-bottom: 24px;
+  }
+  .steps li:not(:last-child) > div {
+    margin-bottom: 26px;
+  }
+  .community-section {
+    padding-block: 32px;
+    min-height: 280px;
+  }
+  .community-section h2 {
+    font-size: 39px;
+  }
+  .role-tabs {
+    gap: 12px;
+  }
+  .role-tabs button {
+    font-size: 20px;
+    padding-inline: 13px;
+  }
+  .role-panel p,
+  .community-message {
+    font-size: 21px;
+  }
+  .auth-layout,
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+  .account-page {
+    padding-block: 40px 56px;
+  }
+  .account-intro {
+    position: static;
+    padding: 0;
+  }
+  .account-intro h1 {
+    font-size: 54px;
+    margin-bottom: 18px;
+  }
+  .account-intro > p {
+    font-size: 22px;
+  }
+  .account-intro .intro-detail {
+    max-width: 520px;
+    font-size: 16px;
+  }
+  .form-section {
+    max-width: none;
+  }
+  .account-summary {
+    padding: 24px;
+  }
+  .page-heading {
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .member-row {
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+  }
+  .member-status {
+    grid-row: 2;
+  }
+  .member-row > button {
+    grid-row: 2;
+  }
+}
+@media (max-width: 480px) {
+  .header-content {
+    height: 88px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    gap: 13px;
+  }
+  .wordmark {
+    font-size: 30px;
+  }
+  nav {
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+    font-size: 13px;
+  }
+  .nav-account {
+    padding: 5px 8px;
+  }
+  .welcome {
+    padding-top: 0;
+  }
+  h1 {
+    font-size: clamp(38px, 12vw, 58px);
+  }
+  .welcome > p {
+    font-size: 20px;
+    line-height: 1.45;
+  }
+  .how-it-works h2 {
+    font-size: 31px;
+  }
+  .steps li {
+    grid-template-columns: 46px 1fr;
+    column-gap: 23px;
+    min-height: 130px;
+  }
+  .step-number {
+    width: 46px;
+    height: 46px;
+    font-size: 18px;
+  }
+  .steps li:not(:last-child)::after {
+    left: 21px;
+    top: 46px;
+  }
+  .steps h3 {
+    font-size: 24px;
+  }
+  .steps p {
+    font-size: 18px;
+  }
+  .community-section h2 {
+    font-size: 36px;
+  }
+  .role-tabs {
+    gap: 2px;
+    justify-content: space-between;
+  }
+  .role-tabs button {
+    padding-inline: 8px;
+    font-size: 17px;
+  }
+  .role-panel p,
+  .community-message {
+    font-size: 19px;
+    line-height: 1.45;
+  }
+  .footer-content {
+    min-height: 90px;
+    gap: 16px;
+  }
+  .site-footer .wordmark {
+    font-size: 22px;
+  }
+  .site-footer span {
+    font-size: 14px;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .account-page h1 {
+    font-size: 42px;
+  }
+  .account-intro h1 {
+    font-size: 54px;
+  }
+  .account-page h2 {
+    font-size: 26px;
+  }
+  .field-row {
+    gap: 12px;
+  }
+  .admin-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .admin-toolbar .field {
+    width: 100%;
+  }
+  .member-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .member-status,
+  .member-row > button {
+    grid-row: auto;
+  }
+  .member-row > button {
+    justify-self: start;
+  }
+  .review-panel {
+    padding: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.workspace .page-heading {
+  margin-bottom: 32px;
+}
+.workspace-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+.workspace-nav a {
+  padding: 14px 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.workspace-nav a.active {
+  border-color: var(--green);
+  color: var(--green);
+}

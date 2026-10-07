@@ -37,3 +37,7 @@ A controlled demo with fixtures can satisfy prototype functional tests, but cann
 prove societal impact or TRL 5. External channel setup, stakeholder evidence,
 emissions-factor validation and real pilot measurements remain evidence tasks.
 Record partial requirements explicitly rather than marking the entire prototype done.
+
+## UI/UX extension coverage
+
+The usability extension preserves FR01-FR10 and NFR01-NFR06; map discovery and bounded thumbnails extend FR02/FR03, safe trust projections extend FR07, and exact chart/public aggregation extends FR09. CSRF, whole-quantity allocation, row locks, zone RLS and atomic audit/outbox remain mandatory. Verification is recorded in [UI implementation evidence](UI_UX_IMPLEMENTATION.md).

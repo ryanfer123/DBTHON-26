@@ -1,140 +1,209 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from "@playwright/test";
+import { submitLogin } from "./workspaceHelpers";
 
-test('register, edit, verify and revoke a real member; session state survives refresh', async ({ page, request }, info) => {
-  test.setTimeout(150000)
-  const errors: string[] = []
-  page.on('pageerror', error => errors.push(error.message))
-  page.on('console', message => {
-    const expectedThrottle = message.location().url.endsWith('/api/v1/auth/login') && message.text().includes('status of 429')
-    if (message.type() === 'error' && !expectedThrottle) errors.push(message.text())
-  })
-  const suffix = `${Date.now()}${info.project.name === 'desktop' ? '1' : '2'}`
-  const email = `browser-${suffix}@example.org`
-  const password = process.env.DBTHON_E2E_PASSWORD!
+test("register, edit, verify and revoke a real member; session state survives refresh", async ({
+  page,
+  request,
+}, info) => {
+  test.setTimeout(150000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    const expectedThrottle =
+      message.location().url.endsWith("/api/v1/auth/login") &&
+      message.text().includes("status of 429");
+    if (message.type() === "error" && !expectedThrottle)
+      errors.push(message.text());
+  });
+  const suffix = `${Date.now()}${info.project.name === "desktop" ? "1" : "2"}`;
+  const email = `browser-${suffix}@example.org`;
+  const password = process.env.DBTHON_E2E_PASSWORD!;
   async function signIn(email: string) {
-    await page.goto('/sign-in')
-    await page.getByLabel('Email address').fill(email)
-    await page.getByLabel('Password', { exact: true }).fill(password)
-    const received = page.waitForResponse(response => response.url().endsWith('/api/v1/auth/login'))
-    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-    const response = await received
-    if (response.status() === 429) {
-      await expect(page.getByRole('alert')).toContainText('Too many attempts')
-      await page.waitForTimeout((Number(response.headers()['retry-after']) + 1) * 1000)
-      await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-    }
-    await expect(page).toHaveURL('/dashboard')
-    await page.goto('/account')
-    await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible()
+    await page.goto("/sign-in");
+    await page.getByLabel("Email address").fill(email);
+    await page.getByLabel("Password", { exact: true }).fill(password);
+    await submitLogin(page);
+    await expect(page).toHaveURL("/dashboard");
+    await page.goto("/account");
+    await expect(
+      page.getByRole("heading", { name: "Your account", exact: true }),
+    ).toBeVisible();
   }
   async function signOut() {
-    await page.getByRole('button', { name: 'Sign out', exact: true }).click()
-    await expect(page).toHaveURL('/')
+    await page.getByRole("button", { name: "Sign out", exact: true }).click();
+    await expect(page).toHaveURL("/");
   }
   async function assertNoOverflow(page: Page) {
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy()
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBeTruthy();
   }
-  await page.goto('/')
-  await page.getByRole('tab', { name: 'Receivers' }).click()
-  await page.getByRole('link', { name: 'Join as a receiver' }).click()
-  await expect(page).toHaveURL('/register?role=receiver')
-  await expect(page.getByRole('checkbox', { name: /Receiver/ })).toBeChecked()
-  await page.screenshot({ path: info.outputPath('register.png'), fullPage: true })
-  await assertNoOverflow(page)
-  expect(await page.locator('[placeholder]').count()).toBe(0)
-  await page.getByLabel('Name', { exact: true }).fill(`Browser Member ${suffix}`)
-  await page.getByLabel('Phone number').fill(`+1${suffix.slice(-10)}`)
-  await page.getByLabel('Email address').fill(email)
-  await page.getByLabel('Password', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Show password' }).click()
-  await expect(page.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text')
-  await page.getByRole('button', { name: 'Hide password' }).click()
-  await page.getByLabel('Community area').selectOption('1')
-  await page.getByRole('checkbox', { name: /Donor/ }).check()
-  await page.getByLabel('Receiving capacity (kg)').fill('10.00')
-  await page.context().grantPermissions(['geolocation'])
-  await page.context().setGeolocation({ latitude: 12.9692, longitude: 79.1559 })
-  await page.getByRole('button', { name: 'Use my current location' }).click()
-  await expect(page.getByLabel('Latitude', { exact: true })).toHaveValue('12.969200')
-  await expect(page.getByLabel('Longitude', { exact: true })).toHaveValue('79.155900')
-  await page.getByRole('button', { name: 'Create account', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Account created.')
-  await expect(page.getByLabel('Email address')).toHaveValue(email)
-  await expect(page.getByLabel('Password', { exact: true })).toHaveValue('')
-  await page.getByLabel('Password', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(page).toHaveURL('/dashboard')
-  await page.getByRole('link', { name: 'Check verification status', exact: true }).click()
-  await expect(page.getByText('Awaiting verification', { exact: true })).toBeVisible()
-  await page.getByLabel('Name', { exact: true }).fill(`Edited Member ${suffix}`)
-  await page.getByLabel('Receiving capacity (kg)').fill('12.50')
-  await page.getByRole('button', { name: 'Save changes' }).click()
-  await expect(page.getByRole('status')).toHaveText('Your profile has been saved.')
-  await page.reload()
-  await expect(page.getByLabel('Name', { exact: true })).toHaveValue(`Edited Member ${suffix}`)
-  await expect(page.getByLabel('Receiving capacity (kg)')).toHaveValue('12.50')
-  await page.screenshot({ path: info.outputPath('profile.png'), fullPage: true })
-  await assertNoOverflow(page)
-  await page.goto('/admin')
-  await expect(page).toHaveURL('/account')
-  await signOut()
-  expect((await request.get('/api/v1/auth/me')).status()).toBe(401)
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Receivers" }).click();
+  await page.getByRole("link", { name: "Join as a receiver" }).click();
+  await expect(page).toHaveURL("/register?role=receiver");
+  await expect(page.getByRole("checkbox", { name: /Receiver/ })).toBeChecked();
+  await page.screenshot({
+    path: info.outputPath("register.png"),
+    fullPage: true,
+  });
+  await assertNoOverflow(page);
+  expect(await page.locator("[placeholder]").count()).toBe(0);
+  await page
+    .getByLabel("Name", { exact: true })
+    .fill(`Browser Member ${suffix}`);
+  await page.getByLabel("Phone number").fill(`+1${suffix.slice(-10)}`);
+  await page.getByLabel("Email address").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Show password" }).click();
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+    "type",
+    "text",
+  );
+  await page.getByRole("button", { name: "Hide password" }).click();
+  await page.getByLabel("Community area").selectOption("1");
+  await page.getByRole("checkbox", { name: /Donor/ }).check();
+  await page.getByLabel("Receiving capacity (kg)").fill("10.00");
+  await page.context().grantPermissions(["geolocation"]);
+  await page
+    .context()
+    .setGeolocation({ latitude: 12.9692, longitude: 79.1559 });
+  await page.getByRole("button", { name: "Use my current location" }).click();
+  await expect(page.getByLabel("Latitude", { exact: true })).toHaveValue(
+    "12.969200",
+  );
+  await expect(page.getByLabel("Longitude", { exact: true })).toHaveValue(
+    "79.155900",
+  );
+  await page
+    .getByRole("button", { name: "Create account", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("Account created.");
+  await expect(page.getByLabel("Email address")).toHaveValue(email);
+  await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await submitLogin(page);
+  await expect(page).toHaveURL("/dashboard");
+  await page
+    .getByRole("link", { name: "Check verification status", exact: true })
+    .click();
+  await expect(
+    page.getByText("Awaiting verification", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Name", { exact: true })
+    .fill(`Edited Member ${suffix}`);
+  await page.getByLabel("Receiving capacity (kg)").fill("12.50");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("status")).toHaveText(
+    "Your profile has been saved.",
+  );
+  await page.reload();
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue(
+    `Edited Member ${suffix}`,
+  );
+  await expect(page.getByLabel("Receiving capacity (kg)")).toHaveValue("12.50");
+  await page.screenshot({
+    path: info.outputPath("profile.png"),
+    fullPage: true,
+  });
+  await assertNoOverflow(page);
+  await page.goto("/admin");
+  await expect(page).toHaveURL("/account");
+  await signOut();
+  expect((await request.get("/api/v1/auth/me")).status()).toBe(401);
 
-  await signIn('z1.admin@example.invalid')
-  await page.getByRole('link', { name: 'Review community members' }).click()
-  const member = page.locator('.member-row').filter({ hasText: email })
-  await member.getByRole('button', { name: 'Review member' }).click()
-  await member.getByRole('checkbox', { name: 'Receiver', exact: true }).check()
-  await member.getByLabel('Review reason').fill('Synthetic browser test: receiver identity checked.')
-  await page.screenshot({ path: info.outputPath('admin-review.png'), fullPage: true })
-  await assertNoOverflow(page)
-  await member.getByRole('button', { name: 'Save approval' }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'Review saved for' })).toBeVisible()
-  await page.getByLabel('Show members').selectOption('verified')
-  await expect(member).toContainText('Receiver: approved')
-  await expect(member).toContainText('Donor: pending')
-  await page.reload()
-  await expect(page.getByLabel('Show members')).toHaveValue('verified')
-  await member.getByRole('link', { name: 'Audit history' }).click()
-  await page.getByRole('navigation', { name: 'Breadcrumbs' }).getByRole('link', { name: 'Back to members' }).click()
-  await expect(page).toHaveURL('/admin?filter=verified')
-  await expect(member).toContainText('Receiver: approved')
-  await page.getByRole('link', { name: 'Back to your account' }).click()
-  await signOut()
-  await signIn(email)
-  await expect(page.getByText('Account verified', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Refresh verification status' }).click()
-  await expect(page.getByText('Account verified', { exact: true })).toBeVisible()
-  await signOut()
+  await signIn("z1.admin@example.invalid");
+  await page.getByRole("link", { name: "Review community members" }).click();
+  const member = page.locator(".member-row").filter({ hasText: email });
+  await member.getByRole("button", { name: "Review member" }).click();
+  await member.getByRole("checkbox", { name: "Receiver", exact: true }).check();
+  await member
+    .getByLabel("Review reason")
+    .fill("Synthetic browser test: receiver identity checked.");
+  await page.screenshot({
+    path: info.outputPath("admin-review.png"),
+    fullPage: true,
+  });
+  await assertNoOverflow(page);
+  await member.getByRole("button", { name: "Save approval" }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Review saved for" }),
+  ).toBeVisible();
+  await page.getByLabel("Show members").selectOption("verified");
+  await expect(member).toContainText("Receiver: approved");
+  await expect(member).toContainText("Donor: pending");
+  await page.reload();
+  await expect(page.getByLabel("Show members")).toHaveValue("verified");
+  await member.getByRole("link", { name: "Audit history" }).click();
+  await page
+    .getByRole("navigation", { name: "Breadcrumbs" })
+    .getByRole("link", { name: "Back to members" })
+    .click();
+  await expect(page).toHaveURL("/admin?filter=verified");
+  await expect(member).toContainText("Receiver: approved");
+  await page.getByRole("link", { name: "Back to your account" }).click();
+  await signOut();
+  await signIn(email);
+  await expect(
+    page.getByText("Account verified", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Refresh verification status" })
+    .click();
+  await expect(
+    page.getByText("Account verified", { exact: true }),
+  ).toBeVisible();
+  await signOut();
 
-  await signIn('z1.admin@example.invalid')
-  await page.getByRole('link', { name: 'Review community members' }).click()
-  await page.getByLabel('Show members').selectOption('verified')
-  await member.getByRole('button', { name: 'Review member' }).click()
-  await member.getByLabel('Review reason').fill('Synthetic browser test: approval revoked.')
-  await member.getByRole('button', { name: 'Revoke verification' }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'Review saved for' })).toBeVisible()
-  await expect(member).toHaveCount(0)
-  await page.getByRole('link', { name: 'Back to your account' }).click()
-  await signOut()
-  await signIn(email)
-  await expect(page.getByText('Awaiting verification', { exact: true })).toBeVisible()
-  await page.getByRole('link', { name: 'How it works', exact: true }).click()
-  await expect(page).toHaveURL('/#how-it-works')
-  await expect(page.getByRole('heading', { name: 'From surplus to someone’s table' })).toBeInViewport()
-  expect(errors).toEqual([])
-})
+  await signIn("z1.admin@example.invalid");
+  await page.getByRole("link", { name: "Review community members" }).click();
+  await page.getByLabel("Show members").selectOption("verified");
+  await member.getByRole("button", { name: "Review member" }).click();
+  await member
+    .getByLabel("Review reason")
+    .fill("Synthetic browser test: approval revoked.");
+  await member.getByRole("button", { name: "Revoke verification" }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Review saved for" }),
+  ).toBeVisible();
+  await expect(member).toHaveCount(0);
+  await page.getByRole("link", { name: "Back to your account" }).click();
+  await signOut();
+  await signIn(email);
+  await expect(
+    page.getByText("Awaiting verification", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "How it works", exact: true }).click();
+  await expect(page).toHaveURL("/#how-it-works");
+  await expect(
+    page.getByRole("heading", { name: "From surplus to someone’s table" }),
+  ).toBeInViewport();
+  expect(errors).toEqual([]);
+});
 
-test('area loading has a recoverable failure and a signed-out admin link goes to sign-in', async ({ page }) => {
-  await page.route('**/api/v1/zones?**', route => route.fulfill({ status: 503, body: '{}' }))
-  await page.goto('/register?role=volunteer')
-  await expect(page.getByRole('alert')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Create account', exact: true })).toBeDisabled()
-  await page.unroute('**/api/v1/zones?**')
-  await page.getByRole('button', { name: 'Retry areas' }).click()
-  await expect(page.getByLabel('Community area')).toBeVisible()
-  await expect(page.getByRole('checkbox', { name: /Volunteer/ })).toBeChecked()
-  await expect(page.getByRole('button', { name: 'Create account', exact: true })).toBeEnabled()
-  await page.goto('/admin')
-  await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible()
-})
+test("area loading has a recoverable failure and a signed-out admin link goes to sign-in", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/zones?**", (route) =>
+    route.fulfill({ status: 503, body: "{}" }),
+  );
+  await page.goto("/register?role=volunteer");
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Create account", exact: true }),
+  ).toBeDisabled();
+  await page.unroute("**/api/v1/zones?**");
+  await page.getByRole("button", { name: "Retry areas" }).click();
+  await expect(page.getByLabel("Community area")).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: /Volunteer/ })).toBeChecked();
+  await expect(
+    page.getByRole("button", { name: "Create account", exact: true }),
+  ).toBeEnabled();
+  await page.goto("/admin");
+  await expect(
+    page.getByRole("heading", { name: "Sign in", exact: true }),
+  ).toBeVisible();
+});

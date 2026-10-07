@@ -1,0 +1,326 @@
+.home-purpose {
+  text-align: center;
+  background: var(--sage);
+  padding-block: 54px;
+}
+.home-purpose h2,
+.home-process h2,
+.community-section h2,
+.home-guidance h2 {
+  font-size: clamp(38px, 4vw, 60px);
+  line-height: 1.12;
+  margin: 0 0 28px;
+}
+.home-purpose p {
+  font-size: 24px;
+  line-height: 1.5;
+  margin: 0;
+}
+.home-process {
+  padding-block: 80px;
+  text-align: center;
+}
+.home-process .how-it-works h2 {
+  white-space: normal;
+  margin-bottom: 54px;
+}
+.home-process .steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.home-process .steps li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-inline: 28px;
+  min-height: 0;
+}
+.home-process .steps li:not(:last-child) {
+  border-right: 1px solid var(--line);
+}
+.home-process .steps li:not(:last-child)::after {
+  display: none;
+}
+.home-process .steps li > div {
+  padding: 0;
+}
+.home-process .steps li:not(:last-child) > div {
+  border: 0;
+  margin: 0;
+}
+.home-process .steps h3 {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+.home-process .steps p {
+  font-size: 20px;
+  line-height: 1.5;
+}
+.community-section {
+  text-align: center;
+  padding-block: 54px;
+}
+.community-section .role-tabs {
+  justify-content: center;
+  border-bottom: 0;
+}
+.community-section .role-tabs button {
+  font-size: 22px;
+  padding-inline: 24px;
+}
+.community-section .role-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--orange);
+}
+.community-section .role-panel p {
+  margin: 28px auto 0;
+  max-width: 820px;
+  font-size: 22px;
+  line-height: 1.5;
+}
+.community-section .role-join {
+  font-size: 18px;
+}
+.community-account {
+  border-top: 1px solid var(--line);
+  max-width: 640px;
+  margin: 34px auto 0;
+  padding-top: 22px;
+}
+.community-account p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+.home-guidance {
+  padding-block: 80px;
+}
+.handover-list {
+  list-style: none;
+  padding: 0;
+  margin: 42px 0 0;
+}
+.handover-list li {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 26px;
+  margin-bottom: 32px;
+}
+.handover-list h3 {
+  font-size: 30px;
+  margin: 0 0 10px;
+}
+.handover-list p {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  max-width: 1000px;
+}
+.home-faq {
+  margin-top: 64px;
+}
+.home-faq details {
+  border-top: 1px solid var(--line);
+  padding: 22px 0;
+}
+.home-faq details:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.home-faq summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.home-faq summary::-webkit-details-marker {
+  display: none;
+}
+.home-faq summary svg {
+  flex-shrink: 0;
+}
+.home-faq details[open] .disclosure-vertical {
+  display: none;
+}
+.home-faq details p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 18px 0 0;
+  max-width: 1120px;
+}
+.home-faq summary:focus-visible {
+  outline: 3px solid #ba692b;
+  outline-offset: 8px;
+}
+.share-listing {
+  margin-top: 12px;
+  max-width: 540px;
+}
+.share-listing .field-help {
+  margin-top: 12px;
+}
+
+[data-theme="dark"] .button:hover {
+  background: #a5ceb4;
+}
+[data-theme="dark"] .button-outline {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--green);
+}
+[data-theme="dark"] .button-outline:hover {
+  background: var(--sage);
+}
+[data-theme="dark"] .text-link:hover,
+[data-theme="dark"] .text-button:hover {
+  color: #bcdcc7;
+}
+[data-theme="dark"] .countdown.urgent {
+  color: #f0b36e;
+}
+[data-theme="dark"] .status-dot {
+  background: #eaa04b;
+}
+[data-theme="dark"] .status-dot.approved {
+  background: #8bbb9d;
+}
+[data-theme="dark"] .role-option:has(input:checked) {
+  border-color: #8bbb9d;
+}
+[data-theme="dark"] .home-hero .button {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #173d2d;
+}
+[data-theme="dark"] .home-hero .button:hover {
+  background: #f0b26c;
+}
+@media (max-width: 1100px) {
+  .home-hero h1 {
+    font-size: 66px;
+  }
+  .home-hero .welcome > p {
+    font-size: 22px;
+  }
+  .home-hero .hero-actions {
+    gap: 18px;
+  }
+  .home-hero {
+    min-height: 560px;
+  }
+}
+@media (max-width: 800px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-block: 48px;
+  }
+  .home-hero h1 {
+    font-size: clamp(52px, 9vw, 76px);
+  }
+  .hero-photo {
+    max-height: 480px;
+  }
+  .home-process {
+    padding-block: 56px;
+  }
+  .home-process .steps {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .home-process .steps li {
+    padding-inline: 0;
+  }
+  .home-process .steps li:not(:last-child) {
+    border-right: 0;
+  }
+  .home-purpose p {
+    font-size: 21px;
+  }
+  .home-guidance {
+    padding-block: 56px;
+  }
+}
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+  .header-content {
+    min-height: 104px;
+    height: auto;
+    padding-block: 12px;
+  }
+  .site-header nav {
+    gap: 12px;
+  }
+  .home-hero {
+    padding-block: 36px;
+  }
+  .home-hero h1 {
+    font-size: 52px;
+    margin-bottom: 26px;
+  }
+  .home-hero .welcome > p {
+    font-size: 20px;
+  }
+  .home-hero .button {
+    font-size: 17px;
+    padding: 17px 20px;
+  }
+  .home-purpose {
+    padding-block: 38px;
+  }
+  .home-purpose h2,
+  .home-process h2,
+  .community-section h2,
+  .home-guidance h2 {
+    font-size: 36px;
+  }
+  .home-purpose p {
+    font-size: 19px;
+  }
+  .home-process .steps h3 {
+    font-size: 29px;
+  }
+  .community-section {
+    padding-block: 38px;
+  }
+  .community-section .role-tabs {
+    gap: 4px;
+  }
+  .community-section .role-tabs button {
+    font-size: 17px;
+    padding-inline: 10px;
+  }
+  .community-section .role-panel p {
+    font-size: 19px;
+  }
+  .handover-list li {
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+  }
+  .handover-list .step-number {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+  .handover-list h3 {
+    font-size: 26px;
+  }
+  .handover-list p,
+  .home-faq details p {
+    font-size: 16px;
+  }
+  .home-faq summary {
+    font-size: 22px;
+  }
+}

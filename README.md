@@ -109,3 +109,5 @@ database bootstrap gate must pass before provisioning. See the
 remaining work from the product review.
 
 The selected AWS backend connection is described in [AWS/Render integration](docs/AWS_RENDER_CONNECTION.md). It reuses the retained private RDS database and supplies a separate Lambda API/worker stack. See status for live verification.
+
+The UI experience release and its verification/limitations are tracked in [UI/UX implementation evidence](docs/UI_UX_IMPLEMENTATION.md).

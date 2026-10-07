@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
+from sqlalchemy import text
 
 router = APIRouter(tags=["Community"])
 
@@ -47,3 +48,24 @@ def community() -> CommunityResponse:
             ],
         )
     )
+
+
+class PublicImpact(BaseModel):
+    delivered_kg: str
+    estimated_meals: str
+    active_listings: int
+    includes_demo_data: bool
+    month_start: str
+    server_time: str
+    meal_weight_kg: str
+
+
+class PublicImpactResponse(BaseModel):
+    data: PublicImpact
+
+
+@router.get("/public/impact", response_model=PublicImpactResponse)
+def public_impact(request: Request) -> PublicImpactResponse:
+    with request.app.state.access.transaction("auth") as connection:
+        result = connection.execute(text("SELECT dbthon_public_impact()")).scalar_one()
+        return PublicImpactResponse(data=PublicImpact.model_validate(result))

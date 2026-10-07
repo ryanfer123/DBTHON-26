@@ -80,7 +80,7 @@ def create_app(
             "Idempotency-Key",
             "If-None-Match",
         ],
-        expose_headers=["Retry-After", "X-Request-ID", "ETag"],
+        expose_headers=["Retry-After", "X-Request-ID", "ETag", "X-Server-Time"],
     )
     application.state.database = db
     application.state.access = permissions

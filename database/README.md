@@ -29,3 +29,5 @@ See [schema/ER/normalization](../docs/DATABASE.md),
 Historical migrations are immutable once published; add new revisions for changes.
 
 Revision 0004 adds managed-owner guard policies without new tables. SQL remains the authoritative migration source; run `python3 scripts/check_migrations.py`.
+
+Revision 0005 adds [authenticated listing thumbnails](0005_listing_photos.sql) and a non-identifying public aggregate routine. Apply through Alembic; do not edit earlier deployed revisions.

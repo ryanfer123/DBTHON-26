@@ -60,7 +60,8 @@ def seeded_db(db_engine):
     with db_engine.begin() as c:
         c.execute(
             text("""
-          TRUNCATE verification_reviews,auth_rate_limits,seed_runs,idempotency_keys,sessions,
+          TRUNCATE listing_photos,verification_reviews,auth_rate_limits,seed_runs,
+            idempotency_keys,sessions,
             notification_outbox,notifications,
             trust_ledger,ratings,pickups,claims,food_listings,receiver_profiles,user_roles,
             users,zones RESTART IDENTITY

@@ -20,6 +20,7 @@ erDiagram
     USERS ||--o| RECEIVER_PROFILES : declares
     ZONES ||--o{ FOOD_LISTINGS : scopes
     USERS ||--o{ FOOD_LISTINGS : donates
+    FOOD_LISTINGS ||--o| LISTING_PHOTOS : has_thumbnail
     FOOD_LISTINGS ||--o{ CLAIMS : receives
     USERS ||--o{ CLAIMS : claims
     CLAIMS ||--o{ PICKUPS : owns_attempts
@@ -215,3 +216,25 @@ pruning old retry rows is an operational follow-up, not performed by a user requ
 ## Managed owner compatibility (revision 0004)
 
 The non-login guard role uses explicit FORCE RLS policies without BYPASSRLS on managed PostgreSQL. Bootstrap supplies temporary schema CREATE for ownership changes; migration 0004 revokes it. Runtime logins remain non-owners and cannot adopt guard. See [AWS/Render integration](AWS_RENDER_CONNECTION.md). No table/ER-key changes are introduced.
+
+
+## Revision 0005: authenticated thumbnails and public aggregate impact
+
+`listing_photos` is an optional one-to-one child of `food_listings`: listing_id
+(PK/FK, cascade on deliberate listing deletion), thumbnail (bytea, 1–153600 bytes),
+and updated_at (UTC timestamptz). The API independently decodes, bounds, resizes
+and re-encodes a fresh JPEG at at most 800 px, stripping EXIF and other source
+metadata. Runtime reads use FORCE RLS and verified same-zone listing visibility.
+The runtime role has no direct DML grant. The sealed `dbthon_set_listing_photo`
+command locks the listing and sorted affected users, rechecks CSRF/role/ownership,
+uses idempotency, and records ledger/outbox rows atomically. Same-zone Admins can
+remove a photo, including from terminal listings, but cannot upload for a donor.
+Listing create/edit and an optional supplied photo commit in one API transaction.
+
+`dbthon_public_impact` is a sealed read routine executable by the restricted auth
+role. It exposes only global aggregate current-UTC-month delivered mass, meal
+estimates, active-listing count, server time and demo-data provenance. It exposes
+no person, contact, precise coordinate, listing ID, or per-zone breakdown. This
+explicit public aggregate interface does not broaden private report access.
+Revision 0004 is immutable; 0005 grants temporary schema CREATE for function owner
+transfer and revokes it within the migration. No login gains guard membership.

@@ -86,3 +86,17 @@ initializer applies migrations and provisions restricted login roles; public API
 and worker functions do not receive the owner credential. See
 [AWS/Render connection](AWS_RENDER_CONNECTION.md) for the template, cookie/origin
 configuration, managed-role migration and operational limits.
+
+
+## UI experience release
+
+Maps are an explicitly opened, lazy Leaflet chunk using OpenStreetMap attribution
+and normal browser tile caching. No bulk prefetch or offline tile warming is
+performed. Coordinate controls and textual food listings remain usable without
+maps. Only donor pickup points and the viewer's own radius are plotted; participant
+delivery coordinates remain in authorised exchange links, never in discovery maps.
+Authenticated photo blobs stay in PostgreSQL within the existing restricted-role
+architecture; there is no new storage service or public photo URL. Thumbnails are
+normalized independently on the server and moderation is audited. Public impact
+is a dedicated aggregate routine, separate from private zone-scoped admin reports.
+See [UI implementation evidence](UI_UX_IMPLEMENTATION.md).

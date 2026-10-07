@@ -11,11 +11,16 @@ from app.workflows.models import (
     Exchange,
     ImpactResponse,
     ImpactRow,
+    ImpactSummary,
     Listing,
     Meta,
+    Notification,
     OverviewData,
+    OverviewItem,
     OverviewResponse,
+    PhotoInput,
 )
+from app.workflows.photos import normalize
 
 
 def require(connection: Connection, role: str | None = None) -> int:
@@ -48,13 +53,29 @@ def command(
             "op": operation,
             "object": object_id,
             "attempt": attempt_id,
-            "body": body.model_dump_json(exclude_unset=True),
+            "body": body.model_dump_json(exclude_unset=True, exclude={"photo_base64"}),
             "key": key,
         },
     ).scalar_one()
+    if isinstance(body, PhotoInput) and "photo_base64" in body.model_fields_set:
+        photo = normalize(body.photo_base64)
+        connection.execute(
+            text("SELECT dbthon_set_listing_photo(:id,:photo,:key)"),
+            {
+                "id": result["data"]["listing_id"],
+                "photo": photo,
+                "key": key,
+            },
+        ).scalar_one()
     return CommandResponse.model_validate(result)
 
 
+DONOR_READY = """EXISTS(SELECT FROM users donor JOIN user_roles dr USING(user_id)
+  WHERE donor.user_id=l.donor_id AND donor.active AND donor.verified_status AND
+      dr.role='Donor' AND dr.approved_at IS NOT NULL)"""
+PROFILE_POINT = """(SELECT ST_SetSRID(
+  ST_MakePoint(longitude::float8,latitude::float8),4326)::geography
+  FROM users WHERE user_id=dbthon_actor_id())"""
 LISTING_COLUMNS = """
   l.listing_id,l.donor_id,coalesce(u.name,'Donor unavailable') AS donor_name,l.zone_id,
   l.food_type,l.category,l.quantity_kg::text,l.prepared_at,l.expiry_window_start,l.expiry_window_end,
@@ -63,16 +84,30 @@ LISTING_COLUMNS = """
       timestamptz))))::integer AS seconds_remaining,
   (l.expiry_window_end>CAST(:now AS timestamptz) AND l.expiry_window_end<=CAST(:now AS
       timestamptz)+interval '30 minutes') AS approaching_expiry"""
-DONOR_READY = """EXISTS(SELECT FROM users donor JOIN user_roles dr USING(user_id)
-  WHERE donor.user_id=l.donor_id AND donor.active AND donor.verified_status AND
-      dr.role='Donor' AND dr.approved_at IS NOT NULL)"""
-PROFILE_POINT = """(SELECT ST_SetSRID(
-  ST_MakePoint(longitude::float8,latitude::float8),4326)::geography
-  FROM users WHERE user_id=dbthon_actor_id())"""
+CAPACITY_FITS = """l.quantity_kg <= (SELECT capacity_kg FROM receiver_profiles
+  WHERE user_id=dbthon_actor_id())"""
+CLAIM_REASON = f"""CASE
+  WHEN NOT dbthon_has_role('Receiver') THEN 'An approved Receiver role is required.'
+  WHEN l.donor_id=dbthon_actor_id() THEN 'You cannot claim your own donation.'
+  WHEN l.status<>'Available' OR l.expiry_window_end<=:now THEN 'This food is no longer available.'
+  WHEN l.expiry_window_start>:now THEN 'Collection has not opened yet.'
+  WHEN NOT ({DONOR_READY}) THEN 'The donor is not currently verified.'
+  WHEN NOT coalesce(({CAPACITY_FITS}),false) THEN 'Above your receiving capacity. Update your
+      account capacity to receive this whole quantity.'
+  WHEN NOT ST_DWithin(l.pickup_location,{PROFILE_POINT},5000) THEN 'Outside the 5 km
+      allocation distance from your saved location.'
+  ELSE NULL END"""
+LISTING_COLUMNS += f""", EXISTS(SELECT FROM listing_photos photo WHERE
+photo.listing_id=l.listing_id) AS has_photo, ({DONOR_READY}) AS donor_verified,
+  CASE WHEN {DONOR_READY} THEN (dbthon_trust(l.donor_id)->>'average_score') ELSE NULL END AS
+      donor_rating_avg,
+  CASE WHEN {DONOR_READY} THEN
+      coalesce((dbthon_trust(l.donor_id)->>'rating_count')::integer,0) ELSE 0 END AS
+      donor_rating_count,
+  ({CLAIM_REASON}) IS NULL AS claim_eligible, ({CLAIM_REASON}) AS claim_ineligible_reason"""
 FEED_FILTER = f"""l.zone_id=dbthon_actor_zone() AND l.status='Available'
   AND l.expiry_window_start<=:now AND l.expiry_window_end>:now
-  AND l.donor_id<>dbthon_actor_id() AND l.quantity_kg<=(
-    SELECT capacity_kg FROM receiver_profiles WHERE user_id=dbthon_actor_id())
+  AND l.donor_id<>dbthon_actor_id()
   AND {DONOR_READY} AND ST_DWithin(l.pickup_location,{PROFILE_POINT},5000)
   AND ST_DWithin(l.pickup_location,
     ST_SetSRID(ST_MakePoint(:longitude,:latitude),4326)::geography,:radius)
@@ -88,6 +123,7 @@ def feed(
     cursor: str | None,
     limit: int,
     q: str | None = None,
+    include_over_capacity: bool = False,
 ) -> tuple[list[Listing], Meta]:
     require(connection, "Receiver")
     profile = connection.execute(
@@ -97,7 +133,7 @@ def feed(
     lon = longitude if longitude is not None else float(profile.longitude)
     now = clock(connection)
     search = (q or "").strip().lower()
-    scope = [lat, lon, radius, category, search]
+    scope = [lat, lon, radius, category, search, include_over_capacity]
     after_time, after_distance, after_id = datetime.min.replace(tzinfo=UTC), -1.0, 0
     if cursor:
         try:
@@ -116,6 +152,7 @@ def feed(
       SELECT {LISTING_COLUMNS},ST_Distance(l.pickup_location,
         ST_SetSRID(ST_MakePoint(:longitude,:latitude),4326)::geography) AS distance_m
       FROM food_listings l LEFT JOIN users u ON u.user_id=l.donor_id WHERE {FEED_FILTER}
+        AND (:include_over_capacity OR {CAPACITY_FITS})
         AND l.food_type ILIKE :search ESCAPE '\\'
     ) SELECT * FROM eligible WHERE (expiry_window_end,distance_m,listing_id)>
       (:after_time,:after_distance,:after_id)
@@ -124,6 +161,7 @@ def feed(
         connection.execute(
             text(query),
             {
+                "include_over_capacity": include_over_capacity,
                 "now": now,
                 "latitude": lat,
                 "longitude": lon,
@@ -153,8 +191,21 @@ def feed(
                 separators=(",", ":"),
             ).encode()
         ).decode()
+    hidden = connection.execute(
+        text(f"""SELECT count(*) FROM food_listings l
+      WHERE {FEED_FILTER} AND NOT ({CAPACITY_FITS})
+      AND l.food_type ILIKE :search ESCAPE '\\'"""),
+        {
+            "now": now,
+            "latitude": lat,
+            "longitude": lon,
+            "radius": radius,
+            "category": category,
+            "search": search_pattern(search),
+        },
+    ).scalar_one()
     return [Listing.model_validate(row) for row in rows[:limit]], Meta(
-        server_time=now, next_cursor=next_cursor
+        server_time=now, next_cursor=next_cursor, hidden_over_capacity_count=hidden
     )
 
 
@@ -396,10 +447,22 @@ def impact(
       c.claimed_at>=begins AND c.claimed_at<ends) AS claim_latency_seconds,
         (SELECT count(*) FROM visible_claims c JOIN visible_listings l USING(listing_id) WHERE
       l.zone_id=:zone_id AND c.claimed_at>=begins AND c.claimed_at<ends) AS
-      claim_latency_count
+      claim_latency_count,
+        (SELECT percentile_cont(0.5) WITHIN GROUP(ORDER BY extract(epoch FROM
+      c.claimed_at-l.created_at))
+          FROM visible_claims c JOIN visible_listings l USING(listing_id)
+          WHERE c.claimed_at>=begins AND c.claimed_at<ends) AS median_claim_latency_seconds,
+        coalesce((SELECT sum(l.quantity_kg) FROM visible_listings l WHERE
+          (l.status='Expired' OR (l.status IN ('Available','Claimed') AND l.expiry_window_end<:now))
+          AND l.expiry_window_end>=begins AND
+      l.expiry_window_end<ends),0)::numeric(12,2)::text AS expired_kg,
+        coalesce((SELECT sum(l.quantity_kg) FROM visible_listings l WHERE l.status='Cancelled'
+          AND l.updated_at>=begins AND l.updated_at<ends),0)::numeric(12,2)::text AS
+      cancelled_listing_kg
       FROM bins ORDER BY bins.begins
     """),
             {
+                "now": now,
                 "start": begin,
                 "end": finish,
                 "grouping": grouping,
@@ -411,8 +474,29 @@ def impact(
         .mappings()
         .all()
     )
+    summary = (
+        connection.execute(
+            text("""SELECT
+      (SELECT percentile_cont(0.5) WITHIN GROUP(ORDER BY extract(epoch FROM
+      c.claimed_at-l.created_at))
+        FROM claims c JOIN food_listings l USING(listing_id) WHERE l.zone_id=:zone
+        AND c.claimed_at>=:start AND c.claimed_at<:end) AS median_claim_latency_seconds,
+      count(*) AS listings_in_cohort,
+      count(*) FILTER(WHERE status='Expired' OR (status IN ('Available','Claimed') AND
+      expiry_window_end<:now)) AS expired_listings,
+      (100.0 * count(*) FILTER(WHERE status='Expired' OR (status IN ('Available','Claimed')
+      AND expiry_window_end<:now)) /
+        nullif(count(*),0))::float8 AS expiry_rate_percent
+      FROM food_listings WHERE zone_id=:zone AND created_at>=:start AND created_at<:end"""),
+            {"zone": zone["zone_id"], "start": begin, "end": finish, "now": now},
+        )
+        .mappings()
+        .one()
+    )
     return ImpactResponse(
-        data=[ImpactRow.model_validate(row) for row in rows], meta=Meta(server_time=now)
+        data=[ImpactRow.model_validate(row) for row in rows],
+        summary=ImpactSummary.model_validate(summary),
+        meta=Meta(server_time=now),
     )
 
 
@@ -516,8 +600,8 @@ def overview(connection: Connection) -> OverviewResponse:
             capabilities=roles,
             unread_count=unread,
             summaries=summaries,
-            upcoming=list(upcoming),
-            updates=list(updates),
+            upcoming=[OverviewItem.model_validate(dict(row)) for row in upcoming],
+            updates=[Notification.model_validate(dict(row)) for row in updates],
         ),
         meta=Meta(server_time=now),
     )

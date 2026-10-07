@@ -159,3 +159,36 @@ checks the signed-in member's complete stored chain with the independent Python
 canonicalizer, not just the displayed page. Invalid chains return `valid: false`.
 This is internal consistency evidence; it does not verify an external checkpoint
 or prove that a database owner has never rewritten the chain.
+
+
+## UI discovery extensions (revision 0005 release)
+
+- GET `/listings` adds optional `include_over_capacity` (false by default). The
+  capacity flag is included in feed cursor scope. `meta.hidden_over_capacity_count`
+  counts all larger live listings matching the same zone, donor eligibility,
+  saved-profile allocation distance, requested radius, category and literal name
+  search, independently of pagination. Explicitly included larger rows remain
+  ineligible for claims; the guarded claim command is unchanged.
+- Listing projections add `donor_verified`, `donor_rating_avg` (nullable),
+  `donor_rating_count`, `claim_eligible`, `claim_ineligible_reason`, and `has_photo`.
+  Ratings use the existing sealed safe `dbthon_trust` aggregate so they match the
+  trust endpoint even when direct rating-row RLS limits visible participants.
+  No donor contacts or account coordinates enter this projection.
+- POST/PATCH listing bodies accept optional `photo_base64`, at most 204800 base64
+  characters representing at most 153600 image bytes. Omission keeps a photo;
+  null removes it. Invalid photos roll back the entire create/edit transaction.
+- GET `/listings/{id}/photo` requires verified same-zone access and returns a
+  metadata-free JPEG with private/no-store and nosniff headers; absent/invisible
+  photos return 404. POST `/admin/listings/{id}/photo/remove` accepts `{}` with
+  CSRF and Idempotency-Key and records the moderation action in affected ledgers.
+- GET `/public/impact` is unauthenticated and returns only non-identifying totals.
+  `includes_demo_data` flags a database containing imported synthetic fixtures;
+  estimates and prototype provenance remain explicit in the homepage.
+- Impact rows and CSV add `median_claim_latency_seconds`, `expired_kg`, and
+  `cancelled_listing_kg`. Delivered/expired/cancelled chart series use these exact
+  rows. Expired quantities are attributed to their deadline; cancelled listings
+  to updated_at. `summary` supplies an exact overall median and expiry rate for
+  listings created in the selected interval, evaluated at current server time.
+  Daily medians are never averaged to construct the overall median.
+- Overview 304 responses include `X-Server-Time`; CORS exposes it so cache hits
+  retain current server-anchored countdowns without changing content ETags.

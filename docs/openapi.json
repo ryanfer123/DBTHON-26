@@ -534,6 +534,16 @@
           },
           "meta": {
             "$ref": "#/components/schemas/Meta"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -561,6 +571,11 @@
           "cancelled_claims": {
             "title": "Cancelled Claims",
             "type": "integer"
+          },
+          "cancelled_listing_kg": {
+            "default": "0.00",
+            "title": "Cancelled Listing Kg",
+            "type": "string"
           },
           "city": {
             "title": "City",
@@ -601,9 +616,25 @@
             "title": "Estimated Meals",
             "type": "string"
           },
+          "expired_kg": {
+            "default": "0.00",
+            "title": "Expired Kg",
+            "type": "string"
+          },
           "listings_created": {
             "title": "Listings Created",
             "type": "integer"
+          },
+          "median_claim_latency_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Claim Latency Seconds"
           },
           "period": {
             "title": "Period",
@@ -641,6 +672,49 @@
           "claim_latency_count"
         ],
         "title": "ImpactRow",
+        "type": "object"
+      },
+      "ImpactSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "expired_listings": {
+            "title": "Expired Listings",
+            "type": "integer"
+          },
+          "expiry_rate_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiry Rate Percent"
+          },
+          "listings_in_cohort": {
+            "title": "Listings In Cohort",
+            "type": "integer"
+          },
+          "median_claim_latency_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Claim Latency Seconds"
+          }
+        },
+        "required": [
+          "median_claim_latency_seconds",
+          "expired_listings",
+          "listings_in_cohort",
+          "expiry_rate_percent"
+        ],
+        "title": "ImpactSummary",
         "type": "object"
       },
       "LedgerEntry": {
@@ -813,6 +887,22 @@
             "title": "Category",
             "type": "string"
           },
+          "claim_eligible": {
+            "default": false,
+            "title": "Claim Eligible",
+            "type": "boolean"
+          },
+          "claim_ineligible_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Ineligible Reason"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -837,6 +927,27 @@
             "title": "Donor Name",
             "type": "string"
           },
+          "donor_rating_avg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Donor Rating Avg"
+          },
+          "donor_rating_count": {
+            "default": 0,
+            "title": "Donor Rating Count",
+            "type": "integer"
+          },
+          "donor_verified": {
+            "default": false,
+            "title": "Donor Verified",
+            "type": "boolean"
+          },
           "expiry_window_end": {
             "format": "date-time",
             "title": "Expiry Window End",
@@ -850,6 +961,11 @@
           "food_type": {
             "title": "Food Type",
             "type": "string"
+          },
+          "has_photo": {
+            "default": false,
+            "title": "Has Photo",
+            "type": "boolean"
           },
           "listing_id": {
             "title": "Listing Id",
@@ -946,6 +1062,18 @@
             "minLength": 1,
             "title": "Food Type",
             "type": "string"
+          },
+          "photo_base64": {
+            "anyOf": [
+              {
+                "maxLength": 204800,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Base64"
           },
           "pickup_lat": {
             "anyOf": [
@@ -1061,6 +1189,18 @@
               }
             ],
             "title": "Food Type"
+          },
+          "photo_base64": {
+            "anyOf": [
+              {
+                "maxLength": 204800,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Base64"
           },
           "pickup_lat": {
             "anyOf": [
@@ -1194,6 +1334,17 @@
       "Meta": {
         "additionalProperties": false,
         "properties": {
+          "hidden_over_capacity_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hidden Over Capacity Count"
+          },
           "next_cursor": {
             "anyOf": [
               {
@@ -1530,6 +1681,61 @@
           }
         },
         "title": "ProfileUpdate",
+        "type": "object"
+      },
+      "PublicImpact": {
+        "properties": {
+          "active_listings": {
+            "title": "Active Listings",
+            "type": "integer"
+          },
+          "delivered_kg": {
+            "title": "Delivered Kg",
+            "type": "string"
+          },
+          "estimated_meals": {
+            "title": "Estimated Meals",
+            "type": "string"
+          },
+          "includes_demo_data": {
+            "title": "Includes Demo Data",
+            "type": "boolean"
+          },
+          "meal_weight_kg": {
+            "title": "Meal Weight Kg",
+            "type": "string"
+          },
+          "month_start": {
+            "title": "Month Start",
+            "type": "string"
+          },
+          "server_time": {
+            "title": "Server Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "delivered_kg",
+          "estimated_meals",
+          "active_listings",
+          "includes_demo_data",
+          "month_start",
+          "server_time",
+          "meal_weight_kg"
+        ],
+        "title": "PublicImpact",
+        "type": "object"
+      },
+      "PublicImpactResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicImpact"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "PublicImpactResponse",
         "type": "object"
       },
       "RatingInput": {
@@ -2517,6 +2723,70 @@
           }
         },
         "summary": "Export Report",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/admin/listings/{listing_id}/photo/remove": {
+      "post": {
+        "operationId": "remove_listing_photo_api_v1_admin_listings__listing_id__photo_remove_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remove Listing Photo",
         "tags": [
           "Redistribution"
         ]
@@ -3623,6 +3893,16 @@
               ],
               "title": "Q"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_over_capacity",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Over Capacity",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -4035,6 +4315,41 @@
         ]
       }
     },
+    "/api/v1/listings/{listing_id}/photo": {
+      "get": {
+        "operationId": "listing_photo_api_v1_listings__listing_id__photo_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Listing Photo",
+        "tags": [
+          "Redistribution"
+        ]
+      }
+    },
     "/api/v1/notifications": {
       "get": {
         "operationId": "inbox_api_v1_notifications_get",
@@ -4316,6 +4631,27 @@
         "summary": "Own Pickups",
         "tags": [
           "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/public/impact": {
+      "get": {
+        "operationId": "public_impact_api_v1_public_impact_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicImpactResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Public Impact",
+        "tags": [
+          "Community"
         ]
       }
     },

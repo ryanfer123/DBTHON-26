@@ -35,7 +35,11 @@ class OverviewResponse(Input):
     meta: "Meta"
 
 
-class ListingInput(Input):
+class PhotoInput(Input):
+    photo_base64: str | None = Field(default=None, max_length=204800)
+
+
+class ListingInput(PhotoInput):
     food_type: str = Field(min_length=1, max_length=80)
     category: Category
     quantity_kg: Decimal = Field(gt=0, max_digits=8, decimal_places=2)
@@ -55,7 +59,7 @@ class ListingInput(Input):
         return self
 
 
-class ListingPatch(Input):
+class ListingPatch(PhotoInput):
     food_type: str | None = Field(default=None, min_length=1, max_length=80)
     category: Category | None = None
     quantity_kg: Decimal | None = Field(default=None, gt=0, max_digits=8, decimal_places=2)
@@ -68,7 +72,7 @@ class ListingPatch(Input):
     @model_validator(mode="after")
     def supplied(self) -> Self:
         if not self.model_fields_set or any(
-            getattr(self, key) is None for key in self.model_fields_set
+            getattr(self, key) is None for key in self.model_fields_set if key != "photo_base64"
         ):
             raise ValueError("Provide non-null listing changes")
         return self
@@ -111,11 +115,18 @@ class Listing(Input):
     seconds_remaining: int
     approaching_expiry: bool
     distance_m: float | None = None
+    has_photo: bool = False
+    donor_verified: bool = False
+    donor_rating_avg: str | None = None
+    donor_rating_count: int = 0
+    claim_eligible: bool = False
+    claim_ineligible_reason: str | None = None
 
 
 class Meta(Input):
     server_time: datetime
     next_cursor: str | int | None = None
+    hidden_over_capacity_count: int | None = None
 
 
 class ListingResponse(Input):
@@ -275,6 +286,9 @@ class ImpactRow(Input):
     active_volunteers: int
     claim_latency_seconds: float | None
     claim_latency_count: int
+    median_claim_latency_seconds: float | None = None
+    expired_kg: str = "0.00"
+    cancelled_listing_kg: str = "0.00"
 
 
 class Factors(Input):
@@ -285,7 +299,15 @@ class Factors(Input):
     timezone: str = "UTC"
 
 
+class ImpactSummary(Input):
+    median_claim_latency_seconds: float | None
+    expired_listings: int
+    listings_in_cohort: int
+    expiry_rate_percent: float | None
+
+
 class ImpactResponse(Input):
     data: list[ImpactRow]
     factors: Factors = Field(default_factory=Factors)
+    summary: ImpactSummary | None = None
     meta: Meta

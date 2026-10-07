@@ -1,0 +1,230 @@
+.freshness {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin: 0.8rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+.refresh-icon {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: inherit;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.urgency {
+  display: block;
+  width: fit-content;
+  padding: 0.35rem 0.6rem;
+  margin: 0.4rem 0;
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #743b0c;
+  background: #fff0d9;
+}
+[data-theme="dark"] .urgency {
+  color: #ffdfad;
+  background: #472c15;
+}
+.list-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.skeleton-row span {
+  height: 2rem;
+  border-radius: 0.4rem;
+  background: var(--line);
+  animation: skeleton-pulse 1.7s ease-in-out infinite alternate;
+}
+@keyframes skeleton-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-row span {
+    animation: none;
+  }
+}
+@media (max-width: 600px) {
+  .skeleton-row {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+}
+
+.quantity-step {
+  min-width: 64px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--green);
+  cursor: pointer;
+}
+.collection-presets {
+  border: 0;
+  padding: 0;
+  margin: 1rem 0;
+}
+.collection-presets button[aria-pressed="true"] {
+  outline: 3px solid var(--green);
+  outline-offset: 2px;
+}
+.listing-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+.listing-preview {
+  position: sticky;
+  top: 2rem;
+  padding: 1.5rem;
+  background: var(--sage);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.ineligible {
+  border-left: 4px solid var(--muted);
+}
+.donor-trust {
+  font-size: 0.85rem;
+}
+.status-stepper {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+}
+.status-stepper li {
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.status-stepper li[aria-current="step"] {
+  border: 2px solid currentColor;
+  font-weight: 700;
+}
+.deadline-strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  z-index: 2;
+}
+@media (max-width: 800px) {
+  .listing-editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .listing-preview {
+    position: static;
+  }
+  .deadline-strip {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.listing-photo {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  float: left;
+  margin: 0 1rem 1rem 0;
+}
+.listing-photo-large {
+  display: block;
+  width: 100%;
+  max-height: 400px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.public-impact {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 2rem 0;
+}
+.public-impact h2 {
+  font-size: 1.25rem;
+}
+.public-impact strong {
+  font-size: 1.4rem;
+}
+.public-impact-label {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.impact-charts {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--subtle);
+  border-radius: 12px;
+}
+.chart-scroll {
+  max-height: 600px;
+  overflow: auto;
+}
+.chart-scroll svg {
+  display: block;
+  width: 100%;
+  min-width: 320px;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  font-weight: 700;
+}
+.chart-legend span:first-child {
+  color: #36755c;
+}
+.chart-legend span:nth-child(2) {
+  color: #743b0c;
+}
+[data-theme="dark"] .chart-legend span:first-child {
+  color: #98c6a8;
+}
+[data-theme="dark"] .chart-legend span:nth-child(2) {
+  color: #ffdfad;
+}
+.new-listings {
+  position: sticky;
+  top: 1rem;
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

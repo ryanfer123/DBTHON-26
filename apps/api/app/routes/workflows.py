@@ -62,7 +62,10 @@ def workspace_overview(request: Request, response: Response) -> OverviewResponse
     )
     etag = '"' + hashlib.sha256(canonical.encode()).hexdigest() + '"'
     if etag in {token.strip() for token in request.headers.get("If-None-Match", "").split(",")}:
-        return Response(status_code=304, headers={"ETag": etag})
+        return Response(
+            status_code=304,
+            headers={"ETag": etag, "X-Server-Time": overview.meta.server_time.isoformat()},
+        )
     response.headers["ETag"] = etag
     return overview
 
@@ -83,9 +86,12 @@ def food_feed(
     cursor: Annotated[str | None, Query(max_length=1024)] = None,
     limit: Limit = 20,
     q: Annotated[str | None, Query(max_length=80)] = None,
+    include_over_capacity: bool = False,
 ) -> ListingsResponse:
     with context(request) as c:
-        data, meta = service.feed(c, latitude, longitude, radius_m, category, cursor, limit, q)
+        data, meta = service.feed(
+            c, latitude, longitude, radius_m, category, cursor, limit, q, include_over_capacity
+        )
         return ListingsResponse(data=data, meta=meta)
 
 
@@ -421,3 +427,31 @@ def verify_own_ledger(request: Request) -> dict[str, object]:
             ),
         }
     }
+
+
+@router.get("/listings/{listing_id}/photo", response_class=Response)
+def listing_photo(listing_id: int, request: Request) -> Response:
+    with context(request) as c:
+        service.require(c)
+        image = c.execute(
+            text("SELECT thumbnail FROM listing_photos WHERE listing_id=:id"), {"id": listing_id}
+        ).scalar_one_or_none()
+        if image is None:
+            raise DomainError("NOT_FOUND", 404, "No photo is available for this listing.")
+        return Response(
+            content=bytes(image),
+            media_type="image/jpeg",
+            headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"},
+        )
+
+
+@router.post("/admin/listings/{listing_id}/photo/remove", response_model=CommandResponse)
+def remove_listing_photo(
+    listing_id: int, request: Request, key: Key, body: Empty
+) -> CommandResponse:
+    with context(request, write=True) as c:
+        service.require(c, "Admin")
+        result = c.execute(
+            text("SELECT dbthon_set_listing_photo(:id,NULL,:key)"), {"id": listing_id, "key": key}
+        ).scalar_one()
+        return CommandResponse.model_validate(result)

@@ -21,7 +21,7 @@ from sqlalchemy import create_engine, text
 
 def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
     operation = event.get("operation")
-    if operation not in {"initialize", "configure_fixture_admin"}:
+    if operation not in {"initialize", "configure_fixture_admin", "migrate"}:
         raise ValueError("Explicit operator operation required")
     settings = Settings()
     owner = settings.connection_url()
@@ -29,6 +29,30 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
         raise ValueError("Owner configuration required")
     # Fail before changing anything if unexpected tables or existing member data exist.
     engine = create_engine(owner, hide_parameters=True)
+    if operation == "migrate":
+        try:
+            with engine.connect() as c:
+                installed = c.execute(
+                    text("SELECT to_regclass('public.alembic_version') IS NOT NULL")
+                ).scalar_one()
+                if not installed:
+                    raise ValueError("An initialized application database is required")
+                current = c.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one()
+                if current not in {"0004", "0005"}:
+                    raise ValueError(
+                        f"Refusing to migrate unexpected revision {current}"
+                    )
+            if current == "0004":
+                command.upgrade(Config(str(ROOT / "apps/api/alembic.ini")), "head")
+            with engine.connect() as c:
+                revision = c.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one()
+            return {"migration": revision, "previous_migration": current}
+        finally:
+            engine.dispose()
     if operation == "configure_fixture_admin":
         try:
             with engine.begin() as c:
