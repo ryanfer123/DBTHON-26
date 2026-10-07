@@ -811,3 +811,9 @@ Frontend fixes are prepared for main's existing automatic Render deployment. SMS
 WhatsApp remains disabled without provider setup; P11/P12 evidence is still pending.
 Further new-feature concurrency/rate-limit/privacy edge cases remain follow-up
 coverage, separate from the observed regression and targeted diagnostic above.
+
+Frontend publication confirmed: Render deploy `dep-db378bs9v7es73cfukp0` from
+main commit `fb8eb40ae0d774f6b6b70495a1b59f172e91940f` became `live` on 2026-10-07
+at 16:33:22 UTC. A fresh public page/CSS fetch confirmed the shared dropdown,
+46px control height and filter spacing rules are served by the live site.
+The AWS backend and Render frontend now contain the matching feature release.
