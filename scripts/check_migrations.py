@@ -5,7 +5,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 used = set()
-for revision in sorted((root / "apps/api/alembic/versions").glob("*.py")):
+for revision in sorted((root / "backend/alembic/versions").glob("*.py")):
     tree = ast.parse(revision.read_text())
     upgrade = next(
         node
@@ -20,13 +20,18 @@ for revision in sorted((root / "apps/api/alembic/versions").glob("*.py")):
         and node.value.startswith("database/")
         and node.value.endswith(".sql")
     ]
-    if len(paths) != 1 or not (root / paths[0]).is_file():
+    if not paths or any(not (root / path).is_file() for path in paths):
         raise SystemExit(
-            f"{revision.name}: upgrade must load one authoritative SQL file"
+            f"{revision.name}: upgrade must load authoritative SQL files"
         )
-    if paths[0] in used:
-        raise SystemExit(f"{revision.name}: SQL file already has an Alembic loader")
-    used.add(paths[0])
+    if len(paths) != len(set(paths)):
+        raise SystemExit(f"{revision.name}: duplicate SQL path in upgrade")
+    if len(paths) > 1 and revision.stem != "0007_community_tools":
+        raise SystemExit(f"{revision.name}: multiple SQL files need an explicit bridge")
+    duplicates = used.intersection(paths)
+    if duplicates:
+        raise SystemExit(f"{revision.name}: SQL already has a loader: {sorted(duplicates)}")
+    used.update(paths)
     calls = [node for node in ast.walk(upgrade) if isinstance(node, ast.Call)]
     if not any(
         isinstance(node.func, ast.Attribute) and node.func.attr == "read_text"
@@ -47,4 +52,4 @@ for revision in sorted((root / "apps/api/alembic/versions").glob("*.py")):
 expected = {str(path.relative_to(root)) for path in (root / "database").glob("0*.sql")}
 if used != expected:
     raise SystemExit("Each numbered SQL migration must have exactly one Alembic loader")
-print(f"PASS: {len(used)} authoritative SQL migrations, no duplicate upgrade SQL.")
+print(f"PASS: {len(used)} authoritative SQL scripts, no duplicate upgrade SQL.")

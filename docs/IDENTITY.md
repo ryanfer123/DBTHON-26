@@ -47,7 +47,7 @@ Synthetic fixture users initially cannot log in. After seeding, enable a local
 fixture account with a password entered through getpass (12-128 characters):
 
 ```sh
-uv run --project apps/api python scripts/demo_password.py --user 104
+uv run --project backend python scripts/demo_password.py --user 104
 ```
 
 Examples: 101 donor, 102 receiver, 103 volunteer, 104 zone-1 admin. The command

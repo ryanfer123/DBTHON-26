@@ -13,7 +13,7 @@ to resume. Each task must update requirement coverage and record actual checks.
   health/readiness endpoints; frontend shell and API proxy; backend/web test setup.
   Add documented `dev`, `lint`, `typecheck`, `test`, `build` commands and CI jobs.
   Gate: fresh clone can install and start both apps, health responds, web renders,
-  web typecheck/build and health test pass. Target files: apps/api, apps/web, Makefile,
+  web typecheck/build and health test pass. Target files: backend, frontend, Makefile,
   docs/DEVELOPMENT.md. No data mocks masquerading as a backend.
 - [x] **P02 - Schema, programmability and seeds.** Depends P01. Add Alembic baseline
   for all original entities and specified extensions, PostGIS, constraints/indexes,
@@ -65,7 +65,9 @@ to resume. Each task must update requirement coverage and record actual checks.
   external delivery without provider receipt/observed device evidence.
   Core P09 is complete: domain/account/inbox/trust screens and durable in-app
   delivery work. External SMS/push remains explicitly partial/unconfigured; no
-  provider receipt or device delivery is claimed. See STATUS.md for browser evidence.
+  provider receipt or device delivery is claimed. Settings preferences are persisted,
+  but the outbound SMS/push transports still need implementation and provider setup.
+  See STATUS.md for browser evidence.
 - [x] **P10 - Admin analytics and export.** Depends P06/P08/P09. Scoped zone/city/date
   dashboards, picked-up/delivered distinction, factor-labelled estimates, exports
   and latency/participation counts. Gate: T11/T02 pass; source/fixture totals reconcile;

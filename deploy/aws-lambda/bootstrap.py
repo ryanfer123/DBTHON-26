@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "apps/api"))
+sys.path.insert(0, str(ROOT / "backend"))
 
 from alembic import command
 from alembic.config import Config
@@ -40,12 +40,12 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                 current = c.execute(
                     text("SELECT version_num FROM alembic_version")
                 ).scalar_one()
-                if current not in {"0005", "0006"}:
+                if current not in {"0005", "0006", "0007"}:
                     raise ValueError(
                         f"Refusing to migrate unexpected revision {current}"
                     )
-            if current == "0005":
-                command.upgrade(Config(str(ROOT / "apps/api/alembic.ini")), "head")
+            if current in {"0005", "0006"}:
+                command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
             with engine.connect() as c:
                 revision = c.execute(
                     text("SELECT version_num FROM alembic_version")
@@ -74,7 +74,7 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
         if not installed and tables:
             raise ValueError("Existing non-application tables require operator review")
     runpy.run_path(str(ROOT / "scripts/prepare_cloud_database.py"), run_name="__main__")
-    command.upgrade(Config(str(ROOT / "apps/api/alembic.ini")), "head")
+    command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
     with engine.begin() as c:
         c.execute(text("REVOKE CREATE ON SCHEMA public FROM dbthon_guard"))
         # setval needs UPDATE; the function owner normally has only USAGE/SELECT.

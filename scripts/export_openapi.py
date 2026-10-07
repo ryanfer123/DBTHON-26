@@ -6,7 +6,7 @@ import json
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "apps/api"))
+sys.path.insert(0, str(ROOT / "backend"))
 settings = import_module("app.core.config").Settings(
     _env_file=None, postgres_password=None, database_url=None
 )

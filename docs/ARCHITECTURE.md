@@ -23,15 +23,15 @@ flowchart TD
 
 | Boundary | Responsibilities | Suggested target |
 | --- | --- | --- |
-| Identity | Registration, Argon2id, opaque sessions, role verification | `apps/api/app/identity/` |
-| Listings | CRUD, ownership, expiry, zone snapshots | `apps/api/app/workflows/` |
-| Matching | Geography, capacity, urgency ranking | `apps/api/app/workflows/service.py` |
+| Identity | Registration, Argon2id, opaque sessions, role verification | `backend/app/identity/` |
+| Listings | CRUD, ownership, expiry, zone snapshots | `backend/app/workflows/` |
+| Matching | Geography, capacity, urgency ranking | `backend/app/workflows/service.py` |
 | Claims | Locks, whole-listing allocation, idempotency, cancellation | `database/0003_workflows.sql` |
-| Pickups | Volunteer assignment, attempt history, pickup/delivery | `apps/api/app/workflows/` |
-| Trust | Per-user append service, verifier, participant ratings | `apps/api/app/trust/` |
-| Notifications | Transactional outbox, durable in-app inbox, adapter retries | `apps/api/app/workflows/worker.py` |
-| Analytics | Zone/city aggregates and filtered report exports | `apps/api/app/workflows/service.py` |
-| Shared | Configuration, DB transaction context, errors, clock interface | `apps/api/app/core/` |
+| Pickups | Volunteer assignment, attempt history, pickup/delivery | `backend/app/workflows/` |
+| Trust | Per-user append service, verifier, participant ratings | `backend/app/trust/` |
+| Notifications | Transactional outbox, durable in-app inbox, adapter retries | `backend/app/workflows/worker.py` |
+| Analytics | Zone/city aggregates and filtered report exports | `backend/app/workflows/service.py` |
+| Shared | Configuration, DB transaction context, errors, clock interface | `backend/app/core/` |
 | Worker | Expiry sweeps and notification delivery loops | `scripts/worker.py` |
 
 Route handlers validate/serialize requests, services implement business operations,

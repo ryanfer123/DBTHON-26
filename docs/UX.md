@@ -23,6 +23,9 @@ The backend rechecks permissions, expiry and capacity on each command.
 | Volunteer tasks | Eligible unassigned nearby claims, scheduled-time entry, accept action |
 | Volunteer delivery | Accepted attempt timeline, pickup and delivery actions, deadline and fail/contact workflow; composite IDs kept in client |
 | Inbox | Match/status notifications, unread state, mark read; external delivery state not falsely presented as success |
+| Settings | Save SMS/push preferences, clear inbox history, and state when external delivery is unavailable |
+| My donations | Hide a cancelled listing from the donor's view while retaining linked audit data |
+| Admin members | Grant same-zone Admin access with a required reason; public role review remains separate |
 | Profile/trust | Approved roles, verification, capacity, average rating and count; own audit history |
 | Admin verification | Same-zone pending users, role approvals/rejection reason and audit trail |
 | Admin dashboard | Zone/city/date filters, listings/claims/pickups, picked-up vs delivered kg, estimated meal/CO2e factors, CSV export |

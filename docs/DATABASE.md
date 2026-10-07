@@ -5,6 +5,8 @@ the schema and guarded claim foundation. Revision `0002` adds identity/session/C
 routines, private throttles/reviews and the guarded claim's CSRF wrapper.
 Revision `0003` implements guarded workflows, task visibility, trust summaries,
 expiry/outbox worker functions, pickup `accepted_at`, outbox lease tokens and indexes.
+Revision `0005` adds listing photo metadata. Revision `0006` adds notification
+preferences, inbox and cancelled-listing hiding, plus audited same-zone Admin grants.
 The same ER entities and ownership rules remain in use.
 Executable SQL and course examples: [database/README.md](../database/README.md).
 Use snake_case identifiers, BIGINT identity keys, NUMERIC for
@@ -61,6 +63,9 @@ evidence. Sessions/outbox maintenance can use targeted cleanup rules.
 | `trust_ledger` | `ledger_id` PK, `user_id` FK users, `sequence` bigint, `action_type` varchar(40), `ref_table` varchar(40), `ref_id` bigint, `claim_id` nullable FK claims, `occurred_at`, `payload` jsonb, `payload_version` integer, `prev_hash` char(64), `curr_hash` char(64); UNIQUE(user_id,sequence) |
 | `notifications` | `notification_id` PK, `user_id` FK users, `event_id` text, `message` varchar(200), `type` varchar(30), `created_at`, `sent_at` nullable, `read_at` nullable; UNIQUE(user_id,event_id) |
 | `notification_outbox` | `outbox_id` PK, `notification_id` FK notifications, `channel` InApp/SMS/Push, `status` Pending/Processing/Sent/Failed, `attempts` integer, `next_attempt_at`, `locked_until` nullable, `lease_token` uuid nullable, `last_error` nullable (redacted); UNIQUE(notification_id,channel) |
+| `notification_preferences` | `user_id` PK/FK users, `sms_enabled`, `push_enabled` default false, `updated_at`; users can change only their own choices |
+| `hidden_listings` | `(user_id, listing_id)` PK; hides a donor's cancelled listing from their personal list without deleting linked records |
+| `admin_grants` | `grant_id` PK, target/admin user FKs, required reason, `created_at`; private grant audit |
 | `sessions` | `session_hash` PK, `user_id` FK users, `csrf_hash` nullable for old sessions, `created_at`, `expires_at`, `revoked_at` nullable; no raw session/CSRF values persisted; old sessions without CSRF digest cannot write |
 | `idempotency_keys` | `(actor_id, operation, key)` composite PK, actor FK users, `request_hash`, `response_status`, `response_body` jsonb, `created_at`, `expires_at`; same key/body returns original result; mismatched body conflicts |
 | `seed_runs` | `seed_name` PK, fixture SHA-256, UTC anchor, `created_at`; records repeatable synthetic imports |
@@ -245,7 +250,7 @@ explicit public aggregate interface does not broaden private report access.
 Revision 0004 is immutable; 0005 grants temporary schema CREATE for function owner
 transfer and revokes it within the migration. No login gains guard membership.
 
-## Revision 0006: community tools and coordinated pickup times
+## Revision 0007: community tools and coordinated pickup times
 
 Adds zone-scoped `food_requests` and one-listing `food_request_offers`, editorial
 `community_updates` and admin-reviewed `community_suggestions`, plus versioned
@@ -258,3 +263,9 @@ appends and inbox outbox rows. `dbthon_request_status` derives expiry/fulfilment
 no periodic request-status mutation is required. The API role receives reads
 through RLS and execute-only access to writes. This additive migration has no
 automatic downgrade because community data must be retained and reviewed.
+
+Revision `0007` also bridges the live deployment's earlier community-only `0006`:
+it detects the existing request table and applies the account-settings SQL that
+arrived on `main` after that deployment. Fresh databases apply settings at `0006`
+and the community schema at `0007`; deployed databases at community `0006` apply
+the settings bridge at `0007` without recreating community data.

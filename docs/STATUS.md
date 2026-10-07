@@ -525,3 +525,45 @@ evidence: [UI/UX implementation record](UI_UX_IMPLEMENTATION.md).
 The help and food search rows also received a follow-up alignment fix: their field
 bottom margin no longer offsets adjacent controls. The focused desktop/mobile
 browser check asserts the help input/button bottom edges align; both variants pass.
+
+
+## Repository layout (2026-10-07)
+
+Moved the application source to root `backend/` and `frontend/` directories. Updated
+Render to build from `frontend/`, AWS container and Lambda packaging to load `backend/`,
+CI, Make targets, shared scripts, and current development documentation. The SQL
+settings/archive draft is revision 0006 after the existing listing-photo revision 0005.
+AWS infrastructure drafts and cost/deployment documents remain in the workspace.
+
+Checks for this structural change: `python3 scripts/check_migrations.py`,
+`python3 scripts/validate_handoff.py`, `git diff --check`, and frontend production
+build. Application tests were not rerun. Historical command records above intentionally
+retain the paths that were used at the time.
+
+## Community tools release (2026-10-07)
+
+Implemented zone food requests and listing offers, versioned pickup agreements,
+community announcements and curated partner links, member suggestions, and admin
+review. The feature branch was integrated with GitHub `main`'s backend/frontend
+layout and account-settings migration. Revision `0007` handles both paths: fresh
+databases apply account settings at `0006` then community tools at `0007`; the
+already-deployed database had community tables at `0006`, so the guarded `0007`
+bridge applied the missing settings schema without recreating community data.
+
+Observed checks: all 109 API tests passed against PostgreSQL/PostGIS; 25 Vitest
+tests passed; four desktop/mobile Playwright cases passed for request-to-listing
+offers and normal claiming, pickup agreement/rescheduling, and suggestion review
+and publication. Python Ruff and strict mypy, frontend ESLint/TypeScript/build,
+OpenAPI drift, migration-source and handoff validation passed. The migration bridge
+was independently exercised on the allowlisted disposable `dbthon_usability_test`
+database with community revision `0006` and no settings tables; it reached `0007`
+with both schemas present. Frontend bundle measured 117,272 bytes gzip.
+
+API publication: CloudFormation stack `DbthonRenderApi` completed its in-place
+update. Lambda package SHA-256: `477770acb2cc356d473fc8c7c3f871dbc9d57d8b8897f20b23c98c8f5ff88df3`.
+The operator-only migration returned previous revision `0006`, current revision
+`0007`. Live readiness returned 200; anonymous requests, community updates and
+notification-settings reads returned 401; CORS preflight from the configured
+Render origin returned 200. The existing database, VPC, secrets and Function URL
+were retained. GitHub and Render publication of the frontend are recorded below
+once the final commit is live.

@@ -12,12 +12,12 @@ jobs:
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
         with:
           python-version: '3.13'
-          cache-dependency-glob: apps/api/uv.lock
-      - run: uv sync --project apps/api --locked
-      - run: uv run --project apps/api --locked ruff check apps/api
-      - run: uv run --project apps/api --locked mypy --config-file apps/api/pyproject.toml apps/api/app
-      - run: uv run --project apps/api --locked pytest apps/api/tests
-      - run: uv run --project apps/api --locked python scripts/export_openapi.py --check
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync --project backend --locked
+      - run: uv run --project backend --locked ruff check backend
+      - run: uv run --project backend --locked mypy --config-file backend/pyproject.toml backend/app
+      - run: uv run --project backend --locked pytest backend/tests
+      - run: uv run --project backend --locked python scripts/export_openapi.py --check
   web:
     runs-on: ubuntu-latest
     steps:
@@ -26,12 +26,12 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: npm ci --prefix apps/web
-      - run: npm run lint --prefix apps/web
-      - run: npm run typecheck --prefix apps/web
-      - run: npm test --prefix apps/web
-      - run: npm run build --prefix apps/web
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend
+      - run: npm run lint --prefix frontend
+      - run: npm run typecheck --prefix frontend
+      - run: npm test --prefix frontend
+      - run: npm run build --prefix frontend
   browser:
     runs-on: ubuntu-latest
     env:
@@ -55,17 +55,17 @@ jobs:
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
         with:
           python-version: '3.13'
-          cache-dependency-glob: apps/api/uv.lock
+          cache-dependency-glob: backend/uv.lock
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: uv sync --project apps/api --locked
-      - run: npm ci --prefix apps/web
-      - run: uv run --project apps/api --locked python scripts/database.py migrate
-      - run: uv run --project apps/api --locked python scripts/provision_access.py
-      - run: uv run --project apps/api --locked pytest apps/api/tests --db
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --project backend --locked
+      - run: npm ci --prefix frontend
+      - run: uv run --project backend --locked python scripts/database.py migrate
+      - run: uv run --project backend --locked python scripts/provision_access.py
+      - run: uv run --project backend --locked pytest backend/tests --db
       - run: npx playwright install --with-deps chromium
-        working-directory: apps/web
-      - run: npm run test:e2e --prefix apps/web
+        working-directory: frontend
+      - run: npm run test:e2e --prefix frontend
