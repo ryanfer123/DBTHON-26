@@ -6,7 +6,11 @@ routines, private throttles/reviews and the guarded claim's CSRF wrapper.
 Revision `0003` implements guarded workflows, task visibility, trust summaries,
 expiry/outbox worker functions, pickup `accepted_at`, outbox lease tokens and indexes.
 Revision `0005` adds listing photo metadata. Revision `0006` adds notification
-preferences, inbox and cancelled-listing hiding, plus audited same-zone Admin grants.
+preferences, inbox and cancelled-listing hiding, plus audited Admin grants. Revision
+`0007` adds mandatory zone confirmation, real Vellore service areas, and cross-zone
+review/delegation for the named bootstrap Admin. Area names follow [Vellore
+Corporation records](https://www.tnurbantree.tn.gov.in/vellore/) and PIN codes follow
+the [India Post functional post office list](https://www.indiapost.gov.in/VAS/DOP_PDFFiles/FunctionalPOs.pdf).
 The same ER entities and ownership rules remain in use.
 Executable SQL and course examples: [database/README.md](../database/README.md).
 Use snake_case identifiers, BIGINT identity keys, NUMERIC for

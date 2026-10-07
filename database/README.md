@@ -34,3 +34,8 @@ Historical migrations are immutable once published; add new revisions for change
 Revision 0004 adds managed-owner guard policies without new tables. SQL remains the authoritative migration source; run `python3 scripts/check_migrations.py`.
 
 Revision 0005 adds [authenticated listing thumbnails](0005_listing_photos.sql) and a non-identifying public aggregate routine. Apply through Alembic; do not edit earlier deployed revisions.
+
+Revision 0007 refreshes the Vellore zones, asks existing accounts to confirm their
+community area, and enables the named bootstrap Admin to review and delegate across all
+zones. Other Admins remain in their own zone. Zone changes are blocked while the user
+has an active listing, claim, or pickup; old listing zone snapshots remain intact.

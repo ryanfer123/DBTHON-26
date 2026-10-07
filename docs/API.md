@@ -44,8 +44,10 @@ All endpoints validate approved roles, zone and object ownership server-side.
 | GET `/auth/me` | session cookie | `data.user` self profile + `data.csrf_token`; private/no-store |
 | GET `/auth/session` | optional session cookie | UI session snapshot; same safe DTO/CSRF for active sessions, `data: null` for anonymous/malformed/expired/revoked/inactive sessions; private/no-store; database failure remains 503 |
 | PATCH `/auth/me` | name, phone, latitude, longitude, capacity_kg | Self; zone/role changes require verification workflow; ledger event |
-| GET `/admin/users` | zone_id, verification filter, cursor | Approved zone Admin only |
-| POST `/admin/users/{id}/verify` | requested public roles to approve, verified boolean, reason | Scoped Admin; replace public-role approvals; revocation uses empty roles; 200 safe profile; no Admin grants |
+| POST `/account/confirm-zone` | zone_id | Signed-in user confirms or changes area after zone refresh |
+| GET `/admin/users` | zone_id, verification filter, cursor | Approved zone Admin; bootstrap administrator can review every zone |
+| POST `/admin/users/{id}/verify` | requested public roles to approve, verified boolean, reason | Scoped Admin; bootstrap administrator is cross-zone; public-role approvals only |
+| POST `/admin/users/{id}/admin` | reason | Active Admin grants within their zone; bootstrap administrator can grant across zones |
 
 ## Workspace overview
 

@@ -12,6 +12,7 @@ export type User = {
   roles: { role: PublicRole | "Admin"; approved: boolean }[];
   capabilities: (PublicRole | "Admin")[];
   capacity_kg: string | null;
+  zone_review_required?: boolean;
 };
 export type Session = { user: User; csrf_token: string };
 export type Zone = { zone_id: number; zone_name: string; city: string };

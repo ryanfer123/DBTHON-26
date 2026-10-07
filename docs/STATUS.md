@@ -539,3 +539,14 @@ Checks for this structural change: `python3 scripts/check_migrations.py`,
 `python3 scripts/validate_handoff.py`, `git diff --check`, and frontend production
 build. Application tests were not rerun. Historical command records above intentionally
 retain the paths that were used at the time.
+
+## Cross-zone bootstrap review and community area refresh (prepared 2026-10-07)
+
+Prepared revision 0007 on top of the repository-layout update. The existing
+`z1.admin@example.invalid` bootstrap account can review and delegate Admin access in
+every zone; later Admins stay in their own zone. Existing registered accounts are
+required to confirm or change area after sign-in. A zone change is blocked during an
+active listing, claim or pickup, and historical listings retain their saved zone.
+Fixture and migrated zone labels are Vellore Fort (632004), Sathuvachari (632009),
+Shenbakkam (632008) and Katpadi (632007). Revision 0007 is not yet applied to a
+database; this change is not deployed. SMS/push delivery remains unconfigured.
