@@ -58,6 +58,7 @@ deployment/migration work in `/Volumes/Seagate/dbthon` are preserved.
 - Published to GitHub `main` as `7e5750faa9809b919bcf9ad2624b0d3379c6de75` (`Complete UI and food-sharing improvements`); the remote ref was verified to match.
 - AWS `DbthonRenderApi` updated without resource replacement or database replacement; its change set modified existing API, bootstrap, and worker code plus their schedule target/permission references. The guarded bootstrap migrated the existing database from 0004 to 0005, reporting `previous_migration=0004`; no fixtures were seeded. Lambda readiness returned HTTP 200 with `status=ready`.
 - Render static service `DBTHON-26` automatically deployed the same commit and reports it live. Public `/`, `/help`, and `/food` routes each returned HTTP 200.
+- Follow-up layout correction removes the shared field bottom margin from the food/help flex search rows, aligning the button with the input. The focused browser check asserts desktop control-edge alignment and passed in both desktop and mobile projects; lint, typecheck, production build and `git diff --check` also passed.
 
 The repository's broader controlled-demo/P11, five-person hallway study and genuine
 donor/NGO pilot remain outstanding. Automated verification does not establish those

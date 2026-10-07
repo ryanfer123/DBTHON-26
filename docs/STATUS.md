@@ -521,3 +521,7 @@ without fixture seeding, and Lambda readiness returned HTTP 200. No AWS drafts,
 deployment cost documents, scripts, or the separate original-workspace RDS
 compatibility migration were staged or moved. Detailed implementation and test
 evidence: [UI/UX implementation record](UI_UX_IMPLEMENTATION.md).
+
+The help and food search rows also received a follow-up alignment fix: their field
+bottom margin no longer offsets adjacent controls. The focused desktop/mobile
+browser check asserts the help input/button bottom edges align; both variants pass.

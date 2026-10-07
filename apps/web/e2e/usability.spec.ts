@@ -111,6 +111,20 @@ test("dashboard menus, help, search and browser history provide working destinat
   await page.goForward();
   await expect(page.getByLabel("Search radius")).toHaveValue("1000");
   await workspaceLink(page, "Help");
+  if ((page.viewportSize()?.width ?? 0) > 700) {
+    const inputBox = await page.locator(".help-search .field").boundingBox();
+    const searchButtonBox = await page
+      .getByRole("button", { name: "Search answers" })
+      .boundingBox();
+    expect(inputBox).not.toBeNull();
+    expect(searchButtonBox).not.toBeNull();
+    expect(
+      Math.abs(
+        inputBox!.y + inputBox!.height -
+          (searchButtonBox!.y + searchButtonBox!.height),
+      ),
+    ).toBeLessThanOrEqual(1);
+  }
   await page.getByLabel("Search help").fill("15-minute");
   await page.getByRole("button", { name: "Search answers" }).click();
   await expect(page.locator(".help-faq details")).toHaveCount(1);

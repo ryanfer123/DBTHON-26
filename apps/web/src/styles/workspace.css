@@ -148,6 +148,10 @@
   gap: 12px;
   align-items: end;
 }
+.food-search .field,
+.help-search .field {
+  margin-bottom: 0;
+}
 .food-search input {
   min-width: 140px;
   width: 180px;
