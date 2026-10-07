@@ -570,13 +570,13 @@ once the final commit is live.
 
 ## Cross-zone bootstrap review and community area refresh (2026-10-07)
 
-Integrated revision 0008 after the deployed community revision 0007. The existing
+Integrated the deployed zone-repair revision 0008 after community revision 0007. The existing
 `z1.admin@example.invalid` bootstrap account can review and delegate Admin access in
 every zone; later Admins stay in their own zone. Existing registered accounts are
 required to confirm or change area after sign-in. A zone change is blocked during an
 active listing, claim or pickup, and historical listings retain their saved zone.
 Fixture and migrated zone labels are Vellore Fort (632004), Sathuvachari (632009),
-Shenbakkam (632008) and Katpadi (632007). The migration grants only the new review
+Shenbakkam (632008) and Katpadi (632007). New revision 0009 grants only the new review
 flag column to the restricted runtime role and updates member-read RLS to use the
 explicit zone-admin predicate. The readiness probe adopts the runtime role locally
 before checking PostGIS, supporting NOINHERIT login accounts.
@@ -589,5 +589,14 @@ database. Regression coverage includes zone confirmation, global bootstrap revie
 ordinary-admin isolation, and pagination. Frontend Vitest passed 25 tests;
 ESLint/TypeScript/build, Ruff/mypy, OpenAPI drift, migration-source and handoff
 checks passed. The initial JavaScript bundle is 117,769 bytes gzip. One existing
-Mangum event-loop deprecation warning remains. Revision 0008 deployment and frontend
-publication are pending. SMS/push delivery remains unconfigured.
+Mangum event-loop deprecation warning remains. A later live inspection confirmed
+the other session had applied its zone-repair revision 0008; that exact SQL and
+loader are preserved, and the read-policy/grant corrections are a forward revision
+0009. The current AWS template's independent BootstrapCodeKey is also preserved.
+The exact combined fresh migration chain through 0009 passed all 110 backend tests
+in 97.08 seconds. The integrated desktop/mobile community browser run passed all
+four cases in 1.6 minutes, respecting the real login throttle's retry window.
+The tested app is pushed to `feat/community-tools`; `main` publication and the 0009
+AWS release await coordination with the still-active concurrent deployment session.
+The original workspace's infrastructure/cost drafts remain untouched. SMS/push
+delivery remains unconfigured.

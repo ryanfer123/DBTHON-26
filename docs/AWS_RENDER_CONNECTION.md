@@ -5,6 +5,13 @@ The approved connection reuses the retained private RDS PostgreSQL instance in
 create a replacement database, or copy local member data. The new stack is
 `DbthonRenderApi`, defined by `deploy/aws-lambda/template.json`.
 
+The current stack uses independent `CodeKey` (API/worker) and `BootstrapCodeKey`
+(IAM-only operator) package parameters. Retain all other stack parameters and the
+current template during a code-only release. Publish a tested operator package,
+apply guarded forward migrations, then publish the matching API/worker package
+before the Render frontend. `inspect` returns schema/grant metadata and zone labels
+without exposing member identities or credentials.
+
 ## Runtime and security
 
 - Render continues hosting the React frontend. `VITE_API_BASE_URL` is the deployed

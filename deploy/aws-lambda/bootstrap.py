@@ -21,7 +21,7 @@ from sqlalchemy import create_engine, text
 
 def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
     operation = event.get("operation")
-    if operation not in {"initialize", "configure_fixture_admin", "migrate"}:
+    if operation not in {"initialize", "configure_fixture_admin", "migrate", "inspect"}:
         raise ValueError("Explicit operator operation required")
     settings = Settings()
     owner = settings.connection_url()
@@ -29,6 +29,23 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
         raise ValueError("Owner configuration required")
     # Fail before changing anything if unexpected tables or existing member data exist.
     engine = create_engine(owner, hide_parameters=True)
+    if operation == "inspect":
+        try:
+            with engine.connect() as c:
+                revision = c.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one()
+                zones = c.execute(
+                    text("SELECT zone_id,zone_name,city,pincode_range FROM zones ORDER BY zone_id")
+                ).mappings().all()
+                flags = c.execute(text("""
+                    SELECT to_regclass('public.food_requests') IS NOT NULL AS community_present,
+                      has_column_privilege('dbthon_runtime','public.users',
+                        'zone_review_required','SELECT') AS runtime_review_flag_select
+                """)).mappings().one()
+            return {"migration": revision, "zones": [dict(row) for row in zones], **flags}
+        finally:
+            engine.dispose()
     if operation == "migrate":
         try:
             with engine.connect() as c:
@@ -40,11 +57,11 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                 current = c.execute(
                     text("SELECT version_num FROM alembic_version")
                 ).scalar_one()
-                if current not in {"0005", "0006", "0007", "0008"}:
+                if current not in {"0005", "0006", "0007", "0008", "0009"}:
                     raise ValueError(
                         f"Refusing to migrate unexpected revision {current}"
                     )
-            if current in {"0005", "0006", "0007"}:
+            if current in {"0005", "0006", "0007", "0008"}:
                 command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
             with engine.connect() as c:
                 revision = c.execute(

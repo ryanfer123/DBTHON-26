@@ -1,4 +1,4 @@
-"""Cross-zone bootstrap admin and mandatory community area confirmation.
+"""Reconcile zone review after an incomplete revision 0007 rollout.
 
 Revision ID: 0008
 Revises: 0007
@@ -17,13 +17,11 @@ depends_on = None
 def upgrade() -> None:
     with op.get_bind().connection.driver_connection.cursor() as cursor:
         cursor.execute(
-            (ROOT / "database/0008_global_admin_zone_review.sql").read_text(),
-            prepare=False,
+            (ROOT / "database/0008_reconcile_zone_review.sql").read_text(), prepare=False
         )
 
 
 def downgrade() -> None:
     raise NotImplementedError(
-        "Zone confirmation and admin audit data are retained; "
-        "use a reviewed forward migration."
+        "Zone confirmation and admin audit data are retained; use a reviewed forward migration."
     )

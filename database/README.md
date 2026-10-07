@@ -42,3 +42,7 @@ Revision 0008 refreshes the Vellore zones, asks existing accounts to confirm the
 community area, and enables the named bootstrap Admin to review and delegate across all
 zones. Other Admins remain in their own zone. Zone changes are blocked while the user
 has an active listing, claim, or pickup; old listing zone snapshots remain intact.
+
+Revision 0008 retains the exact live zone-repair migration, including its conditional
+column creation. Revision 0009 adds the missing runtime read grant for the review
+flag and aligns member-read RLS with the explicit bootstrap-admin predicate.

@@ -1,7 +1,13 @@
--- Cross-zone bootstrap review, real Vellore areas and mandatory zone refresh.
-ALTER TABLE users ADD COLUMN zone_review_required boolean NOT NULL DEFAULT false;
-UPDATE users SET zone_review_required=true;
-GRANT SELECT (zone_review_required) ON users TO dbthon_runtime;
+-- Forward repair for a database stamped 0007 without its zone-review changes.
+-- Preserve confirmations when the column is already installed.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT FROM information_schema.columns
+    WHERE table_schema='public' AND table_name='users'
+      AND column_name='zone_review_required') THEN
+    ALTER TABLE public.users ADD COLUMN zone_review_required boolean NOT NULL DEFAULT false;
+    UPDATE public.users SET zone_review_required=true;
+  END IF;
+END $$;
 
 UPDATE zones SET zone_name='Vellore Fort',city='Vellore',pincode_range='632004' WHERE zone_id=1;
 UPDATE zones SET zone_name='Sathuvachari',city='Vellore',pincode_range='632009' WHERE zone_id=2;
@@ -18,15 +24,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp A
   );
 $$;
 
--- Let the explicitly delegated zone-admin predicate govern cross-zone member
--- review, while normal members and ordinary admins remain zone-scoped.
-DROP POLICY users_scope ON users;
-CREATE POLICY users_scope ON users FOR SELECT TO dbthon_runtime USING (
-  user_id=public.dbthon_actor_id() OR
-  (zone_id=public.dbthon_actor_zone() AND verified_status AND active
-    AND public.dbthon_verified_actor()) OR public.dbthon_zone_admin(zone_id));
-
-CREATE FUNCTION dbthon_confirm_zone(wanted_zone bigint) RETURNS bigint
+CREATE OR REPLACE FUNCTION dbthon_confirm_zone(wanted_zone bigint) RETURNS bigint
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE actor bigint; old_zone bigint;
 BEGIN

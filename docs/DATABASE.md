@@ -283,3 +283,14 @@ change their area after sign-in. Zone changes are blocked while the member has a
 active listing, confirmed claim, or scheduled/picked-up assignment. Historical
 listing zones remain snapshots. The migration replaces guarded verification and
 Admin-delegation routines; ordinary Admins stay scoped to their own zone.
+
+Revision `0008` is the live forward-repair source from the concurrent zone rollout.
+Its conditional column creation preserves existing confirmations when rerun against
+the previous incomplete zone rollout; it is retained unchanged in this checkout.
+
+## Revision 0009: restricted member review reads
+
+Grants the runtime role SELECT only on the new `zone_review_required` column and
+updates `users_scope` to permit the named bootstrap Admin's cross-zone member
+review. Other members retain same-zone verified-member visibility; ordinary Admins
+remain limited to their own zone. Password-hash access and runtime DML stay revoked.

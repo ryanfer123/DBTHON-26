@@ -54,6 +54,10 @@
         "true"
       ],
       "Description": "Enable public API and worker only after operator initialization succeeds"
+    },
+    "BootstrapCodeKey": {
+      "Type": "String",
+      "AllowedPattern": "[a-zA-Z0-9/_.-]+"
     }
   },
   "Conditions": {
@@ -441,7 +445,7 @@
             "Ref": "CodeBucket"
           },
           "S3Key": {
-            "Ref": "CodeKey"
+            "Ref": "BootstrapCodeKey"
           }
         },
         "Environment": {
