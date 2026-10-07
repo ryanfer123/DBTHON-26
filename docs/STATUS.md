@@ -596,7 +596,16 @@ loader are preserved, and the read-policy/grant corrections are a forward revisi
 The exact combined fresh migration chain through 0009 passed all 110 backend tests
 in 97.08 seconds. The integrated desktop/mobile community browser run passed all
 four cases in 1.6 minutes, respecting the real login throttle's retry window.
-The tested app is pushed to `feat/community-tools`; `main` publication and the 0009
-AWS release await coordination with the still-active concurrent deployment session.
-The original workspace's infrastructure/cost drafts remain untouched. SMS/push
-delivery remains unconfigured.
+The tested app is pushed to `feat/community-tools`. After the user paused the other
+deployment session, two reviewed code-only CloudFormation changesets completed:
+first the operator Lambda, then the API/worker and their existing schedule bindings.
+The guarded migration returned previous `0008`, current `0009`; operator inspection
+confirmed community tables and the review-column read grant. Both independent code
+parameters now use the tested package SHA-256
+`e4202995ff3f1464a7a7e932dcda03634e7c2d218b094bda9b46d104ad1d7761`.
+The live API contract exactly matched `docs/openapi.json`; readiness returned 200,
+anonymous requests/updates/settings returned 401, and the credentialed Render-origin
+CORS preflight returned 200. No database, VPC or API URL replacement occurred.
+GitHub `main`/Render publication is the remaining release step. The original
+workspace's infrastructure/cost drafts remain untouched. SMS/push delivery remains
+unconfigured.
