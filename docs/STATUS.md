@@ -708,3 +708,15 @@ Original AWS drafts are preserved in the main workspace.
 real PostgreSQL/PostGIS, exercise privacy/replacement-volunteer/report scope/retries
 and own totals, complete browser/regression checks, then review release and deploy
 database/API before frontend. P11/P12 remain open.
+### 2026-10-07 - Second Table logo
+
+Added a reusable plate, sprout and shared-table SVG mark to the header and footer,
+plus a matching forest-green browser favicon. The inline mark inherits the wordmark
+color and scales with its typography. No API or database changes are required.
+Frontend lint, TypeScript and production build passed. A local Chrome visual check
+at 1440 px/light and 390 px/dark confirmed both marks render, their vertical centers
+match the wordmark, no horizontal overflow occurs, and no page errors occur. The
+session endpoint was mocked as signed out for this presentation-only check. Browser
+plugin was unavailable; regular Playwright was used. Screenshots are saved outside
+Git at `/private/tmp/second-table-logo-desktop.png` and
+`/private/tmp/second-table-logo-mobile-dark.png`.
