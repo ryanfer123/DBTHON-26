@@ -499,52 +499,58 @@ export function PersonalImpactPage() {
       title="My impact"
       intro="Your recorded participation in this community area."
     >
-      <label className="control-filter">
-        Period{" "}
-        <select value={days} onChange={(event) => setDays(event.target.value)}>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="365">Last year</option>
-        </select>
-      </label>
-      <QueryStatus {...query} />
-      {impact && (
-        <>
-          {impact.includes_demo_data && (
-            <p className="notice">
-              This database includes demo fixtures. These totals are not pilot
-              evidence.
+      <div className="personal-impact">
+        <div className="field impact-period">
+          <label htmlFor="impact-period">Period</label>
+          <select
+            id="impact-period"
+            value={days}
+            onChange={(event) => setDays(event.target.value)}
+          >
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+          </select>
+        </div>
+        <QueryStatus {...query} />
+        {impact && (
+          <>
+            {impact.includes_demo_data && (
+              <p className="notice">
+                This database includes demo fixtures. These totals are not pilot
+                evidence.
+              </p>
+            )}
+            <dl className="detail-list personal-impact-totals">
+              <dt>Collected</dt>
+              <dd>{kg(impact.picked_up_kg)}</dd>
+              <dt>Successfully delivered</dt>
+              <dd>{kg(impact.delivered_kg)}</dd>
+              <dt>Delivered exchanges</dt>
+              <dd>{impact.delivered_exchanges}</dd>
+              <dt>Donated and delivered</dt>
+              <dd>{kg(impact.donated_kg)}</dd>
+              <dt>Received and delivered</dt>
+              <dd>{kg(impact.received_kg)}</dd>
+              <dt>Transported and delivered</dt>
+              <dd>{kg(impact.transported_kg)}</dd>
+              <dt>Estimated meals</dt>
+              <dd>{impact.estimated_meals.toLocaleString()}</dd>
+            </dl>
+            <p>
+              Meals are estimated at 0.4 kg per meal. Role totals may overlap;
+              the overall delivered total counts each listing once. Collection
+              alone does not count as delivery.
             </p>
-          )}
-          <dl className="detail-list">
-            <dt>Collected</dt>
-            <dd>{kg(impact.picked_up_kg)}</dd>
-            <dt>Successfully delivered</dt>
-            <dd>{kg(impact.delivered_kg)}</dd>
-            <dt>Delivered exchanges</dt>
-            <dd>{impact.delivered_exchanges}</dd>
-            <dt>Donated and delivered</dt>
-            <dd>{kg(impact.donated_kg)}</dd>
-            <dt>Received and delivered</dt>
-            <dd>{kg(impact.received_kg)}</dd>
-            <dt>Transported and delivered</dt>
-            <dd>{kg(impact.transported_kg)}</dd>
-            <dt>Estimated meals</dt>
-            <dd>{impact.estimated_meals.toLocaleString()}</dd>
-          </dl>
-          <p>
-            Meals are estimated at 0.4 kg per meal. Role totals may overlap; the
-            overall delivered total counts each listing once. Collection alone
-            does not count as delivery.
-          </p>
-          <p className="field-help">
-            {date(impact.period_start)} – {date(impact.period_end)}
-          </p>
-        </>
-      )}
-      <button className="text-button" onClick={query.refresh}>
-        Refresh my impact
-      </button>
+            <p className="field-help">
+              {date(impact.period_start)} – {date(impact.period_end)}
+            </p>
+          </>
+        )}
+        <button className="text-button" onClick={query.refresh}>
+          Refresh my impact
+        </button>
+      </div>
     </Workspace>
   );
 }

@@ -83,6 +83,13 @@
 .workspace-content .page-heading {
   margin-bottom: 28px;
 }
+.workspace-content .page-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.workspace-content .page-heading p {
+  max-width: 65ch;
+}
 .workspace-content .profile-layout {
   gap: 40px;
   grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.1fr);
@@ -451,4 +458,83 @@ details.community-form {
 }
 .pickup-agreement .field {
   margin-top: 18px;
+}
+
+/* Keep routine forms and personal statistics aligned within the workspace. */
+.schedule-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.recurring-reminder-form,
+.saved-schedules {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.schedule-layout h2 {
+  font-size: 30px;
+  margin: 0 0 24px;
+}
+.recurring-reminder-form .form-fields > p {
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+.recurring-reminder-form .button {
+  max-width: 100%;
+  white-space: normal;
+}
+.saved-schedules > p {
+  margin: 0;
+  line-height: 1.6;
+}
+.personal-impact {
+  max-width: 760px;
+}
+.impact-period {
+  max-width: 260px;
+  margin-bottom: 28px;
+}
+.personal-impact .personal-impact-totals {
+  grid-template-columns: minmax(0, 1fr) minmax(80px, auto);
+  gap: 0 24px;
+  padding: 8px 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.personal-impact-totals dt,
+.personal-impact-totals dd {
+  padding-block: 14px;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.5;
+}
+.personal-impact-totals dt:last-of-type,
+.personal-impact-totals dd:last-of-type {
+  border-bottom: 0;
+}
+.personal-impact .personal-impact-totals dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+}
+.personal-impact > p {
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) {
+  .schedule-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .recurring-reminder-form,
+  .saved-schedules {
+    padding: 20px 16px;
+  }
+  .personal-impact .personal-impact-totals {
+    padding-inline: 16px;
+    gap: 0 16px;
+  }
 }
