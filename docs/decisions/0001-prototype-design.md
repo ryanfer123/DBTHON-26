@@ -63,3 +63,13 @@ Scheduling cannot establish future food availability or ingredient/handling trut
 The PWA stores only public static assets and an offline guidance page; private API
 responses and food mutations remain online-only. Pilot notes require actual consenting
 participants; prepared questions cannot substitute for interviews.
+
+## 2026-10-07: private coordination and researched experience additions
+
+Following [official platform research](../COMPETITOR_GAP_ANALYSIS.md), add private
+saved listings, participant chat, evidence-linked reports, own participation totals
+and local agreed-pickup calendar downloads. Keep the existing guarded whole-listing
+allocation model. Admin privilege does not grant broad chat access; only a reporter's
+selected message crosses the review boundary. Replacement volunteers see only new
+messages addressed to them. Reports record review without automatic food safety,
+trust-score or allocation claims. Runtime release gates remain open.

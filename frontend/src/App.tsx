@@ -1,3 +1,8 @@
+import {
+  SavedFoodPage,
+  IssuesPage,
+  PersonalImpactPage,
+} from "./features/workflows/Experience";
 import { useEffect } from "react";
 import { Link, useRoutes, matchRoutes, useLocation } from "react-router";
 import { WelcomePage } from "./features/community/WelcomePage";
@@ -60,6 +65,42 @@ function NavigationEffects() {
 }
 
 const routes = [
+  {
+    path: "/saved",
+    handle: { title: "Saved listings" },
+    element: (
+      <AccountGate>
+        <SavedFoodPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/my-impact",
+    handle: { title: "My impact" },
+    element: (
+      <AccountGate>
+        <PersonalImpactPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/reports",
+    handle: { title: "My reports" },
+    element: (
+      <AccountGate>
+        <IssuesPage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/admin/issues",
+    handle: { title: "Issue review" },
+    element: (
+      <AccountGate admin>
+        <IssuesPage admin />
+      </AccountGate>
+    ),
+  },
   { path: "/", handle: { title: "Second Table" }, element: <WelcomePage /> },
   {
     path: "/community/:role",

@@ -50,3 +50,8 @@ flag and aligns member-read RLS with the explicit bootstrap-admin predicate.
 - `0010_donor_safety_schedules.sql`: guarded donor declarations and daily reminder schedules.
 - `0011_external_alerts.sql`: consenting channel outbox, demo budget and provider receipts.
 These drafts are not applied to AWS; validate them on disposable PostGIS before release.
+
+Revision `0012` prepares saved listings, private exchange messages, evidence-linked
+reports and personal impact routines. Its guarded mutation/SELECT boundaries follow
+0011. The source migration remains unapplied pending runtime release checks; see
+[comparison and rollout notes](../docs/COMPETITOR_GAP_ANALYSIS.md).

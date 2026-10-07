@@ -32,6 +32,7 @@ export type Listing = {
   allergens?: string[];
   diet_tags?: string[];
   safety_confirmed_at?: string | null;
+  is_saved?: boolean;
   has_photo: boolean;
   donor_verified: boolean;
   donor_rating_avg: string | null;

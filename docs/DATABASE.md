@@ -321,3 +321,38 @@ erDiagram
 ```
 
 Both migrations are forward-only drafts pending real PostgreSQL release checks.
+
+## Community experience migration 0012
+
+`saved_listings(user_id,listing_id)` is a private composite-key watchlist.
+`exchange_messages` stores claim/sender FKs, recipient ID snapshots and bounded text.
+`community_issues` references reporter, historical zone, listing and optional claim/
+message; partial uniqueness permits one active report per reporter/target.
+All three use FORCE RLS and a guarded DML boundary. Runtime receives SELECT only.
+
+`dbthon_chat_participant` requires current verified zone/role and donor, receiver,
+or latest assigned volunteer membership. Message RLS also requires sender/recipient
+membership. `dbthon_experience_command` serializes idempotency, locks listing then
+claim/current pickup where needed, and acquires sorted affected user locks before
+mutation, ledger append and outbox insert. Rate limits serialize on the actor row.
+Report details/message bodies are excluded from ledger and alert payloads.
+`dbthon_reported_message` reveals only report-attached evidence to that reporter or
+an explicitly scoped Admin; it does not grant broad admin chat reads.
+`dbthon_personal_impact` returns safe own-zone aggregates, distinct listing mass and
+separate collection/delivery windows. No new BYPASSRLS role is introduced.
+
+```mermaid
+erDiagram
+    USERS ||--o{ SAVED_LISTINGS : saves_privately
+    FOOD_LISTINGS ||--o{ SAVED_LISTINGS : saved_target
+    CLAIMS ||--o{ EXCHANGE_MESSAGES : coordinates
+    USERS ||--o{ EXCHANGE_MESSAGES : sends
+    USERS ||--o{ COMMUNITY_ISSUES : reports
+    ZONES ||--o{ COMMUNITY_ISSUES : scopes_review
+    FOOD_LISTINGS ||--o{ COMMUNITY_ISSUES : reported_target
+    CLAIMS o|--o{ COMMUNITY_ISSUES : optional_exchange
+    EXCHANGE_MESSAGES o|--o{ COMMUNITY_ISSUES : selected_evidence
+```
+
+Forward-only source migration; real PostgreSQL execution and security/concurrency
+regression evidence are pending. Do not edit a migration after it is deployed.

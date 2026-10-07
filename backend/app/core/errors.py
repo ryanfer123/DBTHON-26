@@ -37,6 +37,9 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
     diagnostic = getattr(error.orig, "diag", None) if isinstance(error, DBAPIError) else None
     code = str(getattr(diagnostic, "message_primary", "")).strip()
     mappings = {
+        "SAVE_LIMIT": (409, "You can save up to 100 listings. Remove one to save another."),
+        "ISSUE_EXISTS": (409, "You already have an open report for this item."),
+        "RATE_LIMITED": (429, "Too many messages or reports. Try again later."),
         "REQUEST_CLOSED": (409, "This food request is closed or fulfilled. Refresh the board."),
         "OFFER_EXISTS": (409, "This listing already answers a request. Choose another listing."),
         "STALE_PROPOSAL": (409, "Pickup time changed; refresh to review it."),

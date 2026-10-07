@@ -1,3 +1,4 @@
+import { ExchangeChat, ReportIssue, PickupCalendar } from "./Experience";
 import { PickupAgreement } from "./PickupAgreement";
 import { LocationMap } from "../../components/maps/LocationMap";
 import { WhatsAppContact } from "../../components/WhatsAppContact";
@@ -482,6 +483,20 @@ export function ExchangeDetailPage() {
             refresh={query.refresh}
             admin={session!.user.capabilities.includes("Admin")}
           />
+          <PickupCalendar
+            exchange={query.data.data}
+            serverTime={query.data.meta.server_time}
+          />
+          <ReportIssue
+            listingId={query.data.data.listing_id}
+            claimId={query.data.data.claim_id}
+          />
+          {(query.data.data.donor_id === session?.user.user_id ||
+            query.data.data.receiver_id === session?.user.user_id ||
+            (query.data.data.volunteer_id === session?.user.user_id &&
+              ["Scheduled", "PickedUp", "Delivered"].includes(
+                query.data.data.pickup_status ?? "",
+              ))) && <ExchangeChat exchange={query.data.data} />}
           <button className="text-button" onClick={query.refresh}>
             Refresh this exchange
           </button>

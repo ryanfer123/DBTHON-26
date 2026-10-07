@@ -162,3 +162,13 @@ Allergen-exclusion filtering never treats an undeclared listing as allergen-free
 External alerts require explicit channel consent and current active account, and are
 restricted to one configured demonstration phone. Domain/audit/outbox commit together;
 network calls happen afterward. Provider acceptance does not prove device delivery.
+
+## Community experience privacy
+
+Saving does not reserve or change listing eligibility. Messages require current
+verified participation and an original recipient snapshot; replacing volunteers
+never exposes old conversations. Only explicit report-attached message evidence is
+visible to scoped administrators. Reports have no automatic allocation, trust-score
+or safety-certification side effect. Own impact counts unique delivered listings;
+role subtotals may overlap. Calendar files are user-downloaded snapshots and do not
+replace the current pickup agreement.

@@ -142,6 +142,7 @@ class Listing(Input):
     allergens: list[Allergen] = Field(default_factory=list)
     diet_tags: list[DietTag] = Field(default_factory=list)
     safety_confirmed_at: datetime | None = None
+    is_saved: bool = False
     has_photo: bool = False
     donor_verified: bool = False
     donor_rating_avg: str | None = None

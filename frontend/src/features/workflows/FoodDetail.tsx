@@ -1,3 +1,5 @@
+import { SaveListing } from "./SaveListing";
+import { ReportIssue } from "./Experience";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { FoodDeclarations } from "./FoodDeclarations";
@@ -134,6 +136,11 @@ export function FoodDetailPage() {
               Refresh this listing
             </button>
             <ShareListing listingId={food.listing_id} />
+            <SaveListing
+              key={`${food.listing_id}:${food.is_saved}`}
+              food={food}
+            />
+            <ReportIssue listingId={food.listing_id} />
           </section>
           <aside className="workflow-aside">
             {["Available", "Claimed", "PickedUp"].includes(food.status) && (

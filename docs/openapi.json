@@ -17,103 +17,6 @@
         "title": "AdminGrant",
         "type": "object"
       },
-      "CommandData": {
-        "additionalProperties": false,
-        "properties": {
-          "claim_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Claim Id"
-          },
-          "listing_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Listing Id"
-          },
-          "notification_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Notification Id"
-          },
-          "pickup_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Pickup Id"
-          },
-          "rating_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rating Id"
-          },
-          "read": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Read"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status"
-          }
-        },
-        "title": "CommandData",
-        "type": "object"
-      },
-      "CommandResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/CommandData"
-          }
-        },
-        "required": [
-          "data"
-        ],
-        "title": "CommandResponse",
-        "type": "object"
-      },
       "CommunityCommandData": {
         "additionalProperties": false,
         "properties": {
@@ -178,6 +81,25 @@
         "additionalProperties": false,
         "properties": {},
         "title": "Empty",
+        "type": "object"
+      },
+      "Evidence": {
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "body",
+          "created_at"
+        ],
+        "title": "Evidence",
         "type": "object"
       },
       "Exchange": {
@@ -581,38 +503,64 @@
         "title": "HealthResponse",
         "type": "object"
       },
-      "ImpactResponse": {
-        "additionalProperties": false,
+      "Impact": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/ImpactRow"
-            },
-            "title": "Data",
-            "type": "array"
+          "delivered_exchanges": {
+            "title": "Delivered Exchanges",
+            "type": "integer"
           },
-          "factors": {
-            "$ref": "#/components/schemas/Factors"
+          "delivered_kg": {
+            "title": "Delivered Kg",
+            "type": "string"
           },
-          "meta": {
-            "$ref": "#/components/schemas/Meta"
+          "donated_kg": {
+            "title": "Donated Kg",
+            "type": "string"
           },
-          "summary": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ImpactSummary"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "estimated_meals": {
+            "title": "Estimated Meals",
+            "type": "integer"
+          },
+          "includes_demo_data": {
+            "title": "Includes Demo Data",
+            "type": "boolean"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "picked_up_kg": {
+            "title": "Picked Up Kg",
+            "type": "string"
+          },
+          "received_kg": {
+            "title": "Received Kg",
+            "type": "string"
+          },
+          "transported_kg": {
+            "title": "Transported Kg",
+            "type": "string"
           }
         },
         "required": [
-          "data",
-          "meta"
+          "picked_up_kg",
+          "delivered_kg",
+          "delivered_exchanges",
+          "donated_kg",
+          "received_kg",
+          "transported_kg",
+          "estimated_meals",
+          "includes_demo_data",
+          "period_start",
+          "period_end"
         ],
-        "title": "ImpactResponse",
+        "title": "Impact",
         "type": "object"
       },
       "ImpactRow": {
@@ -777,6 +725,205 @@
           "expiry_rate_percent"
         ],
         "title": "ImpactSummary",
+        "type": "object"
+      },
+      "Input": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Input",
+        "type": "object"
+      },
+      "Issue": {
+        "properties": {
+          "category": {
+            "enum": [
+              "FoodSafety",
+              "NoShow",
+              "MisleadingListing",
+              "AbusiveMessage",
+              "Other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Evidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "issue_id": {
+            "title": "Issue Id",
+            "type": "integer"
+          },
+          "listing_id": {
+            "title": "Listing Id",
+            "type": "integer"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "reporter_id": {
+            "title": "Reporter Id",
+            "type": "integer"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "status": {
+            "enum": [
+              "Open",
+              "Reviewing",
+              "Resolved",
+              "Dismissed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "zone_id": {
+            "title": "Zone Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "issue_id",
+          "reporter_id",
+          "zone_id",
+          "listing_id",
+          "claim_id",
+          "message_id",
+          "category",
+          "detail",
+          "status",
+          "created_at",
+          "reviewed_at",
+          "review_note"
+        ],
+        "title": "Issue",
+        "type": "object"
+      },
+      "IssueInput": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "enum": [
+              "FoodSafety",
+              "NoShow",
+              "MisleadingListing",
+              "AbusiveMessage",
+              "Other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Id"
+          },
+          "detail": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "title": "Detail",
+            "type": "string"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          }
+        },
+        "required": [
+          "category",
+          "detail"
+        ],
+        "title": "IssueInput",
+        "type": "object"
+      },
+      "IssuesResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "IssuesResponse",
         "type": "object"
       },
       "LedgerEntry": {
@@ -1058,6 +1205,11 @@
           "has_photo": {
             "default": false,
             "title": "Has Photo",
+            "type": "boolean"
+          },
+          "is_saved": {
+            "default": false,
+            "title": "Is Saved",
             "type": "boolean"
           },
           "listing_id": {
@@ -1581,6 +1733,76 @@
           "password"
         ],
         "title": "Login",
+        "type": "object"
+      },
+      "Message": {
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "message_id": {
+            "title": "Message Id",
+            "type": "integer"
+          },
+          "sender_id": {
+            "title": "Sender Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message_id",
+          "sender_id",
+          "body",
+          "created_at"
+        ],
+        "title": "Message",
+        "type": "object"
+      },
+      "MessageInput": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "title": "MessageInput",
+        "type": "object"
+      },
+      "MessagesResponse": {
+        "properties": {
+          "can_send": {
+            "title": "Can Send",
+            "type": "boolean"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "required": [
+          "data",
+          "meta",
+          "can_send"
+        ],
+        "title": "MessagesResponse",
         "type": "object"
       },
       "Meta": {
@@ -2447,6 +2669,32 @@
         "title": "Registration",
         "type": "object"
       },
+      "ReviewInput": {
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Note",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "Reviewing",
+              "Resolved",
+              "Dismissed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "note"
+        ],
+        "title": "ReviewInput",
+        "type": "object"
+      },
       "RoleData": {
         "properties": {
           "approved": {
@@ -3305,6 +3553,178 @@
         ],
         "title": "ScheduleInput",
         "type": "object"
+      },
+      "app__routes__experience__CommandData": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "CommandData",
+        "type": "object"
+      },
+      "app__routes__experience__CommandResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/app__routes__experience__CommandData"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "CommandResponse",
+        "type": "object"
+      },
+      "app__routes__experience__ImpactResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Impact"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "ImpactResponse",
+        "type": "object"
+      },
+      "app__workflows__models__CommandData": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Id"
+          },
+          "listing_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listing Id"
+          },
+          "notification_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notification Id"
+          },
+          "pickup_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pickup Id"
+          },
+          "rating_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating Id"
+          },
+          "read": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "title": "CommandData",
+        "type": "object"
+      },
+      "app__workflows__models__CommandResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/app__workflows__models__CommandData"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "CommandResponse",
+        "type": "object"
+      },
+      "app__workflows__models__ImpactResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ImpactRow"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "factors": {
+            "$ref": "#/components/schemas/Factors"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "ImpactResponse",
+        "type": "object"
       }
     }
   },
@@ -3475,7 +3895,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -3909,7 +4329,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImpactResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__ImpactResponse"
                 }
               }
             },
@@ -4041,6 +4461,136 @@
         ]
       }
     },
+    "/api/v1/admin/issues": {
+      "get": {
+        "operationId": "admin_issues_api_v1_admin_issues_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "Open",
+                    "Reviewing",
+                    "Resolved",
+                    "Dismissed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Issues",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
+    "/api/v1/admin/issues/{issue_id}/review": {
+      "post": {
+        "operationId": "review_api_v1_admin_issues__issue_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "issue_id",
+            "required": true,
+            "schema": {
+              "title": "Issue Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
     "/api/v1/admin/listings/{listing_id}/photo/remove": {
       "post": {
         "operationId": "remove_listing_photo_api_v1_admin_listings__listing_id__photo_remove_post",
@@ -4082,7 +4632,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -4705,7 +5255,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -4725,6 +5275,121 @@
         "summary": "Cancel Claim",
         "tags": [
           "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/claims/{claim_id}/messages": {
+      "get": {
+        "operationId": "messages_api_v1_claims__claim_id__messages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "claim_id",
+            "required": true,
+            "schema": {
+              "title": "Claim Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Messages",
+        "tags": [
+          "Community experience"
+        ]
+      },
+      "post": {
+        "operationId": "send_api_v1_claims__claim_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "claim_id",
+            "required": true,
+            "schema": {
+              "title": "Claim Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Send",
+        "tags": [
+          "Community experience"
         ]
       }
     },
@@ -4769,7 +5434,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -4842,7 +5507,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -4915,7 +5580,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -4988,7 +5653,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -5125,7 +5790,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -5489,6 +6154,95 @@
         ]
       }
     },
+    "/api/v1/impact/mine": {
+      "get": {
+        "operationId": "my_impact_api_v1_impact_mine_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 30,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__ImpactResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Impact",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
+    "/api/v1/issues/mine": {
+      "get": {
+        "operationId": "my_issues_api_v1_issues_mine_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Issues",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
     "/api/v1/listings": {
       "get": {
         "operationId": "food_feed_api_v1_listings_get",
@@ -5733,7 +6487,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -5934,7 +6688,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -5998,7 +6752,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -6062,7 +6816,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -6131,6 +6885,70 @@
         ]
       }
     },
+    "/api/v1/listings/{listing_id}/issues": {
+      "post": {
+        "operationId": "report_api_v1_listings__listing_id__issues_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Report",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
     "/api/v1/listings/{listing_id}/photo": {
       "get": {
         "operationId": "listing_photo_api_v1_listings__listing_id__photo_get",
@@ -6163,6 +6981,134 @@
         "summary": "Listing Photo",
         "tags": [
           "Redistribution"
+        ]
+      }
+    },
+    "/api/v1/listings/{listing_id}/save": {
+      "post": {
+        "operationId": "save_api_v1_listings__listing_id__save_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save",
+        "tags": [
+          "Community experience"
+        ]
+      }
+    },
+    "/api/v1/listings/{listing_id}/unsave": {
+      "post": {
+        "operationId": "unsave_api_v1_listings__listing_id__unsave_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "title": "Listing Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 8,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__routes__experience__CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unsave",
+        "tags": [
+          "Community experience"
         ]
       }
     },
@@ -6298,7 +7244,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResponse"
+                  "$ref": "#/components/schemas/app__workflows__models__CommandResponse"
                 }
               }
             },
@@ -6816,6 +7762,50 @@
         "summary": "Offer",
         "tags": [
           "Community tools"
+        ]
+      }
+    },
+    "/api/v1/saved-listings": {
+      "get": {
+        "operationId": "saved_api_v1_saved_listings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListingsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Saved",
+        "tags": [
+          "Community experience"
         ]
       }
     },

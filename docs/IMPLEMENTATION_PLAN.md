@@ -137,3 +137,17 @@ Source implementation is prepared on `feat/donor-safety-alerts`. Release gates:
 - [ ] Complete regression/review before migrations/API deployment, then publish frontend.
 
 P11/P12 remain open. This extension does not supply pilot evidence or certify safety.
+
+## Researched community experience extension
+
+CE01–CE05 source implementation is prepared on `feat/donor-safety-alerts` with
+migration `0012`; rationale in [comparison](COMPETITOR_GAP_ANALYSIS.md).
+
+- [ ] Execute 0010–0012 on real PostgreSQL; verify restricted grants and RLS.
+- [ ] Exercise saves/expiry limits, current/replacement-volunteer privacy, terminal
+  chat, rate limits, issue evidence scoping, admin self-review rejection and retries.
+- [ ] Reconcile own totals with retry and multi-role fixtures; verify agreed-calendar
+  export and reschedule versions on mobile/desktop.
+- [ ] Complete regression and deployment review before migration/API and UI release.
+
+Static source checks do not close these runtime gates or P11/P12 evidence tasks.

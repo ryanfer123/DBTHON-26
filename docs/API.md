@@ -250,3 +250,26 @@ or prove that a database owner has never rewritten the chain.
 
 Generated OpenAPI contains the precise enum/field schema. No recipient phones or
 provider credentials are exposed by these additions.
+
+## Community experience extension (migration 0012, release pending)
+
+All endpoints require a signed-in verified actor and return private/no-store data.
+POSTs also require CSRF and `Idempotency-Key`; successful writes return `data.id`.
+
+| Method | Path under `/api/v1` | Contract |
+| --- | --- | --- |
+| GET | `/saved-listings?cursor=0` | Up to 20 current-zone live saved listings, normal listing projection plus `is_saved`, `meta.next_cursor`. |
+| POST | `/listings/{listing_id}/save` / `/unsave` | Empty body `{}`; private ownership; save never allocates food. |
+| GET | `/claims/{claim_id}/messages?cursor=0` | Up to 50 ascending messages (`message_id,sender_id,body,created_at`), `can_send` and pagination; explicit current-participant check plus RLS recipient snapshot. |
+| POST | `/claims/{claim_id}/messages` | `{body}` 1–1000 trimmed characters; active confirmed, unexpired exchange only; 20 messages/10 minutes. |
+| POST | `/listings/{listing_id}/issues` | `{category,detail,claim_id?,message_id?}`; optional references must match listing and readable conversation; AbusiveMessage requires message evidence. |
+| GET | `/issues/mine?cursor=0` | Own current-zone reports, reviewer notes and selected message evidence only. |
+| GET | `/admin/issues?cursor=0&status=Open` | 20 reports per page; scoped Admin access; bootstrap Admin sees all administered zones. |
+| POST | `/admin/issues/{issue_id}/review` | `{status,note}`; Reviewing/Resolved/Dismissed; 3–500 character note; no self-review or terminal rewrite. |
+| GET | `/impact/mine?days=30` | 30/90/365-day current-zone own involvement totals, separate picked-up/delivered kg, deduplicated deliveries, role breakdown and estimated meals. |
+
+Report categories: FoodSafety, NoShow, MisleadingListing, AbusiveMessage, Other.
+Errors include `SAVE_LIMIT`/`ISSUE_EXISTS` (409), `RATE_LIMITED` (429), and existing
+role/zone/state/idempotency errors. Reports never alter allocation or certify safety.
+Calendar export is a browser-local ICS download after full pickup agreement, with
+no external API, contacts or cached private app data.

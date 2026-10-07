@@ -1,3 +1,4 @@
+import { SaveListing } from "./SaveListing";
 import { ListingPhoto } from "../../components/ListingPhoto";
 import { Link } from "react-router";
 import { date, type Listing } from "./data";
@@ -22,6 +23,7 @@ export function FoodRow({
   selected,
   onSelect,
   onHideCancelled,
+  onSavedChange,
   own,
 }: {
   food: Listing;
@@ -30,6 +32,7 @@ export function FoodRow({
   selected?: boolean;
   onSelect?: () => void;
   onHideCancelled?: () => void;
+  onSavedChange?: () => void;
   own: boolean;
 }) {
   return (
@@ -81,6 +84,13 @@ export function FoodRow({
         )}
       </div>
       <div className="actions">
+        {!own && (
+          <SaveListing
+            key={`${food.listing_id}:${food.is_saved}`}
+            food={food}
+            onChange={onSavedChange}
+          />
+        )}
         {onSelect && (
           <button
             className="text-button"

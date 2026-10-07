@@ -68,3 +68,17 @@ appears in [STATUS.md](STATUS.md).
 | DF06 | Real pilot evidence | Permission-based campus mess and NGO notes/quotes plus a separately approved collection; templates are not evidence. |
 
 Implementation is on the feature branch. Release checks and provider/pilot evidence remain open; see STATUS.md.
+
+## Researched community experience extensions
+
+| ID | Capability | Acceptance/release criteria |
+| --- | --- | --- |
+| CE01 | Private saved listings | Own-account saves only; no reservation/notification; pagination; expiry/status hiding; bounded storage. |
+| CE02 | Exchange messages | Current verified participant and recipient snapshot checks; replacement-volunteer privacy; read-only terminal exchanges; rate limits and atomic audit/outbox. |
+| CE03 | Evidence-linked issue review | Own report history; scoped admin queue; exact reported-message evidence only; no self-review; idempotent outcomes; no allocation or safety bypass. |
+| CE04 | Personal participation impact | Own current-zone totals; collected and delivered separated; retries deduplicated; overlapping roles and meal estimates labelled; fixture presence disclosed. |
+| CE05 | Agreed pickup calendar | Export only after all current participants agree; stable UID/version; no contacts; reschedule refresh guidance. |
+
+Source implementation and researched rationale: [comparison](COMPETITOR_GAP_ANALYSIS.md).
+Runtime acceptance evidence remains pending; these extensions do not change core
+FR01–FR10 or produce real pilot evidence.

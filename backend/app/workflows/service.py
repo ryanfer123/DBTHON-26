@@ -98,7 +98,9 @@ CLAIM_REASON = f"""CASE
   WHEN NOT ST_DWithin(l.pickup_location,{PROFILE_POINT},5000) THEN 'Outside the 5 km
       allocation distance from your saved location.'
   ELSE NULL END"""
-LISTING_COLUMNS += f""", EXISTS(SELECT FROM listing_photos photo WHERE
+LISTING_COLUMNS += f""", EXISTS(SELECT FROM saved_listings s
+ WHERE s.listing_id=l.listing_id AND s.user_id=dbthon_actor_id()) AS is_saved,
+ EXISTS(SELECT FROM listing_photos photo WHERE
 photo.listing_id=l.listing_id) AS has_photo, ({DONOR_READY}) AS donor_verified,
   CASE WHEN {DONOR_READY} THEN (dbthon_trust(l.donor_id)->>'average_score') ELSE NULL END AS
       donor_rating_avg,

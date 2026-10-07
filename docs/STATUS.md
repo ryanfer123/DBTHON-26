@@ -652,3 +652,59 @@ provider credential change, external message, deployment or pilot action was
 performed for this feature branch. The requested secret skill `aws-secrets-manager`
 was not available; actual provider credential configuration remains pending.
 Existing unrelated AWS drafts stay in the original workspace.
+
+## 2026-10-07: researched community experience source implementation
+
+Compared primary websites/help pages for Too Good To Go, OLIO, Food Rescue US,
+Food Rescue Hero and FoodCloud. The source-linked gap analysis is in
+[COMPETITOR_GAP_ANALYSIS.md](COMPETITOR_GAP_ANALYSIS.md). Added CE01–CE05 on
+`feat/donor-safety-alerts` after the existing donor reliability extension:
+
+- Private saved listings with feed/detail controls, sidebar page, bounded pagination,
+  automatic status/expiry exclusion and no reservation/donor notification.
+- Current-participant exchange chat with recipient snapshots, replacement-volunteer
+  privacy, terminal read-only state, rate limits and generic inbox alerts.
+- Listing/exchange/message reports, reporter history and scoped admin review. Admins
+  see only selected reported-message evidence, cannot review their own reports, and
+  outcomes have no automatic allocation/trust/safety effect.
+- Own current-zone collected/delivered totals and role breakdown, retry deduplication,
+  meal assumptions and fixture labels; no invented emissions/pilot measurements.
+- Contact-free ICS pickup download after current three-party agreement, with stable
+  UID/revision and explicit re-download guidance after rescheduling.
+
+Changed: `database/0012_exchange_experience.sql`, Alembic loader, experience routes,
+listing projections/model, error mapping, frontend experience/save components,
+food/exchange views, routes/navigation/styles, API/database/domain/requirements/ADR
+and plan docs, comparison, OpenAPI export. Existing fixture cleanup and API inventory
+were maintained for the new schema/routes; no new tests were added or run.
+
+Observed static checks:
+
+| Command | Result |
+| --- | --- |
+| `ruff check backend/app backend/alembic/versions/0012_exchange_experience.py` | Passed |
+| `python -m mypy --config-file backend/pyproject.toml backend/app` | Passed: 32 source files |
+| `npm run typecheck` / `npm run lint` | Passed |
+| `npm run build` | Passed; initial JS 123,677 bytes gzip, below 204,800 budget |
+| `python scripts/export_openapi.py` and `--check` | Export refreshed; current contract check passed |
+| `python3 scripts/check_migrations.py` | Passed: 13 authoritative SQL scripts with unique loaders |
+| `python3 scripts/validate_handoff.py` | Passed: source/link/spec/fixture checks, not runtime evidence |
+| `git diff --check` | Passed |
+
+Tooling used the complete Python environment at
+`/private/tmp/dbthon-account-controls-latest/backend/.venv/bin/python`, Ruff binary
+`/Volumes/Seagate/dbthon/backend/.venv/bin/ruff`, and linked installed frontend
+modules. Run from `/private/tmp/dbthon-donor-safety-alerts`; frontend commands run in
+its `frontend/` directory. OpenAPI commands set `PYTHONPATH=backend`.
+
+**Unreleased:** migrations 0010–0012 are not applied to production. No database,
+application unit or browser tests were run in this session; SQL permissions,
+concurrency, new paths and mobile interaction still require actual runtime checks.
+The live site remains the earlier main release. External alerts remain disabled
+without a provider account/consented recipient. No pilot conversations were invented.
+Original AWS drafts are preserved in the main workspace.
+
+**Exact next task:** execute migrations and the CE/DF release scenarios on disposable
+real PostgreSQL/PostGIS, exercise privacy/replacement-volunteer/report scope/retries
+and own totals, complete browser/regression checks, then review release and deploy
+database/API before frontend. P11/P12 remain open.
