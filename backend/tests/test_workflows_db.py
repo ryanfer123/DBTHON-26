@@ -949,4 +949,4 @@ def test_public_impact_only_aggregates_and_report_median_matches_sql(workflow):
     row = next(csv.DictReader(io.StringIO(csv_response.text)))
     for key in ["delivered_kg", "picked_up_kg", "expired_kg", "cancelled_listing_kg"]:
         assert Decimal(row[key]) == Decimal(report.json()["data"][0][key])
-    assert admin.get("/api/v1/admin/impact", params={"zone_id": 2}).status_code == 404
+    assert client(204).get("/api/v1/admin/impact", params={"zone_id": 1}).status_code == 404

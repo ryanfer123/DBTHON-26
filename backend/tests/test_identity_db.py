@@ -266,15 +266,25 @@ def test_admin_verification_scope_requested_roles_revocation_and_private_reason(
     )
     assert result.status_code == 200, result.text
     assert result.json()["data"]["capabilities"] == ["Receiver"]
-    for uid in [202, 999999]:
-        assert (
-            admin.post(
-                f"/api/v1/admin/users/{uid}/verify",
-                json={"roles": ["Receiver"], "verified": True, "reason": reason},
-            ).status_code
-            == 404
+    # The named bootstrap Admin can review members in every zone.
+    assert admin.get("/api/v1/admin/users", params={"zone_id": 2}).status_code == 200
+    with db.begin() as c:
+        c.execute(text("UPDATE users SET verified_status=false WHERE user_id=202"))
+        c.execute(
+            text("UPDATE user_roles SET approved_at=NULL,approved_by=NULL WHERE user_id=202")
         )
-    assert admin.get("/api/v1/admin/users", params={"zone_id": 2}).status_code == 404
+    cross_zone_review = admin.post(
+        "/api/v1/admin/users/202/verify",
+        json={"roles": ["Receiver"], "verified": True, "reason": reason},
+    )
+    assert cross_zone_review.status_code == 200, cross_zone_review.text
+    assert (
+        admin.post(
+            "/api/v1/admin/users/999999/verify",
+            json={"roles": ["Receiver"], "verified": True, "reason": reason},
+        ).status_code
+        == 404
+    )
     assert (
         admin.post(
             "/api/v1/admin/users/106/verify",
@@ -299,6 +309,16 @@ def test_admin_verification_scope_requested_roles_revocation_and_private_reason(
         ).status_code
         == 403
     )
+    zone_two_admin = make()
+    sign_in(zone_two_admin, password, "z2.admin@example.invalid")
+    assert zone_two_admin.get("/api/v1/admin/users", params={"zone_id": 1}).status_code == 404
+    assert (
+        zone_two_admin.post(
+            "/api/v1/admin/users/106/verify",
+            json={"roles": ["Receiver"], "verified": True, "reason": reason},
+        ).status_code
+        == 404
+    )
     assert (
         admin.post(
             "/api/v1/admin/users/106/verify",
@@ -308,7 +328,7 @@ def test_admin_verification_scope_requested_roles_revocation_and_private_reason(
     )
     assert receiver.get("/api/v1/auth/me").json()["data"]["user"]["capabilities"] == []
     with db.connect() as c:
-        assert c.execute(text("SELECT count(*) FROM verification_reviews")).scalar_one() == 2
+        assert c.execute(text("SELECT count(*) FROM verification_reviews")).scalar_one() == 3
         assert all(
             reason not in str(row["payload"])
             for row in c.execute(text("SELECT payload FROM trust_ledger")).mappings()
@@ -341,6 +361,24 @@ def test_profile_only_self_mutable_fields_and_no_pii_in_ledger(identity):
         ).scalar_one()
         assert payload == {"changed_fields": ["capacity_kg", "name"]}
         assert c.execute(text("SELECT zone_id FROM users WHERE user_id=102")).scalar_one() == 1
+
+
+def test_member_confirms_existing_zone_and_confirmation_is_persisted(identity):
+    db, password, make, _ = identity
+    client = make()
+    sign_in(client, password)
+    with db.begin() as c:
+        c.execute(text("UPDATE users SET zone_review_required=true WHERE user_id=102"))
+    current = client.get("/api/v1/auth/me").json()["data"]["user"]
+    assert current["zone_review_required"] is True
+    confirmed = client.post("/api/v1/account/confirm-zone", json={"zone_id": 1})
+    assert confirmed.status_code == 200, confirmed.text
+    assert confirmed.json()["data"]["zone_review_required"] is False
+    with db.connect() as c:
+        row = c.execute(
+            text("SELECT zone_id,zone_review_required FROM users WHERE user_id=102")
+        ).one()
+    assert tuple(row) == (1, False)
 
 
 def test_actual_login_roles_pool_isolation_and_no_auth_escalation(identity):
@@ -419,10 +457,11 @@ def test_public_zone_pagination_and_full_readiness(identity):
     assert result.status_code == 200, result.text
     assert [zone["zone_id"] for zone in result.json()["data"]] == [1, 2]
     assert result.json()["meta"]["next_cursor"] == 2
-    assert client.get("/api/v1/health/ready").status_code == 200
+    readiness = client.get("/api/v1/health/ready")
+    assert readiness.status_code == 200, readiness.text
     assert (
-        client.get("/api/v1/zones", params={"city": "Demo Chennai"}).json()["data"][0]["zone_id"]
-        == 4
+        client.get("/api/v1/zones", params={"city": "Vellore"}).json()["data"][0]["zone_id"]
+        == 1
     )
 
 
@@ -450,7 +489,7 @@ def test_session_count_bound_and_admin_unfiltered_pagination(identity):
     next_cursor = first.json()["meta"]["next_cursor"]
     second = admin.get("/api/v1/admin/users", params={"cursor": next_cursor})
     assert second.status_code == 200
-    assert all(user["zone_id"] == 1 for user in second.json()["data"])
+    assert {user["zone_id"] for user in second.json()["data"]} == {1, 2, 3, 4}
     assert not set(user["user_id"] for user in first.json()["data"]) & set(
         user["user_id"] for user in second.json()["data"]
     )

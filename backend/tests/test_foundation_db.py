@@ -123,9 +123,11 @@ def test_pending_admin_and_revoked_session_visibility(seeded_db):
         assert c.execute(text("SELECT count(*) FROM food_listings")).scalar_one() == 0
     with actor(seeded_db, 104) as c:
         assert c.execute(text("SELECT count(*) FROM claims")).scalar_one() == 3
-        assert set(c.execute(text("SELECT DISTINCT zone_id FROM users")).scalars()) == {1}
-        assert c.execute(text("SELECT count(*) FROM trust_ledger")).scalar_one() == 8
+        assert set(c.execute(text("SELECT DISTINCT zone_id FROM users")).scalars()) == {1, 2, 3, 4}
+        assert c.execute(text("SELECT count(*) FROM trust_ledger")).scalar_one() == 20
         session = c.execute(text("SELECT current_setting('app.session_hash')")).scalar_one()
+    with actor(seeded_db, 204) as c:
+        assert set(c.execute(text("SELECT DISTINCT zone_id FROM users")).scalars()) == {2}
     with seeded_db.begin() as c:
         c.execute(
             text("UPDATE sessions SET revoked_at=clock_timestamp() WHERE session_hash=:session"),

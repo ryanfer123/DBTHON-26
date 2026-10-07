@@ -6,7 +6,11 @@ routines, private throttles/reviews and the guarded claim's CSRF wrapper.
 Revision `0003` implements guarded workflows, task visibility, trust summaries,
 expiry/outbox worker functions, pickup `accepted_at`, outbox lease tokens and indexes.
 Revision `0005` adds listing photo metadata. Revision `0006` adds notification
-preferences, inbox and cancelled-listing hiding, plus audited same-zone Admin grants.
+preferences, inbox and cancelled-listing hiding, plus audited Admin grants. Revision
+`0008` adds mandatory zone confirmation, real Vellore service areas, and cross-zone
+review/delegation for the named bootstrap Admin. Area names follow [Vellore
+Corporation records](https://www.tnurbantree.tn.gov.in/vellore/) and PIN codes follow
+the [India Post functional post office list](https://www.indiapost.gov.in/VAS/DOP_PDFFiles/FunctionalPOs.pdf).
 The same ER entities and ownership rules remain in use.
 Executable SQL and course examples: [database/README.md](../database/README.md).
 Use snake_case identifiers, BIGINT identity keys, NUMERIC for
@@ -269,3 +273,13 @@ it detects the existing request table and applies the account-settings SQL that
 arrived on `main` after that deployment. Fresh databases apply settings at `0006`
 and the community schema at `0007`; deployed databases at community `0006` apply
 the settings bridge at `0007` without recreating community data.
+
+## Revision 0008: zone confirmation and global bootstrap administration
+
+Adds an explicit per-user community-area review flag, updates the four synthetic
+zones to their Vellore names and PIN codes, allows only the named bootstrap Admin
+to review and delegate across zones, and requires existing members to confirm or
+change their area after sign-in. Zone changes are blocked while the member has an
+active listing, confirmed claim, or scheduled/picked-up assignment. Historical
+listing zones remain snapshots. The migration replaces guarded verification and
+Admin-delegation routines; ordinary Admins stay scoped to their own zone.

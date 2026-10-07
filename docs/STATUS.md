@@ -567,3 +567,27 @@ notification-settings reads returned 401; CORS preflight from the configured
 Render origin returned 200. The existing database, VPC, secrets and Function URL
 were retained. GitHub and Render publication of the frontend are recorded below
 once the final commit is live.
+
+## Cross-zone bootstrap review and community area refresh (2026-10-07)
+
+Integrated revision 0008 after the deployed community revision 0007. The existing
+`z1.admin@example.invalid` bootstrap account can review and delegate Admin access in
+every zone; later Admins stay in their own zone. Existing registered accounts are
+required to confirm or change area after sign-in. A zone change is blocked during an
+active listing, claim or pickup, and historical listings retain their saved zone.
+Fixture and migrated zone labels are Vellore Fort (632004), Sathuvachari (632009),
+Shenbakkam (632008) and Katpadi (632007). The migration grants only the new review
+flag column to the restricted runtime role and updates member-read RLS to use the
+explicit zone-admin predicate. The readiness probe adopts the runtime role locally
+before checking PostGIS, supporting NOINHERIT login accounts.
+
+Observed combined checks: `DATABASE_URL=postgresql+psycopg://dbthon@127.0.0.1:55435/dbthon
+DBTHON_TEST_DATABASE=dbthon_usability_test PYTHONPATH=backend
+apps/api/.venv/bin/pytest backend/tests --db -q` passed all **110 tests** (103.01 seconds).
+The exact migration chain was applied to a freshly recreated allowlisted disposable
+database. Regression coverage includes zone confirmation, global bootstrap review,
+ordinary-admin isolation, and pagination. Frontend Vitest passed 25 tests;
+ESLint/TypeScript/build, Ruff/mypy, OpenAPI drift, migration-source and handoff
+checks passed. The initial JavaScript bundle is 117,769 bytes gzip. One existing
+Mangum event-loop deprecation warning remains. Revision 0008 deployment and frontend
+publication are pending. SMS/push delivery remains unconfigured.

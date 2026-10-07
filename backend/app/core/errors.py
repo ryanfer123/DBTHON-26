@@ -46,6 +46,10 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
         "CSRF_INVALID": (403, "Refresh your session and retry."),
         "ADMIN_REQUIRED": (403, "Zone administrator access is required."),
         "ALREADY_ADMIN": (409, "This member is already an administrator."),
+        "ACTIVE_EXCHANGES": (
+            409,
+            "Finish or cancel your active exchanges before changing community areas.",
+        ),
         "NOT_FOUND": (404, "The requested resource was not found."),
         "CAPACITY_REQUIRED": (422, "A positive receiver capacity is required."),
         "RECEIVER_ROLE_REQUIRED": (403, "A Receiver role is required."),

@@ -2806,6 +2806,11 @@
           "zone_id": {
             "title": "Zone Id",
             "type": "integer"
+          },
+          "zone_review_required": {
+            "default": false,
+            "title": "Zone Review Required",
+            "type": "boolean"
           }
         },
         "required": [
@@ -2955,6 +2960,21 @@
         "title": "ZoneData",
         "type": "object"
       },
+      "ZoneSelection": {
+        "additionalProperties": false,
+        "properties": {
+          "zone_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Zone Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "zone_id"
+        ],
+        "title": "ZoneSelection",
+        "type": "object"
+      },
       "ZonesResponse": {
         "properties": {
           "data": {
@@ -2984,6 +3004,47 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/account/confirm-zone": {
+      "post": {
+        "operationId": "confirm_zone_api_v1_account_confirm_zone_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneSelection"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm Zone",
+        "tags": [
+          "Identity"
+        ]
+      }
+    },
     "/api/v1/admin/claims": {
       "get": {
         "operationId": "admin_claims_api_v1_admin_claims_get",

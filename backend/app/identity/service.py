@@ -13,7 +13,7 @@ def user_data(connection: Connection, uid: int) -> UserData:
         connection.execute(
             text("""
       SELECT u.user_id,u.zone_id,u.name,u.email,u.phone,u.latitude,u.longitude,
-        u.verified_status,u.active,rp.capacity_kg FROM users u
+        u.verified_status,u.active,u.zone_review_required,rp.capacity_kg FROM users u
       LEFT JOIN receiver_profiles rp USING(user_id) WHERE u.user_id=:uid
     """),
             {"uid": uid},

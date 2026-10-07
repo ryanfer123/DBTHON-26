@@ -40,11 +40,11 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                 current = c.execute(
                     text("SELECT version_num FROM alembic_version")
                 ).scalar_one()
-                if current not in {"0005", "0006", "0007"}:
+                if current not in {"0005", "0006", "0007", "0008"}:
                     raise ValueError(
                         f"Refusing to migrate unexpected revision {current}"
                     )
-            if current in {"0005", "0006"}:
+            if current in {"0005", "0006", "0007"}:
                 command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
             with engine.connect() as c:
                 revision = c.execute(

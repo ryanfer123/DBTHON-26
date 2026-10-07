@@ -8,7 +8,9 @@ class Database:
     """Own the connection pool, with a bounded, truthful readiness probe."""
 
     def __init__(self, settings: Settings):
-        url = settings.restricted_url("runtime") or settings.connection_url()
+        runtime_url = settings.restricted_url("runtime")
+        self.restricted = runtime_url is not None
+        url = runtime_url or settings.connection_url()
         self.engine: Engine | None = (
             create_engine(
                 url,
@@ -27,9 +29,13 @@ class Database:
         if self.engine is None:
             return False
         try:
-            with self.engine.connect() as connection:
+            with self.engine.begin() as connection:
+                if self.restricted:
+                    connection.execute(text("SET LOCAL ROLE dbthon_runtime"))
                 # Both PostgreSQL and its spatial extension must actually respond.
-                return bool(connection.execute(text("SELECT PostGIS_Version()")).scalar_one())
+                return bool(
+                    connection.execute(text("SELECT public.PostGIS_Version()")).scalar_one()
+                )
         except SQLAlchemyError:
             # Do not expose hostnames, connection strings or driver errors publicly.
             return False

@@ -27,6 +27,7 @@ from app.identity.models import (
     UsersResponse,
     Verification,
     ZoneData,
+    ZoneSelection,
     ZonesResponse,
 )
 from app.identity.security import (
@@ -42,10 +43,16 @@ router = APIRouter(tags=["Identity"])
 
 
 def notification_preferences_data(c: Connection) -> NotificationPreferencesData:
-    row = c.execute(text("""
+    row = (
+        c.execute(
+            text("""
       SELECT sms_enabled,push_enabled FROM notification_preferences
       WHERE user_id=dbthon_actor_id()
-    """)).mappings().first()
+    """)
+        )
+        .mappings()
+        .first()
+    )
     return NotificationPreferencesData(
         sms_enabled=bool(row["sms_enabled"]) if row else False,
         push_enabled=bool(row["push_enabled"]) if row else False,
@@ -65,9 +72,13 @@ def save_notification_preferences(
     body: NotificationPreferences, request: Request
 ) -> NotificationPreferencesResponse:
     with context(request, write=True) as c:
-        c.execute(text("SELECT dbthon_save_notification_preferences(:sms,:push)"), {
-            "sms": body.sms_enabled, "push": body.push_enabled,
-        })
+        c.execute(
+            text("SELECT dbthon_save_notification_preferences(:sms,:push)"),
+            {
+                "sms": body.sms_enabled,
+                "push": body.push_enabled,
+            },
+        )
         return NotificationPreferencesResponse(data=notification_preferences_data(c))
 
 
@@ -217,6 +228,15 @@ def logout(request: Request, response: Response) -> None:
     )
 
 
+@router.post("/account/confirm-zone", response_model=UserResponse)
+def confirm_zone(body: ZoneSelection, request: Request) -> UserResponse:
+    with context(request, write=True) as c:
+        uid = c.execute(
+            text("SELECT dbthon_confirm_zone(:zone)"), {"zone": body.zone_id}
+        ).scalar_one()
+        return UserResponse(data=service.user_data(c, uid))
+
+
 @router.get("/admin/users", response_model=UsersResponse, tags=["Administration"])
 def admin_users(
     request: Request,
@@ -228,19 +248,31 @@ def admin_users(
     with context(request) as c:
         if not c.execute(text("SELECT dbthon_has_role('Admin')")).scalar_one():
             raise DomainError("ADMIN_REQUIRED", 403, "Zone administrator access is required.")
+        global_admin = c.execute(
+            text(
+                "SELECT email='z1.admin@example.invalid' FROM users WHERE user_id=dbthon_actor_id()"
+            )
+        ).scalar_one()
         if (
             zone_id is not None
             and zone_id != c.execute(text("SELECT dbthon_actor_zone()")).scalar_one()
+            and not global_admin
         ):
             raise DomainError("NOT_FOUND", 404, "The requested resource was not found.")
         ids = (
             c.execute(
                 text(
                     "SELECT user_id FROM users WHERE user_id>:cursor "
+                    "AND (CAST(:zone_id AS bigint) IS NULL OR zone_id=:zone_id) "
                     "AND (CAST(:verified AS boolean) IS NULL OR verified_status=:verified) "
                     "ORDER BY user_id LIMIT :limit"
                 ),
-                {"cursor": cursor, "verified": verified, "limit": limit + 1},
+                {
+                    "cursor": cursor,
+                    "zone_id": zone_id,
+                    "verified": verified,
+                    "limit": limit + 1,
+                },
             )
             .scalars()
             .all()
@@ -265,7 +297,11 @@ def verify_user(user_id: int, body: Verification, request: Request) -> UserRespo
 @router.post("/admin/users/{user_id}/admin", response_model=UserResponse, tags=["Administration"])
 def grant_admin(user_id: int, body: AdminGrant, request: Request) -> UserResponse:
     with context(request, write=True) as c:
-        uid = c.execute(text("SELECT dbthon_grant_admin(:uid,:reason)"), {
-            "uid": user_id, "reason": body.reason,
-        }).scalar_one()
+        uid = c.execute(
+            text("SELECT dbthon_grant_admin(:uid,:reason)"),
+            {
+                "uid": user_id,
+                "reason": body.reason,
+            },
+        ).scalar_one()
         return UserResponse(data=service.user_data(c, uid))

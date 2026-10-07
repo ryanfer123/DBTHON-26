@@ -9,6 +9,7 @@ import { RegisterPage } from "./features/identity/RegisterPage";
 import { ProfilePage } from "./features/identity/ProfilePage";
 import { SettingsPage } from "./features/identity/SettingsPage";
 import { AdminPage } from "./features/identity/AdminPage";
+import { ZoneConfirmationPage } from "./features/identity/ZoneConfirmationPage";
 import {
   FoodDetailPage,
   FoodPage,
@@ -94,6 +95,15 @@ const routes = [
     element: (
       <AccountGate>
         <ProfilePage />
+      </AccountGate>
+    ),
+  },
+  {
+    path: "/choose-zone",
+    handle: { title: "Confirm your community area" },
+    element: (
+      <AccountGate>
+        <ZoneConfirmationPage />
       </AccountGate>
     ),
   },

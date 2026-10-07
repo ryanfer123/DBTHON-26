@@ -40,5 +40,10 @@ export function AccountGate({
     );
   if (admin && !auth.session.user.capabilities.includes("Admin"))
     return <Navigate to="/account" replace />;
+  if (
+    auth.session.user.zone_review_required &&
+    location.pathname !== "/choose-zone"
+  )
+    return <Navigate to="/choose-zone" replace />;
   return children;
 }
