@@ -817,3 +817,19 @@ main commit `fb8eb40ae0d774f6b6b70495a1b59f172e91940f` became `live` on 2026-10-
 at 16:33:22 UTC. A fresh public page/CSS fetch confirmed the shared dropdown,
 46px control height and filter spacing rules are served by the live site.
 The AWS backend and Render frontend now contain the matching feature release.
+
+### 2026-10-07 - Routine and impact page alignment
+
+Corrected shared workspace heading flex shrink so long titles/introductions stay
+inside the content area. Recurring donations now has separate aligned reminder and
+saved-schedule panels, stacked below 1100 px with readable form guidance and section
+gaps. My impact uses the shared labelled field styling for its period selector and
+a bounded two-column statistics panel with aligned values and wrapping notes.
+Changed DonorSchedules.tsx, PersonalImpactPage in Experience.tsx and workspace.css;
+no API/schema changes. Frontend lint/type/build passed. Chrome fixture-session
+presentation checks passed for both pages at 1440, 1000 and 390 px, including dark
+mobile, heading containment, no horizontal overflow, aligned desktop panels/statistic
+rows and working listing/period dropdowns. No page errors were observed. Reproduce
+with `node /private/tmp/check-workspace-spacing.mjs` against local Vite port 5175;
+screenshots are `/private/tmp/workspace-{impact,schedules}-{1440,1000,390}.png`.
+The newer remote dropdown and backend release evidence above is preserved.
