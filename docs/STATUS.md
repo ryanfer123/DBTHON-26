@@ -509,3 +509,15 @@ other members automatically or establish a real pilot identity-verification proc
 Next task: separate synthetic public demo/reset workflow and the pending P11/P12
 operational, privacy and food-safety evidence. Original workspace drafts remain
 preserved.
+
+## UI/UX release (2026-10-07)
+
+Published `7e5750faa9809b919bcf9ad2624b0d3379c6de75` to GitHub `main`; verified the
+remote ref matched. Render static service `DBTHON-26` auto-deployed that commit and
+reported it live. Public `/`, `/help`, and `/food` each returned HTTP 200. The API
+stack update retained existing resources and deployed the tested Lambda package;
+the guarded bootstrap advanced the existing PostgreSQL database from 0004 to 0005
+without fixture seeding, and Lambda readiness returned HTTP 200. No AWS drafts,
+deployment cost documents, scripts, or the separate original-workspace RDS
+compatibility migration were staged or moved. Detailed implementation and test
+evidence: [UI/UX implementation record](UI_UX_IMPLEMENTATION.md).

@@ -55,7 +55,9 @@ deployment/migration work in `/Volumes/Seagate/dbthon` are preserved.
 - `apps/api/.venv/bin/python scripts/export_openapi.py --check`, `python3 scripts/validate_handoff.py`, and `git diff --check` — passed.
 - Lighthouse mobile Fast 3G with 150 ms request latency, 1,638 Kbps download, and 4x CPU slowdown: LCP 2,229 ms, CLS 0, TBT 0 ms, performance score 0.97. This is a local synthetic run.
 - `POSTGRES_PORT=55435 POSTGRES_PASSWORD=local-test-only DBTHON_BROWSER_TEST_DATABASE=dbthon_usability_browser_test npm run test:e2e --prefix apps/web` — 30 passed across desktop and 390 px mobile projects. Coverage includes navigation, registration, food/photo/map/listing, help, theme, dashboard, filtering/history, exchange/delivery/rating, reports, keyboard and axe checks. Scripted timing is not participant research.
-- GitHub `main` was checked read-only before release and remained at `d0d9788c036ec534eec1b20e311dc432935a1dbf` at that check. Render reports auto-deploy on each `main` commit for `apps/web`; publication/deployment is pending.
+- Published to GitHub `main` as `7e5750faa9809b919bcf9ad2624b0d3379c6de75` (`Complete UI and food-sharing improvements`); the remote ref was verified to match.
+- AWS `DbthonRenderApi` updated without resource replacement or database replacement; its change set modified existing API, bootstrap, and worker code plus their schedule target/permission references. The guarded bootstrap migrated the existing database from 0004 to 0005, reporting `previous_migration=0004`; no fixtures were seeded. Lambda readiness returned HTTP 200 with `status=ready`.
+- Render static service `DBTHON-26` automatically deployed the same commit and reports it live. Public `/`, `/help`, and `/food` routes each returned HTTP 200.
 
 The repository's broader controlled-demo/P11, five-person hallway study and genuine
 donor/NGO pilot remain outstanding. Automated verification does not establish those
