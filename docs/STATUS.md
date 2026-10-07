@@ -739,6 +739,16 @@ or page errors. Temporary QA script/screenshots are outside Git under
 backend/database feature evidence. Next unfinished project work remains the real
 PostgreSQL/browser release gates for migrations 0010-0012 recorded above and P11/P12.
 
+### 2026-10-07 - Stable selected sidebar labels
+
+Removed the selected sidebar link's font-weight change. The sage highlight and
+`aria-current` still identify the current page while label width stays stable.
+Chrome fixture-session checks in light and dark modes clicked Community updates:
+the label stayed one line and link height remained 43 px before/after selection.
+Frontend lint, types and build passed. Only workspace navigation CSS changed; no
+API or schema changes. Reproduce presentation check with
+`node /private/tmp/check-sidebar-selection.mjs` while local Vite serves port 5175.
+
 ## 2026-10-07: live experience backend and themed dropdown repair
 
 The user's screenshots showed My impact, Saved listings, My reports and Recurring
