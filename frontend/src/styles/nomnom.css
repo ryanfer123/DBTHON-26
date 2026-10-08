@@ -963,3 +963,25 @@ h4 {
   }
   .status-stepper li { padding: 12px; }
 }
+
+/* Search and filter controls share a height and baseline in role toolbars. */
+.workspace-toolbar {
+  --toolbar-control-height: 52px;
+}
+.workspace-toolbar .field input,
+.workspace-toolbar .field select,
+.food-search > .button {
+  box-sizing: border-box;
+  height: var(--toolbar-control-height);
+  min-height: var(--toolbar-control-height);
+  padding-block: 0;
+}
+.workspace-toolbar > .text-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--toolbar-control-height);
+  padding-block: 0;
+}
+.food-search > .button:hover:not(:disabled) {
+  transform: none;
+}
