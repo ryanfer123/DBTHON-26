@@ -976,6 +976,7 @@ h4 {
 }
 .workspace-toolbar .field input,
 .workspace-toolbar .field select,
+.workspace-toolbar > .button,
 .food-search > .button {
   box-sizing: border-box;
   height: var(--toolbar-control-height);
@@ -988,6 +989,7 @@ h4 {
   min-height: var(--toolbar-control-height);
   padding-block: 0;
 }
+.workspace-toolbar > .button:hover:not(:disabled),
 .food-search > .button:hover:not(:disabled) {
   transform: none;
 }
