@@ -6,8 +6,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   color-scheme: light;
-  --font-display: Georgia, "Times New Roman", serif;
-  --font-body: Inter, "Avenir Next", Arial, Helvetica, sans-serif;
+  --font-display:
+    "Arial Narrow", "Roboto Condensed", "Aptos Display", Arial, sans-serif;
+  --font-body: "Aptos", "Avenir Next", Arial, sans-serif;
   --page-max: 1320px;
   --space-section: clamp(3.5rem, 8vw, 7.5rem);
   --radius-control: 0.85rem;

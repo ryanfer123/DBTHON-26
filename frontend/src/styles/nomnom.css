@@ -33,8 +33,10 @@ body {
 
 h1,
 h2,
-.wordmark {
+h3,
+h4 {
   font-family: var(--font-display);
+  font-weight: 800;
   letter-spacing: -0.045em;
 }
 
@@ -52,6 +54,7 @@ h2,
 }
 
 .wordmark {
+  font-family: Georgia, "Times New Roman", serif;
   position: relative;
   display: inline-flex;
   align-items: baseline;
@@ -319,6 +322,8 @@ h2,
 }
 
 .app-layout {
+  width: min(90%, var(--page-max));
+  margin-inline: auto;
   grid-template-columns: 252px minmax(0, 1fr);
   gap: clamp(18px, 3vw, 42px);
   min-height: calc(100vh - 180px);
@@ -326,7 +331,7 @@ h2,
 
 .workspace-sidebar {
   border: 0;
-  padding: 26px 0 40px max(5vw, calc((100vw - var(--page-max)) / 2));
+  padding: 26px 0 40px;
 }
 
 .workspace-sidebar nav {
@@ -593,7 +598,7 @@ h2,
   }
 
   .workspace-sidebar {
-    padding-left: 18px;
+    padding-left: 0;
   }
 
   .workspace-content > .container {
@@ -622,6 +627,7 @@ h2,
 
   .app-layout {
     display: block;
+    width: 100%;
   }
 
   .workspace-content > .container {
@@ -792,4 +798,22 @@ h2,
   .workspace-content .trust-summary {
     padding: 20px 16px;
   }
+}
+
+/* Use shared type tokens in compact role tools as well as full page headings. */
+.inbox-row h2,
+.member-info h2,
+.dashboard-list h3,
+.nav-group h2,
+.impact-summary small,
+.mobile-workspace-nav a,
+.mobile-workspace-nav button {
+  font-family: var(--font-body);
+}
+
+/* Keep the keyboard entry point readable above the sticky header in both themes. */
+.skip-link {
+  z-index: 30;
+  background: var(--button-bg);
+  color: var(--button-text);
 }
