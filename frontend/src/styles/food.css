@@ -486,3 +486,16 @@
 .ledger-list.ledger-list-compact summary {
   padding-block: 4px;
 }
+
+.food-filters-heading {
+  font-size: 1.125rem;
+  margin: 0 0 14px;
+}
+.workspace-toolbar .food-search {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.workspace-toolbar .food-search .field {
+  width: 100%;
+  min-width: 0;
+}

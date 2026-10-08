@@ -1137,3 +1137,27 @@ No application/browser tests added or run, and no live deployment claimed. Exist
 native-select-specific test interactions need adaptation during a requested browser
 verification pass. Next: merge this UI branch and publish through Render, then review
 real dropdown keyboard/form/mobile behavior when browser verification is authorized.
+
+### Visible filters and live prefix search - 2026-10-09
+
+Added the Search and filters heading, category/diet/allergen controls to My donations,
+and explicit deadline/newest/oldest ordering. Food search updates after a 250 ms pause,
+with immediate Enter, composition handling, URL replacement, cursor reset, preserved
+focus/typed characters, and clear/back URL synchronization. Existing fetch cancellation
+prevents a superseded query from replacing the active view. Empty-filter messaging
+now distinguishes no matches from a first donation.
+
+Backend adds optional prefix mode for feed and own-listing queries, own-listing
+category/diet/allergen filters, and deadline/newest keyset pagination. Legacy API
+defaults remain contains search and listing order. Restricted actor/zone/capacity
+checks are preserved. No migration, infrastructure or credential change.
+
+Changed FoodList.tsx, useListLocation.ts, food.css, routes/workflows.py,
+workflows/service.py, API/OpenAPI/database/UX/requirements and this handoff.
+Static checks: frontend build/TypeScript/ESLint passed; Python Ruff and mypy passed.
+The production build remained within the 204,800-byte initial JavaScript budget.
+No application, browser or PostgreSQL tests were added or run. No live deployment
+claimed. Next: deploy the updated API before merging/publishing this frontend; then
+perform a requested browser/PostgreSQL verification of prefix results, time order,
+filter combinations, pagination, rapid typing and back/clear/composition behavior.
+Separate `feat/browser-push` work and original AWS drafts remain preserved.

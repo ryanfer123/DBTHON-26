@@ -89,6 +89,7 @@ def food_feed(
     limit: Limit = 20,
     q: Annotated[str | None, Query(max_length=80)] = None,
     include_over_capacity: bool = False,
+    search_mode: Literal["contains", "prefix"] = "contains",
     diet_tags: Annotated[list[DietTag] | None, Query(max_length=3)] = None,
     exclude_allergens: Annotated[list[Allergen] | None, Query(max_length=10)] = None,
 ) -> ListingsResponse:
@@ -105,6 +106,7 @@ def food_feed(
             include_over_capacity,
             diet_tags,
             exclude_allergens,
+            search_mode,
         )
         return ListingsResponse(data=data, meta=meta)
 
@@ -113,12 +115,19 @@ def food_feed(
 def own_listings(
     request: Request,
     status: ListingStatus | None = None,
-    cursor: Cursor = 0,
+    cursor: Annotated[str | None, Query(max_length=1024)] = None,
     limit: Limit = 20,
     q: Annotated[str | None, Query(max_length=80)] = None,
+    category: Category | None = None,
+    diet_tags: Annotated[list[DietTag] | None, Query(max_length=3)] = None,
+    exclude_allergens: Annotated[list[Allergen] | None, Query(max_length=10)] = None,
+    search_mode: Literal["contains", "prefix"] = "contains",
+    sort: Literal["listing", "expiry", "newest"] = "listing",
 ) -> ListingsResponse:
     with context(request) as c:
-        data, meta = service.listings_mine(c, status, cursor, limit, q)
+        data, meta = service.listings_mine(
+            c, status, cursor, limit, q, category, diet_tags, exclude_allergens, search_mode, sort
+        )
         return ListingsResponse(data=data, meta=meta)
 
 

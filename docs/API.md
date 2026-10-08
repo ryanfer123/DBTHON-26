@@ -273,3 +273,24 @@ Errors include `SAVE_LIMIT`/`ISSUE_EXISTS` (409), `RATE_LIMITED` (429), and exis
 role/zone/state/idempotency errors. Reports never alter allocation or certify safety.
 Calendar export is a browser-local ICS download after full pickup agreement, with
 no external API, contacts or cached private app data.
+
+## Live food-name search and donor filters (2026-10-09)
+
+Both GET `/listings` and GET `/listings/mine` accept `search_mode=contains|prefix`.
+The default remains `contains` for existing clients; the food-search UI explicitly
+uses `prefix`. Matching is case-insensitive and treats `%`, `_` and backslashes as
+literal input. For example `q=ch&search_mode=prefix` matches names starting with
+“ch”. Filtering runs before pagination and sorting on the server.
+
+`/listings/mine` additionally supports `category`, repeated `diet_tags`, repeated
+`exclude_allergens`, and `sort=listing|expiry|newest`. `listing` retains the legacy
+ascending listing-ID order and numeric cursor. `expiry` sorts collection deadlines
+ascending, then listing ID; `newest` sorts created_at and listing ID descending.
+The time sorts use opaque cursors tied to actor, query, filters and sort. Changing
+these parameters requires restarting pagination; the UI does this automatically.
+The receiver feed retains expiry/distance/ID ordering, capacity, verified-donor,
+zone and live-window restrictions. Filters never broaden authorization.
+
+Deploy this backend change before publishing the new search UI; older servers
+ignore additional query parameters and would still apply contains/listing order.
+No migration is needed.

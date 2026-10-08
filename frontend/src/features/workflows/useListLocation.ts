@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 type Cursor = string | number | null;
 export function useListLocation() {
@@ -13,21 +14,27 @@ export function useListLocation() {
         )
         .slice(-100)
     : [];
-  function commit(next: URLSearchParams, nextTrail: Cursor[]) {
-    navigate(
-      { pathname: location.pathname, search: next.toString() },
-      { state: { cursorTrail: nextTrail } },
-    );
-  }
-  function setFilters(values: Record<string, string>) {
-    const next = new URLSearchParams(search);
-    next.delete("cursor");
-    Object.entries(values).forEach(([key, value]) => {
-      if (value) next.set(key, value);
-      else next.delete(key);
-    });
-    commit(next, []);
-  }
+  const commit = useCallback(
+    (next: URLSearchParams, nextTrail: Cursor[], replace = false) => {
+      navigate(
+        { pathname: location.pathname, search: next.toString() },
+        { state: { cursorTrail: nextTrail }, replace },
+      );
+    },
+    [navigate, location.pathname],
+  );
+  const setFilters = useCallback(
+    (values: Record<string, string>, options?: { replace?: boolean }) => {
+      const next = new URLSearchParams(search);
+      next.delete("cursor");
+      Object.entries(values).forEach(([key, value]) => {
+        if (value) next.set(key, value);
+        else next.delete(key);
+      });
+      commit(next, [], options?.replace);
+    },
+    [commit, search],
+  );
   function setCursor(value: Cursor) {
     const next = new URLSearchParams(search);
     if (value === null || value === 0) next.delete("cursor");

@@ -132,6 +132,7 @@ def feed(
     include_over_capacity: bool = False,
     diet_tags: Sequence[str] | None = None,
     exclude_allergens: Sequence[str] | None = None,
+    search_mode: str = "contains",
 ) -> tuple[list[Listing], Meta]:
     require(connection, "Receiver")
     profile = connection.execute(
@@ -144,6 +145,8 @@ def feed(
     diets = sorted(set(diet_tags or []))
     excluded = sorted(set(exclude_allergens or []))
     scope = [lat, lon, radius, category, search, include_over_capacity, diets, excluded]
+    if search_mode != "contains":
+        scope.append(search_mode)
     after_time, after_distance, after_id = datetime.min.replace(tzinfo=UTC), -1.0, 0
     if cursor:
         try:
@@ -179,7 +182,7 @@ def feed(
                 "category": category,
                 "diet_tags": diets,
                 "exclude_allergens": excluded,
-                "search": search_pattern(search),
+                "search": search_pattern(search, prefix=search_mode == "prefix"),
                 "after_time": after_time,
                 "after_distance": after_distance,
                 "after_id": after_id,
@@ -201,6 +204,7 @@ def feed(
                     "id": last["listing_id"],
                 },
                 separators=(",", ":"),
+                ensure_ascii=False,
             ).encode()
         ).decode()
     hidden = connection.execute(
@@ -215,7 +219,7 @@ def feed(
             "category": category,
             "diet_tags": diets,
             "exclude_allergens": excluded,
-            "search": search_pattern(search),
+            "search": search_pattern(search, prefix=search_mode == "prefix"),
         },
     ).scalar_one()
     return [Listing.model_validate(row) for row in rows[:limit]], Meta(
@@ -224,33 +228,106 @@ def feed(
 
 
 def listings_mine(
-    connection: Connection, status: str | None, cursor: int, limit: int, q: str | None = None
+    connection: Connection,
+    status: str | None,
+    cursor: int | str | None,
+    limit: int,
+    q: str | None = None,
+    category: str | None = None,
+    diet_tags: Sequence[str] | None = None,
+    exclude_allergens: Sequence[str] | None = None,
+    search_mode: str = "contains",
+    sort: str = "listing",
 ) -> tuple[list[Listing], Meta]:
     uid = require(connection, "Donor")
     now = clock(connection)
+    search = (q or "").strip().lower()
+    diets, excluded = sorted(set(diet_tags or [])), sorted(set(exclude_allergens or []))
+    scope = [uid, status, search, category, diets, excluded, search_mode, sort]
+    after_time, after_id = (
+        (datetime.max.replace(tzinfo=UTC), 2**63 - 1)
+        if sort == "newest"
+        else (datetime.min.replace(tzinfo=UTC), 0)
+    )
+    try:
+        if sort in {"expiry", "newest"} and cursor not in (None, 0, "0", ""):
+            value = json.loads(base64.urlsafe_b64decode(str(cursor)))
+            if value["scope"] != scope:
+                raise ValueError("Cursor filters changed")
+            after_time = datetime.fromisoformat(value["time"])
+            after_id = int(value["id"])
+            if after_time.tzinfo is None or not 1 <= after_id <= 2**63 - 1:
+                raise ValueError("Invalid cursor")
+        elif sort == "listing":
+            after_id = int(cursor or 0)
+            if after_id < 0:
+                raise ValueError("Invalid cursor")
+    except (ValueError, KeyError, TypeError, OverflowError) as error:
+        raise DomainError(
+            "INVALID_CURSOR", 422, "Refresh donations with the current filters."
+        ) from error
+    time_column = "l.created_at" if sort == "newest" else "l.expiry_window_end"
+    if sort in {"expiry", "newest"}:
+        comparison = "<" if sort == "newest" else ">"
+        cursor_filter = f"({time_column},l.listing_id){comparison}(:after_time,:after_id)"
+        order = (
+            f"{time_column} DESC,l.listing_id DESC"
+            if sort == "newest"
+            else f"{time_column},l.listing_id"
+        )
+    else:
+        cursor_filter, order = "l.listing_id>:after_id", "l.listing_id"
     rows = (
         connection.execute(
             text(f"""SELECT {LISTING_COLUMNS} FROM food_listings l
-      LEFT JOIN users u ON u.user_id=l.donor_id WHERE l.donor_id=:uid AND l.listing_id>:cursor
-      AND NOT EXISTS(
-        SELECT FROM hidden_listings h WHERE h.user_id=:uid AND h.listing_id=l.listing_id)
+      LEFT JOIN users u ON u.user_id=l.donor_id WHERE l.donor_id=:uid AND {cursor_filter}
+      AND NOT EXISTS(SELECT FROM hidden_listings h
+        WHERE h.user_id=:uid AND h.listing_id=l.listing_id)
       AND (CAST(:status AS text) IS NULL OR l.status=:status)
+      AND (CAST(:category AS text) IS NULL OR l.category=:category)
+      AND l.diet_tags @> CAST(:diet_tags AS text[])
+      AND NOT (l.allergens && CAST(:exclude_allergens AS text[]))
+      AND (cardinality(CAST(:exclude_allergens AS text[]))=0 OR l.safety_confirmed_at IS NOT NULL)
       AND l.food_type ILIKE :search ESCAPE '\\'
-      ORDER BY l.listing_id LIMIT :limit"""),
+      ORDER BY {order} LIMIT :limit"""),
             {
                 "uid": uid,
                 "now": now,
-                "cursor": cursor,
+                "after_id": after_id,
+                "after_time": after_time,
                 "status": status,
+                "category": category,
+                "diet_tags": diets,
+                "exclude_allergens": excluded,
                 "limit": limit + 1,
-                "search": search_pattern((q or "").strip()),
+                "search": search_pattern(search, prefix=search_mode == "prefix"),
             },
         )
         .mappings()
         .all()
     )
+    next_cursor: str | int | None = None
+    if len(rows) > limit:
+        last = rows[limit - 1]
+        next_cursor = (
+            base64.urlsafe_b64encode(
+                json.dumps(
+                    {
+                        "scope": scope,
+                        "time": last[
+                            "created_at" if sort == "newest" else "expiry_window_end"
+                        ].isoformat(),
+                        "id": last["listing_id"],
+                    },
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode()
+            ).decode()
+            if sort in {"expiry", "newest"}
+            else last["listing_id"]
+        )
     return [Listing.model_validate(row) for row in rows[:limit]], Meta(
-        server_time=now, next_cursor=rows[limit - 1]["listing_id"] if len(rows) > limit else None
+        server_time=now, next_cursor=next_cursor
     )
 
 
@@ -521,9 +598,10 @@ def impact(
     )
 
 
-def search_pattern(value: str) -> str:
+def search_pattern(value: str, *, prefix: bool = False) -> str:
     """Treat wildcard and escape characters as literal user input."""
-    return "%" + value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+    escaped = value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return ("" if prefix else "%") + escaped + "%"
 
 
 def overview(connection: Connection) -> OverviewResponse:

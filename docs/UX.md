@@ -105,3 +105,24 @@ stay disabled. The menu implementation loads separately; a disabled loading trig
 appears until it is ready. Only the shared component contains native select elements;
 application pages use the themed control. Native-select-specific browser automation
 must use the new combobox/option interaction when future browser checks are requested.
+
+## Search and filters (2026-10-09)
+
+Both food views have an explicit “Search and filters” heading. My donations now
+exposes Listing status, Category, Diet tag, Exclude declared allergen and Sort by
+time. The receiver feed exposes Search radius, Category, Diet tag and allergen
+exclusion, while retaining the existing capacity controls.
+
+Food-name search updates automatically after a 250 ms typing pause; Enter submits
+immediately. “ch” matches names starting with “ch”, regardless of case. Composition
+input waits until composition ends. Changing search/filter/sort resets pagination;
+typing replaces the current URL rather than creating a Back entry per keystroke.
+The input stays mounted, and pending typed characters are preserved while its own
+URL update arrives. Back/forward URLs and Clear filters restore the displayed text.
+The API query hook aborts superseded fetches. An Updating results message accompanies
+pending searches; no-match feedback distinguishes filtering from a first donation.
+
+Collection deadline is the initial time ordering; My donations can also use Newest
+listings or Oldest listings. Receiver ordering remains deadline, distance and ID.
+All matches are reachable through server pagination; filtering is not limited to a
+client-side subset of loaded listings. Donor declarations do not certify safety.

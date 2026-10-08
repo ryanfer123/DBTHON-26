@@ -1,5 +1,5 @@
 import { ThemedSelect } from "../../components/ThemedSelect";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Freshness } from "../../components/Freshness";
 import { allergens, diets } from "./foodTags";
@@ -38,9 +38,30 @@ export function FoodPage({ own = false }: { own?: boolean }) {
     "Cancelled",
   ]);
   const q = list.value("q").slice(0, 80);
+  const sort = list.value("sort", "expiry", ["expiry", "newest", "listing"]);
+  const [draft, setDraft] = useState({ source: q, value: q, submitted: q });
+  if (draft.source !== q) {
+    setDraft({
+      source: q,
+      value: q === draft.submitted ? draft.value : q,
+      submitted: q,
+    });
+  }
+  const [composing, setComposing] = useState(false);
+  const searchInput = draft.value;
+  const setFilters = list.setFilters;
+  useEffect(() => {
+    if (composing || searchInput.trim() === q) return;
+    const timer = window.setTimeout(() => {
+      const next = searchInput.trim();
+      setDraft((current) => ({ ...current, submitted: next }));
+      setFilters({ q: next }, { replace: true });
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [searchInput, q, composing, setFilters]);
   const { cursor, setCursor } = list;
   const query = useQuery<Rows<Listing>>(
-    `${own ? "/listings/mine" : "/listings"}?${params(own ? { status, q, cursor: cursor ?? 0 } : { category, diet_tags: diet, exclude_allergens: excluded, radius_m: radius, q, cursor, include_over_capacity: String(larger) })}`,
+    `${own ? "/listings/mine" : "/listings"}?${params(own ? { status, category, diet_tags: diet, exclude_allergens: excluded, sort, search_mode: "prefix", q, cursor: cursor ?? 0 } : { category, diet_tags: diet, exclude_allergens: excluded, radius_m: radius, search_mode: "prefix", q, cursor, include_over_capacity: String(larger) })}`,
     { deferNewRows: !own, poll: true },
   );
   const hideCommand = useCommand();
@@ -61,33 +82,35 @@ export function FoodPage({ own = false }: { own?: boolean }) {
           )
         }
       >
-        <div className="workspace-toolbar">
+        <h2 className="food-filters-heading">Search and filters</h2>
+        <div className="workspace-toolbar" aria-label="Food search and filters">
           <form
             className="food-search"
             onSubmit={(event) => {
               event.preventDefault();
-              list.setFilters({
-                q: String(new FormData(event.currentTarget).get("q")).trim(),
-              });
+              const next = searchInput.trim();
+              setDraft((current) => ({ ...current, submitted: next }));
+              list.setFilters({ q: next });
             }}
           >
             <div className="field">
               <label htmlFor="food-search">Search food</label>
               <input
-                key={q}
                 id="food-search"
                 name="q"
                 type="search"
                 maxLength={80}
-                defaultValue={q}
+                value={searchInput}
+                placeholder="Type a name, e.g. ch"
+                aria-describedby="food-search-hint"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setDraft((current) => ({ ...current, value }));
+                }}
+                onCompositionStart={() => setComposing(true)}
+                onCompositionEnd={() => setComposing(false)}
               />
             </div>
-            <button
-              className="button button-outline button-small"
-              type="submit"
-            >
-              Search
-            </button>
           </form>
           {own ? (
             <div className="field">
@@ -128,57 +151,69 @@ export function FoodPage({ own = false }: { own?: boolean }) {
                   <option value="5000">5 km</option>
                 </ThemedSelect>
               </div>
-              <div className="field">
-                <label htmlFor="category">Category</label>
-                <ThemedSelect
-                  id="category"
-                  value={category}
-                  onValueChange={(e) => {
-                    list.setFilters({ category: e });
-                  }}
-                >
-                  <option value="">All food</option>
-                  <option value="Veg">Vegetarian</option>
-                  <option value="NonVeg">Non-vegetarian</option>
-                </ThemedSelect>
-              </div>
             </>
           )}
-          {!own && (
-            <>
-              <div className="field">
-                <label htmlFor="diet-filter">Diet tag</label>
-                <ThemedSelect
-                  id="diet-filter"
-                  value={diet}
-                  onValueChange={(e) => list.setFilters({ diet_tags: e })}
-                >
-                  <option value="">Any diet</option>
-                  {diets.map((tag) => (
-                    <option key={tag}>{tag}</option>
-                  ))}
-                </ThemedSelect>
-              </div>
-              <div className="field">
-                <label htmlFor="allergen-filter">
-                  Exclude declared allergen
-                </label>
-                <ThemedSelect
-                  id="allergen-filter"
-                  value={excluded}
-                  onValueChange={(e) =>
-                    list.setFilters({ exclude_allergens: e })
-                  }
-                >
-                  <option value="">No exclusion</option>
-                  {allergens.map((tag) => (
-                    <option key={tag}>{tag}</option>
-                  ))}
-                </ThemedSelect>
-              </div>
-            </>
+          <div className="field">
+            <label htmlFor="category">Category</label>
+            <ThemedSelect
+              id="category"
+              value={category}
+              onValueChange={(e) => {
+                list.setFilters({ category: e });
+              }}
+            >
+              <option value="">All food</option>
+              <option value="Veg">Vegetarian</option>
+              <option value="NonVeg">Non-vegetarian</option>
+            </ThemedSelect>
+          </div>
+          <div className="field">
+            <label htmlFor="diet-filter">Diet tag</label>
+            <ThemedSelect
+              id="diet-filter"
+              value={diet}
+              onValueChange={(e) => list.setFilters({ diet_tags: e })}
+            >
+              <option value="">Any diet</option>
+              {diets.map((tag) => (
+                <option key={tag}>{tag}</option>
+              ))}
+            </ThemedSelect>
+          </div>
+          <div className="field">
+            <label htmlFor="allergen-filter">Exclude declared allergen</label>
+            <ThemedSelect
+              id="allergen-filter"
+              value={excluded}
+              onValueChange={(e) => list.setFilters({ exclude_allergens: e })}
+            >
+              <option value="">No exclusion</option>
+              {allergens.map((tag) => (
+                <option key={tag}>{tag}</option>
+              ))}
+            </ThemedSelect>
+          </div>
+          {own && (
+            <div className="field">
+              <label htmlFor="food-sort">Sort by time</label>
+              <ThemedSelect
+                id="food-sort"
+                value={sort}
+                onValueChange={(value) => list.setFilters({ sort: value })}
+              >
+                <option value="expiry">Collection deadline</option>
+                <option value="newest">Newest listings</option>
+                <option value="listing">Oldest listings</option>
+              </ThemedSelect>
+            </div>
           )}
-          <button className="text-button" onClick={list.clear}>
+          <button
+            className="text-button"
+            onClick={() => {
+              setDraft({ source: "", value: "", submitted: "" });
+              list.clear();
+            }}
+          >
             Clear filters
           </button>
           <button
@@ -189,15 +224,25 @@ export function FoodPage({ own = false }: { own?: boolean }) {
             Refresh food
           </button>
         </div>
-        {!own && (
-          <p className="field-help">
-            Diet and allergen filters use donor declarations, not
-            certifications. Listings without a checklist are excluded when an
-            allergen exclusion is selected. Distances are straight-line
-            estimates from your saved account location, not road travel
-            distances.
-          </p>
-        )}
+        <p id="food-search-hint" className="field-help" aria-live="polite">
+          {searchInput.trim() !== q || (query.loading && !query.data)
+            ? "Updating results… "
+            : ""}
+          Search updates as you type and matches food names starting with your
+          text.
+          {own &&
+            (sort === "expiry"
+              ? " Sorted by collection deadline, earliest first."
+              : sort === "newest"
+                ? " Sorted by newest listing first."
+                : " Sorted by oldest listing first.")}
+        </p>
+        <p className="field-help">
+          Diet and allergen filters use donor declarations, not certifications.
+          Listings without a checklist are excluded when an allergen exclusion
+          is selected. Distances are straight-line estimates from your saved
+          account location, not road travel distances.
+        </p>
         {query.newCount > 0 && (
           <button
             className="button button-small new-listings"
@@ -330,13 +375,15 @@ export function FoodPage({ own = false }: { own?: boolean }) {
             {!query.data.data.length && (
               <div className="empty-state">
                 <h2>
-                  {own
+                  {own && !q && !status && !category && !diet && !excluded
                     ? "Your first donation starts here."
-                    : "No food matches this search."}
+                    : "No food matches these filters."}
                 </h2>
                 <p>
                   {own
-                    ? "Add the food you can share and its collection window."
+                    ? q || status || category || diet || excluded
+                      ? "Try another name or clear the filters to see your other donations."
+                      : "Add the food you can share and its collection window."
                     : "Try a wider radius or category. Change your filters or show larger listings above. The capacity count distinguishes food too large from no food nearby."}
                 </p>
                 {own && (

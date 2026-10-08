@@ -356,3 +356,12 @@ erDiagram
 
 Forward-only source migration; real PostgreSQL execution and security/concurrency
 regression evidence are pending. Do not edit a migration after it is deployed.
+
+### Food search read-query extension (2026-10-09)
+
+No schema change. Own-donation queries apply category/diet/allergen and literal
+case-insensitive prefix filters before LIMIT. Deadline ordering uses the
+(expiry_window_end,listing_id) keyset; newest ordering uses (created_at,listing_id)
+descending. Opaque time cursors include actor and filters; legacy listing-ID order
+remains available. Receiver feed ordering/eligibility checks remain intact. These
+are restricted runtime reads, with no new grants or write routines.

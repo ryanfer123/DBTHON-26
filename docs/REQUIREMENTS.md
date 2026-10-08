@@ -82,3 +82,11 @@ Implementation is on the feature branch. Release checks and provider/pilot evide
 Source implementation and researched rationale: [comparison](COMPETITOR_GAP_ANALYSIS.md).
 Runtime acceptance evidence remains pending; these extensions do not change core
 FR01–FR10 or produce real pilot evidence.
+
+### Food discovery follow-up (2026-10-09)
+
+FR04 search now has explicit prefix matching selected by the UI, automatic typing
+updates, visible donor category/diet/allergen controls, and deadline/newest ordering
+across paginated matches. Existing radius/zone/capacity rules remain unchanged. Static
+checks establish compilation only; PostgreSQL/browser behavior is not yet demonstrated
+for this follow-up. Deploy the updated backend before the frontend.
