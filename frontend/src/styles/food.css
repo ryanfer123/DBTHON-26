@@ -462,3 +462,27 @@
   object-fit: cover;
   border-radius: 12px;
 }
+
+/* Keep the default trust history short; full audit details stay available. */
+.history-controls {
+  margin-block: 12px;
+  flex-wrap: wrap;
+}
+.ledger-list.ledger-list-compact > li {
+  padding-block: 12px;
+}
+.ledger-list.ledger-list-compact .section-heading {
+  margin: 0;
+  gap: 12px;
+}
+.ledger-list.ledger-list-compact h3 {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.ledger-list.ledger-list-compact .field-help {
+  margin-block: 4px;
+  font-size: 0.875rem;
+}
+.ledger-list.ledger-list-compact summary {
+  padding-block: 4px;
+}

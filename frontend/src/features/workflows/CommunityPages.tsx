@@ -145,10 +145,10 @@ export function TrustPage() {
     >
       {userId ? (
         <Access roles={["Admin"]}>
-          <TrustHistory target={target} admin />
+          <TrustHistory key={target} target={target} admin />
         </Access>
       ) : (
-        <TrustHistory target={target} />
+        <TrustHistory key={target} target={target} />
       )}
     </Workspace>
   );
@@ -161,9 +161,11 @@ function TrustHistory({
   admin?: boolean;
 }) {
   const trust = useQuery<{ data: Trust }>(`/users/${target}/trust`);
+  const [historyVisible, setHistoryVisible] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [cursor, setCursor] = useState<string | number | null>(null);
   const ledger = useQuery<Rows<Ledger>>(
-    `${admin ? `/admin/users/${target}/trust-ledger` : "/trust-ledger/mine"}?${params({ cursor: cursor ?? 0 })}`,
+    `${admin ? `/admin/users/${target}/trust-ledger` : "/trust-ledger/mine"}?${params({ cursor: cursor ?? 0, limit: expanded ? 20 : 3 })}`,
   );
   return (
     <>
@@ -193,41 +195,79 @@ function TrustHistory({
           Refresh history
         </button>
       </div>
-      <QueryStatus {...ledger} />
-      {ledger.data && (
-        <>
-          <ol className="ledger-list">
-            {ledger.data.data.map((entry) => (
-              <li key={entry.sequence}>
-                <div className="section-heading">
-                  <h3>{entry.action_type.replaceAll(".", " · ")}</h3>
-                  <span>#{entry.sequence}</span>
-                </div>
-                <p className="field-help">
-                  {date(entry.occurred_at)} · {entry.ref_table} {entry.ref_id}
-                </p>
-                <details>
-                  <summary>View audit record</summary>
-                  <dl className="audit-hashes">
-                    <dt>Previous hash</dt>
-                    <dd>{entry.prev_hash}</dd>
-                    <dt>Record hash</dt>
-                    <dd>{entry.curr_hash}</dd>
-                  </dl>
-                  <pre>{JSON.stringify(entry.payload, null, 2)}</pre>
-                </details>
-              </li>
-            ))}
-          </ol>
-          {!ledger.data.data.length && (
-            <p className="list-message">No recorded actions in this view.</p>
-          )}
-          <Pagination
-            meta={ledger.data.meta}
-            cursor={cursor}
-            setCursor={setCursor}
-          />
-        </>
+      <div className="actions history-controls">
+        <button
+          className="button button-small button-outline"
+          aria-expanded={historyVisible}
+          aria-controls="recorded-actions-panel"
+          onClick={() => setHistoryVisible((visible) => !visible)}
+        >
+          {historyVisible ? "Hide history" : "Show history"}
+        </button>
+        {historyVisible && (
+          <button
+            className="text-button"
+            aria-expanded={expanded}
+            aria-controls="recorded-actions-panel"
+            onClick={() => {
+              setExpanded((value) => !value);
+              setCursor(null);
+            }}
+          >
+            {expanded ? "Show fewer actions" : "Show full history"}
+          </button>
+        )}
+      </div>
+      <div id="recorded-actions-panel" hidden={!historyVisible}>
+        <QueryStatus {...ledger} />
+        {ledger.data && (
+          <>
+            <p className="field-help">
+              {expanded
+                ? "Showing up to 20 actions per page."
+                : "Compact view: up to 3 actions per page."}
+            </p>
+            <ol
+              id="recorded-actions-list"
+              className={`ledger-list${expanded ? "" : " ledger-list-compact"}`}
+            >
+              {ledger.data.data.map((entry) => (
+                <li key={entry.sequence}>
+                  <div className="section-heading">
+                    <h3>{entry.action_type.replaceAll(".", " · ")}</h3>
+                    <span>#{entry.sequence}</span>
+                  </div>
+                  <p className="field-help">
+                    {date(entry.occurred_at)} · {entry.ref_table} {entry.ref_id}
+                  </p>
+                  <details>
+                    <summary>View audit record</summary>
+                    <dl className="audit-hashes">
+                      <dt>Previous hash</dt>
+                      <dd>{entry.prev_hash}</dd>
+                      <dt>Record hash</dt>
+                      <dd>{entry.curr_hash}</dd>
+                    </dl>
+                    <pre>{JSON.stringify(entry.payload, null, 2)}</pre>
+                  </details>
+                </li>
+              ))}
+            </ol>
+            {!ledger.data.data.length && (
+              <p className="list-message">No recorded actions in this view.</p>
+            )}
+            <Pagination
+              meta={ledger.data.meta}
+              cursor={cursor}
+              setCursor={setCursor}
+            />
+          </>
+        )}
+      </div>
+      {!historyVisible && (
+        <p className="field-help">
+          History is hidden from this view. Your recorded actions are preserved.
+        </p>
       )}
       {!admin && <VerifyMyChain />}
       <p className="workspace-note">

@@ -78,3 +78,13 @@ inbox/trust, impact and administration. Marketing animation remains on public pa
 role screens prioritize readable labels, usable controls and clear task states.
 Existing routes, role visibility, CSRF headers, stored theme preferences and API
 contracts are retained. The integration does not mark any design as user-approved.
+
+## Compact recorded actions
+
+Trust history defaults to three compact audit entries per page. “Show full history”
+switches to twenty entries per page; “Show fewer actions” restores compact mode and
+returns to the first page. “Hide history” collapses the list and pagination, while
+“Show history” restores it. These controls apply to personal and administrator member
+history. Individual audit payloads remain inside expandable details. No audit records
+are deleted or changed; ledger verification remains available. Changing member resets
+the view and cursor. Browser-push work remains on its separate feature branch.

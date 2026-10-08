@@ -1094,3 +1094,19 @@ P11 performance and P12 actual stakeholder/pilot evidence remain open.
 - Extended shared toolbar control-height and stable-hover rules to direct toolbar buttons, including Search requests. Inputs, selects, and the submit button now share a 52px height and desktop top/bottom alignment while preserving mobile wrapping.
 - Changed only nomnom CSS; no API, migration, or infrastructure changes. Original deployment drafts remain untouched.
 - Lint, typecheck, production build (181803 gzip bytes within budget), and handoff validator passed. Chrome/Playwright fixture checks at 2560/1440px light and 390px dark verified equal control heights, desktop top alignment, stable hover, search URL/input submission, and no horizontal overflow/runtime errors. Browser plugin unavailable. Screenshots: `/private/tmp/nomnom-request-search-{2560,1440,390}.png`. Unit/backend tests were not rerun for this CSS-only fix; existing build advisories remain. Next task: separately recorded search input-value restoration follow-up.
+
+## Compact recorded actions - 2026-10-08
+
+Branch `feat/compact-recorded-actions`, based on main `330b747`. Updated
+`frontend/src/features/workflows/CommunityPages.tsx` and `frontend/src/styles/food.css`:
+three compact records per page by default, full history at twenty per page, and
+Hide/Show history controls. Page size uses the existing bounded ledger API; changing
+view mode resets pagination. Personal/admin histories use the same controls and
+member changes reset local view state. Hashes, audit payloads and stored events remain
+intact. No migration or backend change is required. Push work is preserved separately
+on `feat/browser-push`; original untracked AWS drafts remain untouched.
+
+Checks: frontend production build and gzip budget passed; TypeScript and ESLint passed;
+`git diff --check` passed. No application/browser tests were added or run. Handoff
+integrity check passed. No live deployment is claimed. Next: merge this frontend branch
+and allow Render's Git-backed deployment to publish the compact history UI.
