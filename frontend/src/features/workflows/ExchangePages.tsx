@@ -249,45 +249,35 @@ function ExchangeDetails({
   return (
     <>
       <ExchangeProgress exchange={exchange} />
-      <dl className="detail-list">
+      <dl className="detail-list exchange-facts">
         <dt>Donor</dt>
-        <dd>
-          {exchange.donor_name}
+        <dd className="exchange-participant">
+          <span>{exchange.donor_name}</span>
           {exchange.donor_phone && (
-            <>
-              {" "}
-              ·{" "}
-              <>
-                <a href={`tel:${exchange.donor_phone}`}>
-                  {exchange.donor_phone}
-                </a>{" "}
-                <WhatsAppContact
-                  phone={exchange.donor_phone}
-                  claimId={exchange.claim_id}
-                  name={exchange.donor_name ?? "Participant"}
-                />
-              </>
-            </>
+            <div className="exchange-contact-actions">
+              <a href={`tel:${exchange.donor_phone}`}>{exchange.donor_phone}</a>
+              <WhatsAppContact
+                phone={exchange.donor_phone}
+                claimId={exchange.claim_id}
+                name={exchange.donor_name ?? "Participant"}
+              />
+            </div>
           )}
         </dd>
         <dt>Receiver</dt>
-        <dd>
-          {exchange.receiver_name}
+        <dd className="exchange-participant">
+          <span>{exchange.receiver_name}</span>
           {exchange.receiver_phone && (
-            <>
-              {" "}
-              ·{" "}
-              <>
-                <a href={`tel:${exchange.receiver_phone}`}>
-                  {exchange.receiver_phone}
-                </a>{" "}
-                <WhatsAppContact
-                  phone={exchange.receiver_phone}
-                  claimId={exchange.claim_id}
-                  name={exchange.receiver_name ?? "Participant"}
-                />
-              </>
-            </>
+            <div className="exchange-contact-actions">
+              <a href={`tel:${exchange.receiver_phone}`}>
+                {exchange.receiver_phone}
+              </a>
+              <WhatsAppContact
+                phone={exchange.receiver_phone}
+                claimId={exchange.claim_id}
+                name={exchange.receiver_name ?? "Participant"}
+              />
+            </div>
           )}
         </dd>
         <dt>Pickup point</dt>
@@ -297,7 +287,7 @@ function ExchangeDetails({
         {exchange.receiver_latitude && exchange.receiver_longitude && (
           <>
             <dt>Delivery point</dt>
-            <dd>
+            <dd className="exchange-destination">
               <Coordinates
                 lat={exchange.receiver_latitude}
                 lon={exchange.receiver_longitude}
@@ -810,9 +800,15 @@ function ExchangeProgress({ exchange }: { exchange: Exchange }) {
                 key={label}
                 aria-current={index === step ? "step" : undefined}
               >
-                <span aria-hidden="true">{index < step ? "✓" : index + 1}</span>{" "}
-                {label}
-                {index === step && <strong> · Current</strong>}
+                <span className="step-number" aria-hidden="true">
+                  {index < step ? "✓" : index + 1}
+                </span>
+                <span className="step-copy">
+                  {label}
+                  {index === step && (
+                    <strong className="step-current">Current</strong>
+                  )}
+                </span>
               </li>
             ))}
           </ol>

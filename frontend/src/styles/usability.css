@@ -242,3 +242,105 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Exchange content follows a consistent vertical rhythm. */
+.exchange-detail .deadline-strip {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-radius: 10px;
+  margin-bottom: 32px;
+}
+.exchange-progress {
+  margin-bottom: 32px;
+}
+.exchange-progress h2 {
+  margin-bottom: 20px;
+}
+.exchange-progress .status-stepper {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 20px;
+}
+.status-stepper li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 12px;
+  min-width: 0;
+  border-width: 2px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.step-number {
+  flex: none;
+  font-weight: 700;
+}
+.step-copy {
+  min-width: 0;
+}
+.step-current {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.exchange-progress > p {
+  margin: 0;
+  line-height: 1.6;
+}
+.exchange-detail .exchange-facts {
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 24px 28px;
+  align-items: start;
+  margin: 32px 0;
+}
+.exchange-facts dt,
+.exchange-facts dd {
+  line-height: 1.6;
+}
+.exchange-participant > span {
+  display: block;
+}
+.exchange-contact-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 6px;
+}
+.exchange-destination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+@media (max-width: 1100px) {
+  .exchange-progress .status-stepper {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .exchange-progress .status-stepper {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .status-stepper li {
+    align-items: center;
+  }
+  .step-copy {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+  .step-current {
+    margin: 0;
+  }
+  .exchange-detail .exchange-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .exchange-facts dd {
+    margin-bottom: 18px;
+  }
+}

@@ -887,3 +887,13 @@ weight alignment, one visual countdown, accessible timer name, View food navigat
 long-title wrapping and no horizontal overflow/page errors. Reproduce with
 `node /private/tmp/check-food-row.mjs` against Vite port 5175; screenshots are
 `/private/tmp/food-row-{1440,1000,390}-{donor,receiver}.png` for tested combinations.
+
+### 2026-10-08 - Exchange alignment implementation
+
+Grouped participant names and phone/WhatsApp actions with explicit spacing; delivery
+coordinates and directions wrap with a gap. Deadline banner has a bottom margin,
+progress steps share grid sizing and a separate current-step caption, and exchange
+facts use consistent label/value alignment with stacked mobile rows. Changed
+ExchangePages.tsx and usability.css; no API/schema changes. Initial frontend lint,
+types, build and 25 tests passed. Final rendered checks will use the combined tree
+with Aritra's requested frontend merge before publication.
