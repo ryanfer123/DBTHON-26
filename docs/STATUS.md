@@ -1110,3 +1110,10 @@ Checks: frontend production build and gzip budget passed; TypeScript and ESLint 
 `git diff --check` passed. No application/browser tests were added or run. Handoff
 integrity check passed. No live deployment is claimed. Next: merge this frontend branch
 and allow Render's Git-backed deployment to publish the compact history UI.
+
+### Rounded sidebar follow-up - 2026-10-08
+
+Removed the straight left border from expanded `.nav-disclosure > div` groups in
+`frontend/src/styles/workspace.css`, preserving rounded navigation panels and active
+link shapes. Included on `feat/compact-recorded-actions`. CSS diff and handoff checks
+passed; no browser tests or live deployment performed for this styling adjustment.

@@ -61,7 +61,6 @@
 }
 .nav-disclosure > div {
   margin-left: 10px;
-  border-left: 1px solid var(--line);
 }
 .nav-disclosure a {
   font-size: 16px;
