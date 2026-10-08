@@ -143,7 +143,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </nav>
         </aside>
-        <div className="workspace-content">{children}</div>
+        <div key={pathname} className="workspace-content">
+          {children}
+        </div>
       </div>
       <nav className="mobile-workspace-nav" aria-label="Mobile workspace">
         <NavLink to="/dashboard">Dashboard</NavLink>

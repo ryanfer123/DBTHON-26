@@ -1,3 +1,4 @@
+import { BrandMark } from "../../components/BrandMark";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { AppLayout } from "../../components/AppLayout";
@@ -72,6 +73,9 @@ export function ProfilePage() {
         </div>
         <div className="profile-layout">
           <aside className="account-summary" aria-label="Account status">
+            <div className="account-art" aria-hidden="true">
+              <BrandMark />
+            </div>
             <h2>Your community roles</h2>
             <p className="status-line">
               <span

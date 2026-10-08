@@ -819,7 +819,7 @@ h4 {
 }
 
 /* Authentication belongs to the same matcha community as the landing page. */
-:root:has(.auth-layout):not([data-theme="dark"]) {
+:root:has(.auth-layout, .app-layout):not([data-theme="dark"]) {
   --bg: #e8efe4;
   --surface: #eef4e9;
   --green: #1c4d25;
@@ -941,7 +941,9 @@ h4 {
   gap: 12px;
   margin-bottom: 20px;
 }
-.exchange-progress-heading h2 { margin: 0; }
+.exchange-progress-heading h2 {
+  margin: 0;
+}
 .workspace-content .status-stepper li {
   align-items: center;
   padding: 16px 12px;
@@ -955,13 +957,17 @@ h4 {
 .workspace-content .status-stepper li[data-state="current"] {
   border: 2px solid var(--green);
 }
-.status-stepper li[data-state="upcoming"] { color: var(--muted); }
+.status-stepper li[data-state="upcoming"] {
+  color: var(--muted);
+}
 @media (max-width: 600px) {
   .exchange-progress .status-stepper {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
-  .status-stepper li { padding: 12px; }
+  .status-stepper li {
+    padding: 12px;
+  }
 }
 
 /* Search and filter controls share a height and baseline in role toolbars. */
@@ -984,4 +990,108 @@ h4 {
 }
 .food-search > .button:hover:not(:disabled) {
   transform: none;
+}
+
+/* The signed-in community uses the same matcha surfaces and forest accents. */
+.profile-layout .account-summary {
+  --green: #f1f5eb;
+  --muted: #d6e5ce;
+  --line: #5d7f5e;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #1c4d25;
+  color: #f1f5eb;
+  border-color: #3b6840;
+  border-radius: 28px;
+}
+.account-summary .status-dot.approved {
+  background: #91bb68;
+}
+.account-summary .button {
+  background: #91bb68;
+  color: #173d2d;
+  border-color: #91bb68;
+}
+.account-art {
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  right: -110px;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.account-art .brand-mark {
+  width: 340px;
+  height: 340px;
+}
+.profile-layout .form-section {
+  max-width: none;
+  padding: clamp(24px, 3vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+}
+.workspace-content .form-submit {
+  background: #91bb68;
+  color: #173d2d;
+  border-color: #91bb68;
+}
+.workspace-content .form-submit:is(:hover, :focus-visible) {
+  background: #a8cc84;
+}
+.workspace-sidebar :is(a, summary),
+.workspace-content :is(input, select, textarea),
+.workspace-content :is(.dashboard-shortcuts a, .community-cards > li) {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .workspace-content {
+    animation: workspace-arrive 320ms ease-out both;
+  }
+  .workspace-sidebar nav {
+    animation: workspace-arrive 400ms ease-out both;
+  }
+  .workspace-content :is(.dashboard-summary > div, .dashboard-shortcuts a) {
+    animation: workspace-arrive 400ms ease-out both;
+  }
+  .workspace-content
+    :is(.dashboard-summary > div, .dashboard-shortcuts a):nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .workspace-content
+    :is(.dashboard-summary > div, .dashboard-shortcuts a):nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .workspace-content
+    :is(.dashboard-summary > div, .dashboard-shortcuts a):nth-child(4) {
+    animation-delay: 120ms;
+  }
+}
+@keyframes workspace-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-sidebar :is(a, summary),
+  .workspace-content :is(input, select, textarea),
+  .workspace-content :is(.dashboard-shortcuts a, .community-cards > li) {
+    transition: none;
+  }
+}
+@media (max-width: 600px) {
+  .profile-layout .account-summary,
+  .profile-layout .form-section {
+    border-radius: 24px;
+  }
 }
