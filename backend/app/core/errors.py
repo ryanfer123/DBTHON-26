@@ -37,6 +37,14 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
     diagnostic = getattr(error.orig, "diag", None) if isinstance(error, DBAPIError) else None
     code = str(getattr(diagnostic, "message_primary", "")).strip()
     mappings = {
+        "DELETE_CONFIRMATION_REQUIRED": (422, "Type the account email to confirm deletion."),
+        "PROTECTED_ACCOUNT": (409, "The main administrator account cannot be deleted."),
+        "LAST_ZONE_ADMIN": (409, "Grant another member administrator access in this area first."),
+        "ACCOUNT_DELETED": (409, "This account has been permanently deleted."),
+        "ACCOUNT_ACTIVE_EXCHANGES": (
+            409,
+            "Finish or cancel this account's active donations and exchanges before deleting it.",
+        ),
         "SAVE_LIMIT": (409, "You can save up to 100 listings. Remove one to save another."),
         "ISSUE_EXISTS": (409, "You already have an open report for this item."),
         "RATE_LIMITED": (429, "Too many messages or reports. Try again later."),

@@ -294,3 +294,12 @@ zone and live-window restrictions. Filters never broaden authorization.
 Deploy this backend change before publishing the new search UI; older servers
 ignore additional query parameters and would still apply contains/listing order.
 No migration is needed.
+
+## Account deletion
+
+- `DELETE /auth/me` and `DELETE /admin/users/{user_id}` accept `{ "confirmation_email": "the-current-account-email" }` and return 204. Both require a valid session, exact allowed Origin and CSRF token. The self route clears the session cookie after commit. All target sessions are removed.
+- Self deletion works for pending and verified users. Admin deletion uses the existing zone scope; `z1.admin@example.invalid` can delete members across areas. The named main admin is protected, and deletion of an area's last active approved admin is rejected.
+- `DELETE_CONFIRMATION_REQUIRED` is 422; `PROTECTED_ACCOUNT`, `LAST_ZONE_ADMIN`, `ACCOUNT_ACTIVE_EXCHANGES` and `ACCOUNT_DELETED` are 409. Cross-zone targets return 404 and non-admin member deletion returns 403.
+- Deletion permanently removes login/profile details, role approvals, preferences, schedules, receiver capacity, saved/hidden listing preferences, sessions and private idempotency responses. Open food requests are closed; inbox rows are hidden and pending/processing notification work is invalidated. Already dispatched provider messages cannot be recalled.
+- A pseudonymous inactive `users` row remains to preserve foreign keys and the append-only hash chain. Completed exchanges, listings, messages, reports, reviews and audit content remain; this is not a purge of every historical mention or user-written text. Deleted accounts disappear from member management and cannot be reactivated.
+- Deploy migration `0014` before the API and frontend. The separate undeployed push branch's `0013` must be rebased onto this migration before combining branches, including removal of push subscriptions on deletion.

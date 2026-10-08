@@ -1,3 +1,4 @@
+import { DeleteAccountForm } from "./DeleteAccountForm";
 import { InstallApp } from "../../components/InstallApp";
 import { useState } from "react";
 import { api, ApiError } from "../../lib/identity";
@@ -161,6 +162,15 @@ export function SettingsPage() {
         </section>
       )}
       <InstallApp />
+      {auth.session && (
+        <section
+          className="settings-section"
+          aria-labelledby="delete-account-heading"
+        >
+          <h2 id="delete-account-heading">Delete account</h2>
+          <DeleteAccountForm user={auth.session.user} />
+        </section>
+      )}
       <section className="settings-section" aria-labelledby="history-heading">
         <h2 id="history-heading">Inbox history</h2>
         <p>

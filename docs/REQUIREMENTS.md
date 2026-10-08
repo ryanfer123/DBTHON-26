@@ -90,3 +90,7 @@ updates, visible donor category/diet/allergen controls, and deadline/newest orde
 across paginated matches. Existing radius/zone/capacity rules remain unchanged. Static
 checks establish compilation only; PostgreSQL/browser behavior is not yet demonstrated
 for this follow-up. Deploy the updated backend before the frontend.
+
+### Account management extension
+
+Users can permanently delete account access/profile details from Settings; admins can delete scoped members from Community members. Confirmation is explicit, active exchanges and main/final-area-admin deletion are guarded, and transaction/audit history remains under a pseudonymous identity. Migration `0014` and both DELETE endpoints are implemented; runtime database and browser acceptance evidence remains pending.

@@ -1,6 +1,22 @@
 {
   "components": {
     "schemas": {
+      "AccountDeletion": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation_email": {
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Confirmation Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmation_email"
+        ],
+        "title": "AccountDeletion",
+        "type": "object"
+      },
       "AdminGrant": {
         "additionalProperties": false,
         "properties": {
@@ -4745,6 +4761,52 @@
         ]
       }
     },
+    "/api/v1/admin/users/{user_id}": {
+      "delete": {
+        "operationId": "delete_member_api_v1_admin_users__user_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeletion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Member",
+        "tags": [
+          "Identity",
+          "Administration"
+        ]
+      }
+    },
     "/api/v1/admin/users/{user_id}/admin": {
       "post": {
         "operationId": "grant_admin_api_v1_admin_users__user_id__admin_post",
@@ -4972,6 +5034,38 @@
       }
     },
     "/api/v1/auth/me": {
+      "delete": {
+        "operationId": "delete_my_account_api_v1_auth_me_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeletion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete My Account",
+        "tags": [
+          "Identity"
+        ]
+      },
       "get": {
         "operationId": "me_api_v1_auth_me_get",
         "responses": {

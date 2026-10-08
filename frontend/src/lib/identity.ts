@@ -39,7 +39,7 @@ export function apiUrl(path: string): string {
 export async function api<T>(
   path: string,
   options: {
-    method?: "POST" | "PATCH" | "PUT";
+    method?: "POST" | "PATCH" | "PUT" | "DELETE";
     body?: unknown;
     csrf?: string;
     key?: string;

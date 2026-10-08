@@ -10,6 +10,7 @@ from app.core.config import Settings
 from app.core.errors import DomainError
 from app.identity import service
 from app.identity.models import (
+    AccountDeletion,
     AdminGrant,
     Login,
     NotificationPreferences,
@@ -270,7 +271,7 @@ def admin_users(
         ids = (
             c.execute(
                 text(
-                    "SELECT user_id FROM users WHERE user_id>:cursor "
+                    "SELECT user_id FROM users WHERE user_id>:cursor AND deleted_at IS NULL "
                     "AND (CAST(:zone_id AS bigint) IS NULL OR zone_id=:zone_id) "
                     "AND (CAST(:verified AS boolean) IS NULL OR verified_status=:verified) "
                     "ORDER BY user_id LIMIT :limit"
@@ -313,3 +314,29 @@ def grant_admin(user_id: int, body: AdminGrant, request: Request) -> UserRespons
             },
         ).scalar_one()
         return UserResponse(data=service.user_data(c, uid))
+
+
+@router.delete("/auth/me", status_code=204)
+def delete_my_account(body: AccountDeletion, request: Request, response: Response) -> None:
+    with context(request, write=True) as c:
+        c.execute(
+            text("SELECT dbthon_delete_account(dbthon_actor_id(),:email)"),
+            {"email": body.confirmation_email},
+        )
+    settings = request.app.state.settings
+    response.delete_cookie(
+        SESSION_COOKIE,
+        path="/api/v1",
+        secure=settings.app_env == "production",
+        httponly=True,
+        samesite=settings.session_same_site if settings.app_env == "production" else "lax",
+    )
+
+
+@router.delete("/admin/users/{user_id}", status_code=204, tags=["Administration"])
+def delete_member(user_id: int, body: AccountDeletion, request: Request) -> None:
+    with context(request, write=True) as c:
+        c.execute(
+            text("SELECT dbthon_delete_account(:uid,:email)"),
+            {"uid": user_id, "email": body.confirmation_email},
+        )

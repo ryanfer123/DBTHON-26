@@ -184,3 +184,9 @@ subtotals. Picked-up but undelivered food earns no points. Progress shows the ne
 This is a presentation metric, not a stored balance, trust score, ranking, reward
 or independently measured social impact. Demo activity stays explicitly labelled.
 Scores are hidden while a fresh period loads or the API returns an error.
+
+## Permanent account deletion
+
+Users may delete their own account, including before verification. Approved admins may delete members under their existing area permissions; the named main admin retains global scope. Require the current account email as explicit confirmation and CSRF/Origin validation. Protect the main administrator and the last active approved admin in each area. Reject deletion while donor listings are Available/Claimed/PickedUp, receiver claims Confirmed or volunteer attempts Scheduled/PickedUp; finish, cancel or expire these first.
+
+Deletion removes personal profile and login details and private preferences permanently. Retain a pseudonymous inactive identity for historical exchanges and immutable audit references; do not cascade away another participant's records or rewrite ledger hashes. Close open requests and invalidate pending alerts. Historical user-written content remains. Deleted identities cannot regain access; registering again creates a new identity requiring ordinary verification.

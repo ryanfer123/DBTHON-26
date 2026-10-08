@@ -126,3 +126,7 @@ Collection deadline is the initial time ordering; My donations can also use Newe
 listings or Oldest listings. Receiver ordering remains deadline, distance and ID.
 All matches are reachable through server pagination; filtering is not limited to a
 client-side subset of loaded listings. Donor declarations do not certify safety.
+
+## Account deletion
+
+Settings includes Delete account. Community members includes Delete account for other members. The action opens a rounded inline confirmation form that explains permanence, retained historical records and active-exchange/admin guards. The user types the account email; the final button stays disabled until it matches. Cancel clears confirmation and errors. Successful self deletion clears account state and returns home; successful admin deletion refreshes members and announces completion. The main administrator receives a protected-account explanation.

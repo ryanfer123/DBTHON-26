@@ -55,3 +55,5 @@ Revision `0012` prepares saved listings, private exchange messages, evidence-lin
 reports and personal impact routines. Its guarded mutation/SELECT boundaries follow
 0011. The source migration remains unapplied pending runtime release checks; see
 [comparison and rollout notes](../docs/COMPETITOR_GAP_ANALYSIS.md).
+
+Revision `0014_account_deletion.sql` follows `0012` in this branch and adds guarded account/profile erasure with retained pseudonymous audit identity. Apply through Alembic. Revision `0013` on the separate undeployed browser-push branch must be reconciled into one forward chain before merging/deploying both features.

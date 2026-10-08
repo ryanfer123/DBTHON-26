@@ -365,3 +365,11 @@ case-insensitive prefix filters before LIMIT. Deadline ordering uses the
 descending. Opaque time cursors include actor and filters; legacy listing-ID order
 remains available. Receiver feed ordering/eligibility checks remain intact. These
 are restricted runtime reads, with no new grants or write routines.
+
+## Account deletion (revision 0014)
+
+Revision `0014` follows `0012` in this branch; `0013` is reserved by the separate, undeployed browser-push branch. A combined branch must form a single forward migration chain before deployment. `users.deleted_at` records irreversible deletion, with a check requiring inactive/unverified status and an empty login hash. Phone storage widens to 30 characters for unique internal deleted-account identifiers; registration still requires a real E.164 phone.
+
+`dbthon_delete_account(bigint,text)` is owned by the NOLOGIN guard and only executable by runtime. It authorizes scope before acquiring domain locks, locks listing/claim/pickup/schedule/request rows before sorted users, then rechecks actor, scope and typed email. Main-admin, last-area-admin and active-exchange guards protect operational continuity. Deletion records a minimal hash-chain event and removes private account state in the same transaction. Contact/profile fields become pseudonymous placeholders; historical identity keys and records remain unchanged. A trigger rejects updates to already deleted users. No direct deletion permissions are added to runtime.
+
+Profile erasure is not complete historical-content erasure: participant messages, donor-written details, review reasons and immutable payloads remain. No downgrade can recover removed information. No PostgreSQL runtime or concurrency tests were run for this change.

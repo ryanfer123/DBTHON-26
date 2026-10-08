@@ -1161,3 +1161,24 @@ claimed. Next: deploy the updated API before merging/publishing this frontend; t
 perform a requested browser/PostgreSQL verification of prefix results, time order,
 filter combinations, pagination, rapid typing and back/clear/composition behavior.
 Separate `feat/browser-push` work and original AWS drafts remain preserved.
+
+
+## 2026-10-09: Account deletion prepared
+
+Implemented self deletion in Settings and scoped admin deletion in Community members on `feat/compact-recorded-actions`, isolated at `/private/tmp/dbthon-browser-push`. The original checkout's AWS drafts remain untouched. New shared `DeleteAccountForm.tsx` requires typed current email, explains retained historical content, supports cancellation and handles server guards. API helper and CORS now support DELETE. Routes `DELETE /auth/me` and `DELETE /admin/users/{user_id}` require Origin/CSRF and call the guard-owned transaction routine.
+
+Migration `0014_account_deletion.sql` adds `users.deleted_at`, widens internal phone storage, removes sessions/private profile state, closes open requests, invalidates pending notification work and appends a minimal audit event. Retained users become permanently inactive pseudonymous records so completed exchanges and hash chains keep valid references. Main admin and last active approved admin per area are protected; active donor/receiver/volunteer exchanges block deletion. Deleted accounts disappear from member lists and cannot be updated/reactivated. Historical messages, listings, reviews and other user-written content are retained, so this is profile/account erasure rather than an unrestricted physical row/history purge.
+
+Changed: backend identity model/routes/error map/CORS; frontend API helper, Settings, AdminPage and new confirmation form; migration SQL/Alembic; AWS bootstrap's expected revision; API/database/domain/requirements/UX/database README and OpenAPI handoff. Migration `0014` follows `0012` in this branch. Browser-push revision `0013` remains on a separate undeployed branch: reconcile it into one forward chain and include push-subscription deletion before combining/deploying those features.
+
+Actual checks:
+- `backend/.venv/bin/ruff check backend/app backend/alembic/versions/0014_account_deletion.py`: passed.
+- `backend/.venv/bin/mypy --config-file backend/pyproject.toml backend/app`: passed, 32 files.
+- `npm run build --prefix frontend`: passed, TypeScript/Vite and budget; initial JavaScript 183844 gzip bytes against 204800. Existing GSAP/chunk-size warnings remain.
+- `npm run lint --prefix frontend`: passed.
+- `PYTHONPATH=backend backend/.venv/bin/python scripts/export_openapi.py --check`: passed.
+- `backend/.venv/bin/alembic -c backend/alembic.ini heads`: single `0014` head in this checkout.
+- `python3 scripts/validate_handoff.py`: passed source/links/fixtures/coverage; not application runtime evidence.
+- `git diff --check`: passed.
+
+No application/browser/PostgreSQL tests were added or run. No database migration, cloud resource change, merge or deployment was performed. Next: exercise deletion and concurrent workflow/admin guards against real PostgreSQL, then migrate/deploy API before frontend after deployment review. A provider message already dispatched cannot be recalled.

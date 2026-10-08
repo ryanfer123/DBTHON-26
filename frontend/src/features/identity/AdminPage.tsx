@@ -1,3 +1,4 @@
+import { DeleteAccountForm } from "./DeleteAccountForm";
 import { ThemedSelect } from "../../components/ThemedSelect";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router";
@@ -366,6 +367,16 @@ export function AdminPage() {
                         />
                       </details>
                     )}
+                  {user.user_id !== auth.session?.user.user_id && (
+                    <DeleteAccountForm
+                      user={user}
+                      admin
+                      onDeleted={() => {
+                        setNotice(`Account deleted for ${user.name}.`);
+                        reload();
+                      }}
+                    />
+                  )}
                 </li>
               ))}
             </ul>

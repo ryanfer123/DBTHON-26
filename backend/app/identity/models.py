@@ -113,6 +113,10 @@ class NotificationPreferencesResponse(BaseModel):
     data: NotificationPreferencesData
 
 
+class AccountDeletion(Input):
+    confirmation_email: str = Field(min_length=3, max_length=100)
+
+
 class AdminGrant(Input):
     reason: str = Field(min_length=3, max_length=300)
 

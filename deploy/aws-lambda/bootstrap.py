@@ -82,11 +82,12 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                     "0010",
                     "0011",
                     "0012",
+                    "0014",
                 }:
                     raise ValueError(
                         f"Refusing to migrate unexpected revision {current}"
                     )
-            if current != "0012":
+            if current != "0014":
                 command.upgrade(Config(str(ROOT / "backend/alembic.ini")), "head")
             with engine.connect() as c:
                 revision = c.execute(
