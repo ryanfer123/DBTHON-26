@@ -875,15 +875,17 @@ The newer remote dropdown and backend release evidence above is preserved.
 
 ## NomNom frontend migration (2026-10-08)
 
-The uncommitted NomNom frontend work was preserved while `frontend` was fast-forwarded
-from `c89c159` to `origin/main` at `3b306e9`. The updated branch includes community
-requests/updates, donor handling declarations and schedules, bounded external alert
-transport, exchange experience tools, PWA/offline support, themed workspace navigation,
-and migrations 0007–0012. NomNom branding, the high-end marketing landing, responsive
-theme additions and role-based post-login landing are being integrated with those
-workflows. No migrations were applied and no deployment was performed during this merge.
+NomNom frontend work was committed on `frontend` as `b363a47`. The branch was then
+merged with updated `origin/main` at `0db65e2`, preserving both the landing page and
+the remote personal impact score feature. The branch contains community requests and
+updates, donor handling declarations and schedules, bounded external alert transport,
+exchange experience tools, PWA/offline support, themed workspace navigation, and
+migrations 0007–0012. The NomNom landing page, responsive theme, and role-based
+post-login landing are integrated with those workflows. No migrations were applied
+and no deployment was performed during this merge.
 
-The migration plan and frontend changes remain uncommitted. On the integrated tree,
+The migration plan and design register are included in the frontend commit. On the
+tree before the latest main update,
 `npm test --prefix frontend` passed (31 tests/7 files); `npm run typecheck`, `npm run
 lint` and `npm run build` passed. Initial JavaScript is 125,343 bytes gzip, within the
 204,800-byte budget; the lazy Three.js chunk is 139,070 bytes gzip and Vite reports a
@@ -893,3 +895,37 @@ and `python scripts/validate_handoff.py` passed. On Windows, Vitest needs `TEMP`
 worker temp-file failures. The migration checker now normalizes paths across platforms.
 No database-backed tests were run for this merge. Database release gates for migrations
 0010–0012 and P11/P12 remain outstanding.
+
+### 2026-10-08 - Personal impact score
+
+Added an Impact score card to My impact using the existing authenticated API's
+unique delivered weight. Formula: round(delivered_kg * 10), for the selected
+30/90/365-day period. Overlapping role subtotals and uncompleted pickups do not
+add points. The card explains the formula, shows the next 100-point milestone,
+and labels demo activity. Score/statistics are hidden during loading or errors
+rather than showing stale or misleading zero values. No stored score, API change
+or migration is required; this does not modify trust or introduce rewards/ranking.
+
+Restored the lost temporary checkout into `/private/tmp/dbthon-impact-finish` from
+published revision `3b306e9`, preserving the original workspace's AWS drafts.
+Changed ImpactScore.tsx, PersonalImpactPage in Experience.tsx, workspace.css and
+the domain/requirements documentation. Frontend lint, type and production build
+passed (124,500 initial JS bytes gzip); all 25 existing frontend tests and the
+handoff validator also passed. Chrome fixture-session checks passed at
+1440 px/light and 390 px/dark: unique-total scoring despite overlapping role data,
+fractional rounding, period change, milestone progress, hidden loading/error score,
+retry recovery, zero state and no overflow/page errors. This is presentation
+validation; existing backend aggregation is reused without database changes.
+Reproduce with `node /private/tmp/check-impact-score.mjs` against Vite port 5175;
+screenshots are `/private/tmp/impact-score-{1440,390}.png`.
+P11 performance and P12 real stakeholder/pilot evidence remain separate work.
+
+### 2026-10-08 - Frontend branch merge
+
+Merged `origin/main` commit `0db65e2` into `frontend` after committing the local
+NomNom changes as `b363a47`. The only content conflict was these appended status
+notes; both the frontend migration record and personal impact score record are kept.
+The untracked `scratch/` preview/debug files were left out of the commit.
+After the merge, `npm run build` passed with 180,795 initial JavaScript bytes gzip,
+within the 204,800-byte budget. Vite reports the existing GSAP mixed import and
+large uncompressed chunk advisories. The test suite was not run for this Git sync.
