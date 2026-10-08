@@ -1095,3 +1095,39 @@ h4 {
     border-radius: 24px;
   }
 }
+
+/* Keep report guidance outside the scrolling data and align it with the cells. */
+.report-context {
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+}
+.report-context p { margin: 0; }
+.report-context .field-help { margin-top: 8px; }
+.report-context + .report-table {
+  margin-top: 0;
+  border-radius: 0 0 16px 16px;
+}
+.report-table table { min-width: 1200px; overflow: visible; }
+.report-table thead th {
+  white-space: normal;
+  min-width: 140px;
+  overflow-wrap: normal;
+  word-break: normal;
+  vertical-align: middle;
+}
+.report-table :is(th, td) { padding-inline: 20px; }
+.report-table tr > th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 180px;
+  max-width: 260px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  background: var(--surface);
+}
+.report-table thead tr > th:first-child { background: var(--sage); }

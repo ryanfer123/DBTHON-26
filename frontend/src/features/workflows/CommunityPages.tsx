@@ -434,16 +434,26 @@ function ImpactResults({ queryString }: { queryString: string }) {
             {query.data.factors.meal_weight_kg} kg per meal equivalent.{" "}
             {query.data.factors.emissions_source}; CO₂e is unavailable.
           </p>
+          <div className="report-context" id="impact-report-context">
+            <p>
+              Reporting timezone: {query.data.factors.timezone}. Date ranges
+              include the start and exclude the end.
+            </p>
+            <p className="field-help">
+              Scroll horizontally to see all columns. The period and area stay
+              visible.
+            </p>
+          </div>
           <div
             className="report-table"
+            aria-describedby="impact-report-context"
             role="region"
             aria-label="Impact details"
             tabIndex={0}
           >
             <table>
-              <caption>
-                Reporting timezone: {query.data.factors.timezone}. Date ranges
-                include the start and exclude the end.
+              <caption className="sr-only">
+                Activity by period and community area
               </caption>
               <thead>
                 <tr>
