@@ -1,3 +1,4 @@
+import { ExchangeProgress } from "./ExchangeProgress";
 import { ExchangeChat, ReportIssue, PickupCalendar } from "./Experience";
 import { PickupAgreement } from "./PickupAgreement";
 import { LocationMap } from "../../components/maps/LocationMap";
@@ -756,65 +757,5 @@ function Assignments({
         </>
       )}
     </>
-  );
-}
-
-function ExchangeProgress({ exchange }: { exchange: Exchange }) {
-  const terminal = ["Cancelled", "Expired"].includes(exchange.status);
-  const step =
-    exchange.status === "Completed"
-      ? exchange.my_rating === null
-        ? 3
-        : 4
-      : exchange.pickup_status === "PickedUp"
-        ? 2
-        : exchange.pickup_status === "Scheduled"
-          ? 1
-          : 0;
-  const next = [
-    "Reserved. Waiting for a volunteer — updates will appear in your inbox.",
-    "A volunteer is assigned. Keep the food ready for collection.",
-    "Picked up. The volunteer will confirm delivery next.",
-    "Delivered. Eligible participants can now rate this exchange.",
-    "Your rating is recorded. Thank you for sharing.",
-  ];
-  return (
-    <section className="exchange-progress">
-      <h2>What happens next</h2>
-      {terminal ? (
-        <p className="notice">
-          This exchange is {exchange.status.toLowerCase()}. No further
-          collection or rating action is available.
-        </p>
-      ) : (
-        <>
-          <ol className="status-stepper">
-            {[
-              "Claimed",
-              "Volunteer assigned",
-              "Picked up",
-              "Delivered",
-              "Rate",
-            ].map((label, index) => (
-              <li
-                key={label}
-                aria-current={index === step ? "step" : undefined}
-              >
-                <span className="exchange-step-number" aria-hidden="true">
-                  {index < step ? "✓" : index + 1}
-                </span>
-                <span className="exchange-step-copy">
-                  {label}
-                  {index === step && (
-                    <strong className="exchange-step-current">Current</strong>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ol>
-          <p>{next[step]}</p>
-        </>
-      )}
-    </section>
   );
 }
