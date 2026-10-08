@@ -17,6 +17,8 @@ temporary captures are removed after the comparison.
 Gen tool on 2026-10-05 and selected as the working P01 design. Native size:
 1505 x 1045. It is a full public welcome screen, not a simulated donor dashboard.
 Working product name: Second Table; academic repository/project identity is unchanged.
+Current user-facing site name, selected 2026-10-07: NomNom. “Second Table” above
+records the earlier concept and its historical comparison evidence.
 
 ## Design system and implementation inventory
 

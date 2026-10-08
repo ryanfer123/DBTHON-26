@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Second Table",
-  "short_name": "Second Table",
+  "name": "NomNom",
+  "short_name": "NomNom",
   "description": "Food shared locally. Volunteer, donate and collect in your community.",
   "start_url": "/dashboard",
   "scope": "/",

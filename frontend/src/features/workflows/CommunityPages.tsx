@@ -336,7 +336,7 @@ function ImpactResults({ queryString }: { queryString: string }) {
       const url = URL.createObjectURL(await response.blob());
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "second-table-impact.csv";
+      anchor.download = "nomnom-impact.csv";
       document.body.append(anchor);
       anchor.click();
       anchor.remove();

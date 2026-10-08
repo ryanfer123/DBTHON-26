@@ -7,6 +7,45 @@ dark-mode preference and share-link behavior were added at the user's request.
 FR08 external SMS/push remains partial. P11 controlled-demo/performance evidence
 and P12 genuine stakeholder/pilot evidence remain outstanding.
 
+## Frontend redesign planning (2026-10-07)
+
+Added [frontend redesign and migration plan](FRONTEND_MIGRATION_PLAN.md) after
+reviewing the repository implementation, requirements, API/domain rules, current UX
+evidence, and the saved More Nutrition/Webflow reference. This is planning only; no
+frontend implementation, route behavior, API, or migration changed. The plan keeps
+the existing React/TypeScript/Vite app and migrates by shared shell and role workflow.
+The reference assessment identifies Webflow, external Vercel assets, GSAP-family
+motion, Lenis, canvas sequences, Swiper and Lottie; exact dependency versions and
+production wiring cannot be certified from the saved page capture. Following the
+user's later direction, original GSAP/ScrollTrigger/Lenis motion and a procedural
+Three.js/WebGL2 scene are now required on the public landing page; these are isolated
+from calmer operational routes.
+
+| Check | Observed result |
+| --- | --- |
+| `python scripts/validate_handoff.py` | PASS: source hashes/pages, links, requirements/tasks/tests, deliverables and fixture checks |
+
+The frontend redesign now has its own execution record at the end of this file. It
+does not complete P11/P12 or substitute for their evidence requirements.
+
+The user selected **NomNom** as the site name. User-facing web shell, page titles,
+public community label, WhatsApp share text, and impact CSV filename now use NomNom.
+The academic repository/project title and internal request/storage keys remain as-is.
+
+## NomNom visual-system migration (2026-10-07)
+
+Reviewed `references/Frontend Architecture & UIUX Assessment Report.md`, the saved
+Webflow page and `docs/UI_UX_REQUEST.md`; the last UI/UX release already implements
+the review's workflow changes. Began the newer migration plan by adding shared design
+tokens and a responsive NomNom styling layer across the public shell, operational
+workspace, forms, lists, impact reports, dark theme and reduced-motion states. Existing
+routes, API actions and authorization/data flows are unchanged. No migration IDs.
+
+The initial visual system was applied at the former `apps/web/` path; its current
+location is `frontend/` following the repository layout update below. The newest
+implementation and verification record at the end of this file supersedes that
+iteration's check counts and status.
+
 Publication authorization: on 2026-10-05 the user explicitly approved pushing the
 complete handoff to GitHub, including the original PDF, extracted brief, student
 names and registration numbers. The earlier publication approval block is resolved.
@@ -833,3 +872,24 @@ rows and working listing/period dropdowns. No page errors were observed. Reprodu
 with `node /private/tmp/check-workspace-spacing.mjs` against local Vite port 5175;
 screenshots are `/private/tmp/workspace-{impact,schedules}-{1440,1000,390}.png`.
 The newer remote dropdown and backend release evidence above is preserved.
+
+## NomNom frontend migration (2026-10-08)
+
+The uncommitted NomNom frontend work was preserved while `frontend` was fast-forwarded
+from `c89c159` to `origin/main` at `3b306e9`. The updated branch includes community
+requests/updates, donor handling declarations and schedules, bounded external alert
+transport, exchange experience tools, PWA/offline support, themed workspace navigation,
+and migrations 0007–0012. NomNom branding, the high-end marketing landing, responsive
+theme additions and role-based post-login landing are being integrated with those
+workflows. No migrations were applied and no deployment was performed during this merge.
+
+The migration plan and frontend changes remain uncommitted. On the integrated tree,
+`npm test --prefix frontend` passed (31 tests/7 files); `npm run typecheck`, `npm run
+lint` and `npm run build` passed. Initial JavaScript is 125,343 bytes gzip, within the
+204,800-byte budget; the lazy Three.js chunk is 139,070 bytes gzip and Vite reports a
+chunk-size advisory above 500 KB uncompressed. `python scripts/check_migrations.py`
+and `python scripts/validate_handoff.py` passed. On Windows, Vitest needs `TEMP`,
+`TMP` and `TMPDIR` set to `tmp/frontend-checks` under the repository to avoid sandbox
+worker temp-file failures. The migration checker now normalizes paths across platforms.
+No database-backed tests were run for this merge. Database release gates for migrations
+0010–0012 and P11/P12 remain outstanding.

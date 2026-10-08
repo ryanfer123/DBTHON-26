@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import { PageShell } from "../../components/PageShell";
 import { useAuth } from "./AuthContext";
 import { PasswordField } from "./FormParts";
+import { roleLanding } from "../../lib/session-routing";
 
 export function SignInPage() {
   const auth = useAuth();
@@ -11,25 +12,31 @@ export function SignInPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const requested = location.state?.from;
-  const destination =
+  const requestedDestination =
     typeof requested === "string" &&
     /^\/(dashboard|help|account|admin|donations|food|claims|deliveries|inbox|trust|requests|community)(\/|\?|$)/.test(
       requested,
     )
       ? requested
-      : "/dashboard";
-  if (auth.session) return <Navigate to={destination} replace />;
+      : null;
+  if (auth.session)
+    return (
+      <Navigate
+        to={requestedDestination ?? roleLanding(auth.session)}
+        replace
+      />
+    );
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     setBusy(true);
     setError("");
     try {
-      await auth.login(
+      const session = await auth.login(
         String(form.get("email")).trim(),
         String(form.get("password")),
       );
-      navigate(destination, { replace: true });
+      navigate(requestedDestination ?? roleLanding(session), { replace: true });
     } catch (error) {
       setError((error as Error).message);
     } finally {

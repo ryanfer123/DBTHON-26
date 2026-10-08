@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { App } from "../../App";
@@ -72,6 +72,42 @@ describe("connected account screens", () => {
       "Sign in required.",
     );
     expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled();
+  });
+  it("starts a single-role receiver in the food workspace after sign-in", async () => {
+    vi.mocked(fetch).mockImplementation(async (path, options) => {
+      if (String(path).endsWith("/auth/session"))
+        return response({ data: null });
+      if (String(path).endsWith("/auth/login") && options?.method === "POST")
+        return response({
+          data: {
+            csrf_token: "csrf-for-test",
+            user: {
+              ...user,
+              verified_status: true,
+              zone_review_required: false,
+              roles: [{ role: "Receiver", approved: true }],
+              capabilities: ["Receiver"],
+            },
+          },
+        });
+      return response({ error: { message: "No demo listings." } }, 503);
+    });
+    mount("/sign-in");
+    await userEvent.type(
+      screen.getByLabelText("Email address"),
+      "member@example.org",
+    );
+    await userEvent.type(
+      screen.getByLabelText("Password", { exact: true }),
+      "correct-password",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Find nearby food" }),
+      ).toBeVisible(),
+    );
+    expect(screen.getByLabelText("Search food")).toBeVisible();
   });
   it("uses live zones, restores a receiver role link and requires capacity", async () => {
     mount("/register?role=receiver");

@@ -9,7 +9,7 @@ export function WhatsAppContact({
 }) {
   const digits = phone.replace(/\D/g, "");
   if (!/^\d{8,15}$/.test(digits)) return null;
-  const text = `Hello ${name}, I'm coordinating Second Table exchange #${claimId}. Can we confirm the handover arrangements?`;
+  const text = `Hello ${name}, I'm coordinating NomNom exchange #${claimId}. Can we confirm the handover arrangements?`;
   return (
     <a
       className="text-link"

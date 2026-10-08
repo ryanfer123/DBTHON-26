@@ -441,15 +441,15 @@ export function PickupCalendar({
     const content = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Second Table//Pickup//EN",
+      "PRODID:-//NomNom//Pickup//EN",
       "BEGIN:VEVENT",
       `UID:claim-${exchange.claim_id}-pickup-${exchange.pickup_id}@secondtable`,
       `SEQUENCE:${exchange.schedule_version ?? 1}`,
       `DTSTAMP:${stamp(serverTime)}`,
       `DTSTART:${stamp(start)}`,
       `DTEND:${stamp(end)}`,
-      "SUMMARY:Second Table food collection",
-      "DESCRIPTION:Check the exchange in Second Table for current arrangements before travel.",
+      "SUMMARY:NomNom food collection",
+      "DESCRIPTION:Check the exchange in NomNom for current arrangements before travel.",
       "END:VEVENT",
       "END:VCALENDAR",
       "",
@@ -459,7 +459,7 @@ export function PickupCalendar({
     );
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `second-table-pickup-${exchange.claim_id}.ics`;
+    anchor.download = `nomnom-pickup-${exchange.claim_id}.ics`;
     anchor.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }

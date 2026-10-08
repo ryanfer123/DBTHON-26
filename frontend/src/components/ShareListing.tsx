@@ -25,7 +25,7 @@ export function ShareListing({ listingId }: { listingId: number }) {
       </button>
       <a
         className="text-link"
-        href={`https://wa.me/?text=${encodeURIComponent(`Food available on Second Table: ${url}. Sign in to your verified community account to view details.`)}`}
+        href={`https://wa.me/?text=${encodeURIComponent(`Food available on NomNom: ${url}. Sign in to your verified community account to view details.`)}`}
         target="_blank"
         rel="noopener noreferrer"
       >

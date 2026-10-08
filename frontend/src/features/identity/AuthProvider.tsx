@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
             setSession(result.data);
             setError(null);
+            return result.data;
           } finally {
             setLoading(false);
           }

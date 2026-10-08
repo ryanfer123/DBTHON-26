@@ -3,40 +3,166 @@ import { Link, NavLink } from "react-router";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandMark } from "./BrandMark";
 import { useAuth } from "../features/identity/AuthContext";
+import { roleLanding } from "../lib/session-routing";
 
-export function PageShell({ children }: { children: ReactNode }) {
+export function PageShell({
+  children,
+  variant = "app",
+}: {
+  children: ReactNode;
+  variant?: "marketing" | "app";
+}) {
   const { session } = useAuth();
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className="site-header">
+      <header
+        className={`site-header ${variant === "marketing" ? "marketing-header" : ""}`}
+      >
         <div className="container header-content">
-          <Link to="/" className="wordmark" aria-label="Second Table home">
-            <BrandMark />
-            Second Table
-          </Link>
+          {variant !== "marketing" && (
+            <Link to="/" className="wordmark" aria-label="NomNom home">
+              <BrandMark />
+              NomNom
+            </Link>
+          )}
           <nav aria-label="Main navigation">
-            <Link to="/#how-it-works">How it works</Link>
-            <Link to="/#community">Our community</Link>
-            <NavLink
-              className="nav-account"
-              to={session ? "/account" : "/sign-in"}
-            >
-              {session ? "Your account" : "Sign in"}
-            </NavLink>
-            <ThemeToggle />
+            {variant === "marketing" ? (
+              <>
+                <a className="marketing-nav-pill" href="/#how-it-works">
+                  How it works
+                </a>
+                <a className="marketing-nav-pill" href="/#community">
+                  Our community
+                </a>
+                <NavLink
+                  className="marketing-nav-pill"
+                  to={session ? "/account" : "/sign-in"}
+                >
+                  {session ? "Your account" : "Sign in"}
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <Link to="/#how-it-works">How it works</Link>
+                <Link to="/#community">Our community</Link>
+                <NavLink
+                  className="nav-account"
+                  to={session ? "/account" : "/sign-in"}
+                >
+                  {session ? "Your account" : "Sign in"}
+                </NavLink>
+                <ThemeToggle />
+              </>
+            )}
           </nav>
+          {variant === "marketing" && (
+            <Link
+              className="marketing-header-cta"
+              to={session ? roleLanding(session) : "/register"}
+            >
+              <span className="marketing-cta-arrow" aria-hidden="true">
+                ↗
+              </span>
+              <span className="marketing-cta-label">
+                {session ? "Workspace" : "Join NomNom"}
+              </span>
+            </Link>
+          )}
         </div>
       </header>
       {children}
-      <footer className="site-footer">
+      <footer
+        className={`site-footer ${variant === "marketing" ? "marketing-footer" : ""}`}
+      >
         <div className="container footer-content">
-          <Link className="wordmark" to="/">
-            <BrandMark />
-            Second Table
+          <Link
+            className={`wordmark ${variant === "marketing" ? "marketing-wordmark" : ""}`}
+            to="/"
+          >
+            {variant !== "marketing" && <BrandMark />}
+            NomNom
           </Link>
+          {variant === "marketing" && (
+            <div className="footer-social-media-wrap" aria-label="Social media">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="social-media-link"
+                aria-label="Instagram"
+              >
+                <div className="social-media-circle is-white">
+                  <svg
+                    className="social-media-icon"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M21.94 7.88C21.9206 7.0503 21.7652 6.2294 21.48 5.45C21.2283 4.78181 20.8322 4.17742 20.32 3.68C19.8226 3.16776 19.2182 2.77166 18.55 2.52C17.7706 2.23484 16.9497 2.07945 16.12 2.06C15.06 2 14.72 2 12 2C9.28 2 8.94 2 7.88 2.06C7.0503 2.07945 6.2294 2.23484 5.45 2.52C4.78181 2.77166 4.17742 3.16776 3.68 3.68C3.16743 4.17518 2.77418 4.78044 2.53 5.45C2.23616 6.22734 2.07721 7.04915 2.06 7.88C2 8.94 2 9.28 2 12C2 14.72 2 15.06 2.06 16.12C2.07721 16.9508 2.23616 17.7727 2.53 18.55C2.77418 19.2196 3.16743 19.8248 3.68 20.32C4.17742 20.8322 4.78181 21.2283 5.45 21.48C6.2294 21.7652 7.0503 21.9206 7.88 21.94C8.94 22 9.28 22 12 22C14.72 22 15.06 22 16.12 21.94C16.9497 21.9206 17.7706 21.7652 18.55 21.48C19.2134 21.219 19.816 20.8242 20.3201 20.3201C20.8242 19.816 21.219 19.2134 21.48 18.55C21.7652 17.7706 21.9206 16.9497 21.94 16.12C21.94 15.06 22 14.72 22 12C22 9.28 22 8.94 21.94 7.88ZM20.14 16C20.1327 16.6348 20.0178 17.2637 19.8 17.86C19.6327 18.2913 19.3773 18.683 19.0501 19.0101C18.723 19.3373 18.3313 19.5927 17.9 19.76C17.3037 19.9778 16.6748 20.0927 16.04 20.1C15.04 20.15 14.67 20.16 12.04 20.16C9.41 20.16 9.04 20.16 8.04 20.1C7.38073 20.1148 6.72401 20.0132 6.1 19.8C5.66869 19.6327 5.27698 19.3773 4.94985 19.0501C4.62272 18.723 4.36734 18.3313 4.2 17.9C3.97775 17.2911 3.86271 16.6482 3.86 16C3.86 15 3.8 14.63 3.8 12C3.8 9.37 3.8 9 3.86 8C3.86271 7.35178 3.97775 6.70893 4.2 6.1C4.36734 5.66869 4.62272 5.27698 4.94985 4.94985C5.27698 4.62272 5.66869 4.36734 6.1 4.2C6.70893 3.97775 7.35178 3.86271 8 3.86C9 3.86 9.37 3.8 12 3.8C14.63 3.8 15 3.8 16 3.86C16.6348 3.86728 17.2637 3.98225 17.86 4.2C18.2913 4.36734 18.683 4.62272 19.0101 4.94985C19.3373 5.27698 19.5927 5.66869 19.76 6.1C19.9959 6.7065 20.1245 7.34942 20.14 8C20.19 9 20.2 9.37 20.2 12C20.2 14.63 20.19 15 20.14 16Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M11.9999 6.85999C10.9833 6.85999 9.98951 7.16145 9.14424 7.72624C8.29897 8.29103 7.64016 9.09379 7.25113 10.033C6.86209 10.9722 6.76031 12.0057 6.95863 13.0028C7.15696 13.9998 7.6465 14.9157 8.36534 15.6345C9.08418 16.3534 10.0001 16.8429 10.9971 17.0412C11.9942 17.2396 13.0277 17.1378 13.9669 16.7487C14.9061 16.3597 15.7089 15.7009 16.2737 14.8556C16.8384 14.0104 17.1399 13.0166 17.1399 12C17.1399 10.6368 16.5984 9.3294 15.6344 8.36546C14.6705 7.40152 13.3631 6.85999 11.9999 6.85999ZM11.9999 15.33C11.3413 15.33 10.6975 15.1347 10.1499 14.7688C9.60221 14.4029 9.17539 13.8828 8.92335 13.2743C8.67131 12.6659 8.60537 11.9963 8.73386 11.3503C8.86234 10.7044 9.1795 10.111 9.6452 9.64532C10.1109 9.17962 10.7043 8.86245 11.3502 8.73397C11.9962 8.60548 12.6658 8.67143 13.2742 8.92347C13.8827 9.17551 14.4028 9.60232 14.7687 10.15C15.1346 10.6976 15.3299 11.3414 15.3299 12C15.3299 12.4373 15.2438 12.8703 15.0764 13.2743C14.9091 13.6784 14.6638 14.0454 14.3546 14.3547C14.0453 14.6639 13.6783 14.9092 13.2742 15.0765C12.8702 15.2439 12.4372 15.33 11.9999 15.33Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M17.3401 5.46002C17.1028 5.46002 16.8708 5.5304 16.6734 5.66225C16.4761 5.79411 16.3223 5.98153 16.2314 6.2008C16.1406 6.42007 16.1169 6.66135 16.1632 6.89412C16.2095 7.1269 16.3237 7.34072 16.4916 7.50854C16.6594 7.67637 16.8732 7.79066 17.106 7.83696C17.3388 7.88326 17.58 7.8595 17.7993 7.76867C18.0186 7.67785 18.206 7.52404 18.3379 7.3267C18.4697 7.12936 18.5401 6.89735 18.5401 6.66002C18.5401 6.34176 18.4137 6.03653 18.1886 5.81149C17.9636 5.58644 17.6584 5.46002 17.3401 5.46002Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </a>
+              <a
+                href="https://tiktok.com"
+                target="_blank"
+                rel="noreferrer"
+                className="social-media-link"
+                aria-label="TikTok"
+              >
+                <div className="social-media-circle is-white">
+                  <svg
+                    className="social-media-icon"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12.4421 2.017C13.5341 2 14.6171 2.008 15.7001 2C15.7334 3.30012 16.2538 4.54031 17.1581 5.475C18.1358 6.35334 19.3797 6.87864 20.6911 6.967V10.325C19.4818 10.2953 18.2911 10.0204 17.1911 9.517C16.7224 9.2927 16.2711 9.03364 15.8411 8.742C15.8331 11.175 15.8501 13.608 15.8251 16.033C15.7613 17.2107 15.3718 18.3476 14.7001 19.317C14.1462 20.1176 13.4119 20.7768 12.5564 21.2415C11.7009 21.7061 10.7482 21.9632 9.77508 21.992C8.58198 22.0458 7.39945 21.7471 6.37508 21.133C5.53195 20.6323 4.8177 19.9412 4.28948 19.115C3.76126 18.2888 3.43373 17.3504 3.33308 16.375C3.31708 15.958 3.30808 15.542 3.32508 15.133C3.41014 14.2785 3.66975 13.4506 4.08781 12.7005C4.50587 11.9504 5.07349 11.2941 5.7555 10.7723C6.43751 10.2505 7.2194 9.87428 8.05272 9.66696C8.88605 9.45963 9.75307 9.42561 10.6001 9.567C10.6161 10.8 10.5661 12.033 10.5661 13.267C10.2105 13.1423 9.83383 13.0891 9.45765 13.1105C9.08146 13.1318 8.71321 13.2273 8.37403 13.3914C8.03486 13.5555 7.73145 13.785 7.48125 14.0667C7.23105 14.3484 7.03898 14.6768 6.91608 15.033C6.78556 15.4676 6.74607 15.9244 6.80008 16.375C6.90817 17.0619 7.26497 17.6852 7.80262 18.1262C8.34026 18.5673 9.02126 18.7953 9.71608 18.767C10.1823 18.7533 10.6377 18.6234 11.0409 18.389C11.4441 18.1547 11.7824 17.8233 12.0251 17.425C12.2107 17.1637 12.3279 16.8602 12.3661 16.542C12.4501 15.05 12.4161 13.567 12.4251 12.075C12.4341 8.717 12.4171 5.367 12.4421 2.017Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noreferrer"
+                className="social-media-link"
+                aria-label="YouTube"
+              >
+                <div className="social-media-circle is-white">
+                  <svg
+                    className="social-media-icon"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 32 32"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12.932 20.459v-8.917l7.839 4.459zM30.368 8.735c-0.354-1.301-1.354-2.307-2.625-2.663l-0.027-0.006c-3.193-0.406-6.886-0.638-10.634-0.638-0.381 0-0.761 0.002-1.14 0.007l0.058-0.001c-0.322-0.004-0.701-0.007-1.082-0.007-3.748 0-7.443 0.232-11.070 0.681l0.434-0.044c-1.297 0.363-2.297 1.368-2.644 2.643l-0.006 0.026c-0.4 2.109-0.628 4.536-0.628 7.016 0 0.088 0 0.176 0.001 0.263l-0-0.014c-0 0.074-0.001 0.162-0.001 0.25 0 2.48 0.229 4.906 0.666 7.259l-0.038-0.244c0.354 1.301 1.354 2.307 2.625 2.663l0.027 0.006c3.193 0.406 6.886 0.638 10.634 0.638 0.38 0 0.76-0.002 1.14-0.007l-0.058 0.001c0.322 0.004 0.702 0.007 1.082 0.007 3.749 0 7.443-0.232 11.070-0.681l-0.434 0.044c1.298-0.362 2.298-1.368 2.646-2.643l0.006-0.026c0.399-2.109 0.627-4.536 0.627-7.015 0-0.088-0-0.176-0.001-0.263l0 0.013c0-0.074 0.001-0.162 0.001-0.25 0-2.48-0.229-4.906-0.666-7.259l0.038 0.244z" />
+                  </svg>
+                </div>
+              </a>
+            </div>
+          )}
           <span>Food shared locally.</span>
         </div>
       </footer>

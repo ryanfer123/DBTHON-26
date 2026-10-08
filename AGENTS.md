@@ -23,6 +23,38 @@ design decisions differ, preserve the source and document the reason for the cha
 
 ## Authorized scope and current state
 
+## User-directed landing-page rebuild
+
+The user is rebuilding the frontend landing page one part at a time. For this work,
+follow the user's latest request exactly and change only the landing-page part they
+specify and the minimum directly required to implement it. Do not change other pages,
+workflows, APIs, backend, database, documentation, dependencies, configuration, or
+unrequested design details. Do not continue the broader migration plan or add
+unrequested polish. If the requested change cannot be made without touching something
+outside that scope, explain the specific dependency and ask before making that extra
+change. Treat each new user instruction as the scope for that step.
+
+For every UI design change, first inspect and use the provided [More Nutrition website
+reference](<references/More Nutrition - Matcha meets Protein.html>) and its supporting
+assets in `references/More Nutrition - Matcha meets Protein_files/`. Consult
+`references/Frontend Architecture & UIUX Assessment Report.md` for the accompanying
+analysis. Match the requested reference's visual structure and styling while adapting
+its content to NomNom. Do not substitute a generic treatment or infer a different
+design without the user's direction. If the referenced material is missing or unclear,
+identify that specific gap before proceeding.
+
+Reference review must be specific to the requested component: inspect the matching
+section in the saved website and its CSS/assets, then compare its background boundaries,
+shape, spacing, scale, typography, and placement against the NomNom implementation.
+Do not call a change complete based on token/color matching alone. Use the user's
+reference screenshots and, when browser access permits, inspect both pages at comparable
+viewport sizes and scroll positions. If the saved reference cannot be opened in the
+browser, use its HTML, CSS, assets, and the supplied screenshots; do not claim a live
+visual comparison was performed. After implementation, review the resulting NomNom
+render at the same viewport/section before reporting completion. If the runtime or
+browser cannot be reached, do not bypass browser restrictions; report that visual
+verification was blocked and do not claim that the render was checked.
+
 P01-P10 core prototype workflows are implemented and connected to responsive role
 screens, with a shared dashboard, role navigation, URL filters and help. Revision 0003 supplies guarded listing/claim/delivery/rating commands and
 restricted expiry/inbox worker routines. Revision 0004 adds managed-PostgreSQL guard
@@ -73,6 +105,12 @@ notification delivery, deployment, or passing application tests.
     privilege through public registration in the first prototype.
 
 ## How to work and hand off
+
+### Approved frontend designs
+
+- Keep the design approval register in [docs/design/APPROVED_DESIGNS.md](docs/design/APPROVED_DESIGNS.md).
+- After the user explicitly approves a specific component or design, treat that exact approved version as locked. Do not change its visual structure, tokens, spacing, typography, responsive behavior, or interactions unless the user explicitly requests that change. Record the approval date, scope, and reference in the register. Routine bug fixes may preserve the approved design; if a fix would alter it, ask first.
+- A direction or implementation proposal is not approval. Do not mark designs approved based on silence or on the user's request to implement them.
 
 - Search with `rg`; inspect existing state before replacing files.
 - Keep schema changes in ordered Alembic migrations; never silently edit a deployed

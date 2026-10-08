@@ -114,7 +114,7 @@ test("food reaches a receiver through real listing, claim, assignment, delivery,
   await expect(whatsapp).toBeVisible();
   expect(
     new URL((await whatsapp.getAttribute("href"))!).searchParams.get("text"),
-  ).toContain("Second Table exchange #");
+  ).toContain("NomNom exchange #");
   await workspaceLink(page, "Dashboard");
   await page
     .locator(".dashboard-list li")
@@ -248,7 +248,7 @@ test("food reaches a receiver through real listing, claim, assignment, delivery,
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download CSV" }).click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe("second-table-impact.csv");
+  expect(download.suggestedFilename()).toBe("nomnom-impact.csv");
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));

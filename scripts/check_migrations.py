@@ -49,7 +49,10 @@ for revision in sorted((root / "backend/alembic/versions").glob("*.py")):
         raise SystemExit(
             f"{revision.name}: inline upgrade SQL would duplicate the authoritative file"
         )
-expected = {str(path.relative_to(root)) for path in (root / "database").glob("0*.sql")}
+expected = {
+    path.relative_to(root).as_posix()
+    for path in (root / "database").glob("0*.sql")
+}
 if used != expected:
     raise SystemExit("Each numbered SQL migration must have exactly one Alembic loader")
 print(f"PASS: {len(used)} authoritative SQL scripts, no duplicate upgrade SQL.")
