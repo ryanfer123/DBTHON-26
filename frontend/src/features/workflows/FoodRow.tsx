@@ -45,14 +45,16 @@ export function FoodRow({
         <h2>{food.food_type}</h2>
         <p>{food.donor_name}</p>
         <DonorTrust food={food} />
-        <span className="food-tag">
-          {food.category === "Veg" ? "Vegetarian" : "Non-vegetarian"}
-        </span>
-        {!!food.diet_tags?.length && (
-          <p className="food-tag">
-            {food.diet_tags.join(" · ")} (donor declared)
-          </p>
-        )}
+        <div className="food-tags">
+          <span className="food-tag">
+            {food.category === "Veg" ? "Vegetarian" : "Non-vegetarian"}
+          </span>
+          {!!food.diet_tags?.length && (
+            <span className="food-tag">
+              {food.diet_tags.join(" · ")} (donor declared)
+            </span>
+          )}
+        </div>
         <p className="field-help">
           {food.safety_confirmed_at
             ? `Allergens: ${food.allergens?.join(", ") || "none known"}`
@@ -72,54 +74,56 @@ export function FoodRow({
           <p className="field-help">{food.claim_ineligible_reason}</p>
         )}
       </div>
-      <div>
-        {["Available", "Claimed", "PickedUp"].includes(food.status) ? (
-          <Countdown
-            key={serverTime}
-            end={food.expiry_window_end}
-            serverTime={serverTime}
-          />
-        ) : (
-          <strong>{food.status}</strong>
-        )}
-      </div>
-      <div className="actions">
-        {!own && (
-          <SaveListing
-            key={`${food.listing_id}:${food.is_saved}`}
-            food={food}
-            onChange={onSavedChange}
-          />
-        )}
-        {onSelect && (
-          <button
-            className="text-button"
-            aria-pressed={selected}
-            onClick={onSelect}
-          >
-            Show on map
-          </button>
-        )}
-        <Link
-          className="button button-outline button-small"
-          to={`/food/${food.listing_id}`}
-          state={{ parent }}
-        >
-          View food
-        </Link>
-        {own && (
+      <div className="food-row-controls">
+        <div className="food-row-deadline">
+          {["Available", "Claimed", "PickedUp"].includes(food.status) ? (
+            <Countdown
+              key={serverTime}
+              end={food.expiry_window_end}
+              serverTime={serverTime}
+            />
+          ) : (
+            <strong>{food.status}</strong>
+          )}
+        </div>
+        <div className="actions">
+          {!own && (
+            <SaveListing
+              key={`${food.listing_id}:${food.is_saved}`}
+              food={food}
+              onChange={onSavedChange}
+            />
+          )}
+          {onSelect && (
+            <button
+              className="text-button"
+              aria-pressed={selected}
+              onClick={onSelect}
+            >
+              Show on map
+            </button>
+          )}
           <Link
-            className="text-button"
-            to={`/donations/schedules?listing=${food.listing_id}`}
+            className="button button-outline button-small"
+            to={`/food/${food.listing_id}`}
+            state={{ parent }}
           >
-            Schedule daily
+            View food
           </Link>
-        )}
-        {own && food.status === "Cancelled" && onHideCancelled && (
-          <button className="text-button" onClick={onHideCancelled}>
-            Remove from my list
-          </button>
-        )}
+          {own && (
+            <Link
+              className="text-button"
+              to={`/donations/schedules?listing=${food.listing_id}`}
+            >
+              Schedule daily
+            </Link>
+          )}
+          {own && food.status === "Cancelled" && onHideCancelled && (
+            <button className="text-button" onClick={onHideCancelled}>
+              Remove from my list
+            </button>
+          )}
+        </div>
       </div>
     </li>
   );

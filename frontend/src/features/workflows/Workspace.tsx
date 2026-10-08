@@ -180,13 +180,17 @@ export function Countdown({
     return () => window.clearInterval(timer);
   }, [base]);
   return (
-    <span className={`countdown ${remaining <= 1800 ? "urgent" : ""}`}>
-      <span aria-hidden="true">{formatRemaining(remaining)}</span>
-      <span className="sr-only" aria-live="off">
-        {remaining
+    <span
+      className={`countdown ${remaining <= 1800 ? "urgent" : ""}`}
+      role="timer"
+      aria-live="off"
+      aria-label={
+        remaining
           ? formatRemaining(Math.ceil(remaining / 60) * 60)
-          : "Deadline reached"}
-      </span>
+          : "Deadline reached"
+      }
+    >
+      <span aria-hidden="true">{formatRemaining(remaining)}</span>
       <Urgency seconds={remaining} />
     </span>
   );

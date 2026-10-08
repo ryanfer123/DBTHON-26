@@ -870,3 +870,20 @@ snapshot retained only `2 h left`; the hidden span is clipped rather than remove
 with display:none or aria-hidden. Reproduce with
 `node /private/tmp/check-countdown.mjs` against local Vite port 5175. Screenshots:
 `/private/tmp/countdown-{1440,390}.png`.
+
+### 2026-10-08 - Food listing row spacing
+
+Grouped listing deadlines/actions into a dedicated desktop column and a wrapping
+row on narrower screens; phone rows stack metadata and controls. Food category/diet
+tags have explicit gaps and wrap, and weight aligns with the listing text instead
+of inheriting an inline indent. Countdown's rounded reading is now a timer accessible
+name rather than a separate span, eliminating duplicate visible text even when the
+screen-reader utility is absent. Accessible timers retain aria-live=off.
+Changed FoodRow.tsx, Countdown in Workspace.tsx and workspace.css; no API/schema
+changes. Frontend lint/types/build and all 25 existing frontend tests passed.
+Chrome fixture-session checks passed for
+donor and receiver desktop, 1000 px donor and 390 px dark donor: tag separation,
+weight alignment, one visual countdown, accessible timer name, View food navigation,
+long-title wrapping and no horizontal overflow/page errors. Reproduce with
+`node /private/tmp/check-food-row.mjs` against Vite port 5175; screenshots are
+`/private/tmp/food-row-{1440,1000,390}-{donor,receiver}.png` for tested combinations.
