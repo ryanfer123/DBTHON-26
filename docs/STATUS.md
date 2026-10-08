@@ -858,3 +858,15 @@ validation; existing backend aggregation is reused without database changes.
 Reproduce with `node /private/tmp/check-impact-score.mjs` against Vite port 5175;
 screenshots are `/private/tmp/impact-score-{1440,390}.png`.
 P11 performance and P12 real stakeholder/pilot evidence remain separate work.
+
+### 2026-10-08 - Countdown screen-reader text correction
+
+Added the missing shared `.sr-only` utility in usability.css. Rounded accessible
+countdown text, skeleton labels and external-link guidance remain in the accessibility
+tree without appearing beside visible labels. No application/API/schema changes.
+Frontend lint/type/build passed. Fixture-session Chrome checks at 1440 px/light and
+390 px/dark showed one visible `1 h 59 min left` countdown, while the accessibility
+snapshot retained only `2 h left`; the hidden span is clipped rather than removed
+with display:none or aria-hidden. Reproduce with
+`node /private/tmp/check-countdown.mjs` against local Vite port 5175. Screenshots:
+`/private/tmp/countdown-{1440,390}.png`.
