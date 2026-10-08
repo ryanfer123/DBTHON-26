@@ -273,3 +273,17 @@ Errors include `SAVE_LIMIT`/`ISSUE_EXISTS` (409), `RATE_LIMITED` (429), and exis
 role/zone/state/idempotency errors. Reports never alter allocation or certify safety.
 Calendar export is a browser-local ICS download after full pickup agreement, with
 no external API, contacts or cached private app data.
+
+## Browser push (revision 0013)
+
+| Method/path | Contract | Authorization |
+| --- | --- | --- |
+| GET `/push/config` | `{data:{configured,public_key}}`; public VAPID key only | Signed-in active account |
+| POST `/push/status` | `{endpoint}` → `{data:{enabled}}` | Own browser; CSRF |
+| POST `/push/subscribe` | Browser `PushSubscription.toJSON()`: endpoint, keys p256dh/auth, nullable expirationTime → enabled | Own account; CSRF; five-device cap; configured transport required |
+| POST `/push/unsubscribe` | `{endpoint}` → disabled | Own account; CSRF; idempotent |
+
+Subscription URLs and browser keys are never returned by server reads. Existing
+notification-preference responses expose actual push configuration. The worker
+leases per-device deliveries independently of inbox acceptance. See [browser push](BROWSER_PUSH.md)
+for privacy, expiry, provider acceptance and deployment gates.

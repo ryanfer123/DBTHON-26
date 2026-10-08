@@ -1072,3 +1072,37 @@ P11 performance and P12 actual stakeholder/pilot evidence remain open.
 - Added keyed pathname entrances for workspace screens, staggered dashboard tiles, and surface/control transitions. Reduced-motion users receive static page entrances and immediate control changes. Query-only navigation does not remount the workspace.
 - Changed AppLayout, ProfilePage, and nomnom styles; no API, migrations, or infrastructure changes. Original deployment drafts remain preserved.
 - All 39 frontend tests, lint, typecheck, production build (181721 gzip bytes within budget), and handoff validator passed. Chrome/Playwright fixture checks covered all 28 routes at 2560px light/dark, 1440px light, 1024px dark, and 390px dark (140 route/viewport checks), confirming shared fonts, brand, sidebar sizing, and no horizontal overflow/runtime errors. Additional 1440px/animated and 390px/reduced-motion checks verified profile-save success, completed route transitions, and keyboard/sidebar or mobile-menu navigation to settings. Browser plugin not available. Screenshots: `/private/tmp/nomnom-account-theme-{1440-light,390-dark}.png`. No live profile writes or backend/database tests were run; existing build advisories remain.
+
+## Browser push implementation - 2026-10-08
+
+Feature checkout `/private/tmp/dbthon-browser-push`, branch `feat/browser-push`,
+based on main `330b747`. Original local AWS drafts preserved. Added Settings browser
+opt-in/status/disable, logout cleanup, service-worker push/click handlers, own-account
+CSRF subscription APIs, migration 0013, transactional per-browser delivery, official
+pywebpush transport, IAM worker bridge and disabled optional AWS relay template.
+Updated API/ER/requirements, existing endpoint inventory and disposable fixture cleanup for new tables.
+
+No signing keys created, cloud resources changed, migration applied, or browser
+receipt verified. The exact `aws-secrets-manager` skill required by AGENTS.md was
+unavailable; credential handling remains pending. New resources require the existing
+Deploy-after-review gate. No application/database/browser tests were added or run
+for this feature; static check results are recorded below when complete.
+Next: approve the documented activation review, resolve the required secret workflow,
+deploy migration 0013 and disabled relay, configure keys, enable and demonstrate a
+real consenting browser receiving a notification with the tab closed.
+
+Static checks on 2026-10-08:
+
+- `backend/.venv/bin/ruff check backend/app backend/alembic/versions/0013_browser_push.py`: passed.
+- `backend/.venv/bin/mypy --config-file backend/pyproject.toml backend/app`: passed, 35 files.
+- `npm run build --prefix frontend`: passed; initial JavaScript 182,775 bytes gzip under 204,800-byte budget. Existing GSAP import/chunk-size warnings remain.
+- `npm run typecheck --prefix frontend` and `npm run lint --prefix frontend`: passed.
+- `PYTHONPATH=backend backend/.venv/bin/python scripts/export_openapi.py --check`: passed.
+- `python3 scripts/validate_handoff.py`: passed; this is documentation/fixture integrity only.
+- `git diff --check`: passed.
+
+Read-only AWS DescribeRouteTables/DescribeNatGateways confirmed the retained VPC
+has a local-only route and no NAT gateways. Direct provider delivery from the private
+worker would fail; the disabled relay template supplies the separate internet sender.
+The frontend dependency installation's first approval review timed out; the allowed
+retry completed successfully without altering the original checkout's dependencies.

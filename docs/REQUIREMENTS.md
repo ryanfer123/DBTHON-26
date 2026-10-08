@@ -82,3 +82,12 @@ Implementation is on the feature branch. Release checks and provider/pilot evide
 Source implementation and researched rationale: [comparison](COMPETITOR_GAP_ANALYSIS.md).
 Runtime acceptance evidence remains pending; these extensions do not change core
 FR01–FR10 or produce real pilot evidence.
+
+### Browser push extension (2026-10-08)
+
+FR08 now has implementation for explicit per-browser opt-in, authenticated/CSRF
+subscription persistence, atomic delivery enqueueing, Web Push transport, generic
+lock-screen previews, inbox click navigation and opt-out/sign-out cleanup. Migration
+0013 and the optional AWS relay are not deployed. Actual browser receipt and current
+AWS allowance review remain mandatory before treating FR08 as fully demonstrated.
+See [browser push activation](BROWSER_PUSH.md).

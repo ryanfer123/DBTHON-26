@@ -60,7 +60,7 @@ def notification_preferences_data(c: Connection, settings: Settings) -> Notifica
         sms_configured="SMS" in channels(settings, require_credential=False),
         whatsapp_enabled=bool(row["whatsapp_enabled"]) if row else False,
         whatsapp_configured="WhatsApp" in channels(settings, require_credential=False),
-        push_configured=False,
+        push_configured=settings.push_delivery_enabled and bool(settings.push_public_key),
     )
 
 

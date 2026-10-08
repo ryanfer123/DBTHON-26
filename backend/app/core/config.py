@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     twilio_whatsapp_content_sid: str = ""
     alert_demo_phone: str = Field(default="", pattern=r"^(\+[1-9][0-9]{7,14})?$")
     alert_daily_limit: int = Field(default=3, ge=1, le=10)
+    push_public_key: str = ""
+    push_private_key: SecretStr | None = None
+    push_subject: str = "https://dbthon-26.onrender.com"
+    push_delivery_enabled: bool = False
     worker_interval_seconds: int = Field(default=5, ge=1, le=60)
     allowed_origins: list[str] = [
         "http://127.0.0.1:5173",

@@ -30,6 +30,7 @@ from app.routes.donor_schedules import router as donor_schedules_router
 from app.routes.experience import router as experience_router
 from app.routes.identity import router as identity_router
 from app.routes.public import router as public_router
+from app.routes.push import router as push_router
 from app.routes.workflows import router as workflow_router
 
 http_logger = logging.getLogger("second_table.http")
@@ -148,6 +149,7 @@ def create_app(
 
     application.include_router(public_router, prefix="/api/v1")
     application.include_router(identity_router, prefix="/api/v1")
+    application.include_router(push_router, prefix="/api/v1")
     application.include_router(workflow_router, prefix="/api/v1")
     application.include_router(community_router, prefix="/api/v1")
     application.include_router(donor_schedules_router, prefix="/api/v1")

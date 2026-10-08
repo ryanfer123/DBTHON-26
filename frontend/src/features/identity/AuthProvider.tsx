@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router";
 import { api, ApiError, type Session } from "../../lib/identity";
+import { disableBrowserPush } from "../../lib/browserPush";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout: async () => {
           pendingRead.current?.abort();
           try {
+            if (session) await disableBrowserPush(session.csrf_token);
             await api<void>("/auth/logout", {
               method: "POST",
               csrf: session?.csrf_token,

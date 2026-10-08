@@ -356,3 +356,24 @@ erDiagram
 
 Forward-only source migration; real PostgreSQL execution and security/concurrency
 regression evidence are pending. Do not edit a migration after it is deployed.
+
+## Browser push - revision 0013
+
+`browser_push_subscriptions(subscription_id PK,user_id FK,endpoint UNIQUE,p256dh,auth,created_at)`
+holds private browser capabilities. `browser_push_deliveries(delivery_id PK,notification_id FK,
+subscription_id FK,status,lease_token,locked_until)` has UNIQUE(notification_id,subscription_id).
+Subscriptions are capped at five per user under the user-row lock. Forced RLS allows
+only the NOLOGIN guard; runtime receives EXECUTE on own-browser routines rather than
+SELECT on capability columns. Worker-only lease/finalize routines avoid network calls
+inside transactions. New inbox inserts atomically create per-device deliveries.
+
+```mermaid
+erDiagram
+    users ||--o{ browser_push_subscriptions : opts_in
+    notifications ||--o{ browser_push_deliveries : enqueues
+    browser_push_subscriptions ||--o{ browser_push_deliveries : receives
+```
+
+Expired/revoked subscriptions may be deleted along with transport records; domain
+notifications and trust records remain. Details and live activation gates:
+[Browser push](BROWSER_PUSH.md).
