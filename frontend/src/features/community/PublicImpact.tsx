@@ -26,27 +26,32 @@ export function PublicImpact() {
   if (!impact) return null;
 
   return (
-    <section
-      className="container public-impact"
-      aria-label="This month’s prototype impact"
-    >
-      <h2>Shared this month</h2>
-      <p>
-        <strong>{Number(impact.delivered_kg).toFixed(1)} kg</strong> delivered
-      </p>
-      <p>
-        <strong>{Number(impact.estimated_meals).toFixed(1)}</strong> estimated
-        meal equivalents
-      </p>
-      <p>
-        <strong>{impact.active_listings}</strong> live listings
-      </p>
-      <p className="public-impact-label">
-        {impact.includes_demo_data
-          ? "Prototype totals include synthetic demo data."
-          : "Prototype totals; not independently verified pilot evidence."}{" "}
-        This month in UTC. Meal estimate: 0.4 kg per meal equivalent.
-      </p>
+    <section className="public-impact" aria-labelledby="public-impact-heading">
+      <div className="container public-impact-panel">
+        <h2 id="public-impact-heading">Shared this month</h2>
+        <dl className="public-impact-metrics">
+          <div>
+            <dt>Food delivered</dt>
+            <dd>
+              {Number(impact.delivered_kg).toFixed(1)} <span>kg</span>
+            </dd>
+          </div>
+          <div>
+            <dt>Estimated meal equivalents</dt>
+            <dd>{Number(impact.estimated_meals).toFixed(1)}</dd>
+          </div>
+          <div>
+            <dt>Live listings</dt>
+            <dd>{impact.active_listings}</dd>
+          </div>
+        </dl>
+        <p className="public-impact-label">
+          {impact.includes_demo_data
+            ? "Prototype totals include synthetic demo data."
+            : "Prototype totals; not independently verified pilot evidence."}{" "}
+          This month in UTC. Meal estimate: 0.4 kg per meal equivalent.
+        </p>
+      </div>
     </section>
   );
 }

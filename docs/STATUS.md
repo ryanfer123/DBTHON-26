@@ -1004,3 +1004,10 @@ pilot evidence. QA scripts and screenshots remain outside Git under `/private/tm
 After a refreshed remote fetch, every currently existing remote branch head was
 an ancestor of the integrated tree; `git branch -r --no-merged HEAD` returned empty.
 P11 performance and P12 actual stakeholder/pilot evidence remain open.
+
+### 2026-10-08: NomNom monthly impact theme
+
+- Restyled the homepage monthly totals as a rounded matcha panel with three prominent metrics, aligned labels, and stacked mobile spacing. Kept the existing polling, totals, demo-data disclosure, UTC period, and meal estimate unchanged.
+- Changed `frontend/src/features/community/PublicImpact.tsx` and `frontend/src/styles/marketing.css`; no API or migration changes.
+- Verification: frontend lint, typecheck, build (180880 gzip bytes within the 204800-byte budget), and all 31 frontend tests passed. Chrome checks at 1440px and 390px verified exact fixture values, labels, metric alignment, and no horizontal overflow. Screenshots: `/private/tmp/nomnom-monthly-impact-1440.png` and `/private/tmp/nomnom-monthly-impact-390.png`.
+- Existing GSAP import/chunk build advisories remain. Backend and database tests were not rerun for this presentation-only change. Concurrent deployment drafts remain outside the isolated checkout.
