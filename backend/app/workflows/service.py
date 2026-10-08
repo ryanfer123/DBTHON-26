@@ -600,7 +600,7 @@ def overview(connection: Connection) -> OverviewResponse:
     unread = connection.execute(
         text("""
       SELECT count(*) FROM notifications WHERE user_id=:uid AND sent_at IS NOT NULL
-        AND read_at IS NULL
+        AND read_at IS NULL AND hidden_at IS NULL
     """),
         values,
     ).scalar_one()
@@ -608,7 +608,7 @@ def overview(connection: Connection) -> OverviewResponse:
         connection.execute(
             text("""
       SELECT notification_id,message,type,created_at,sent_at,read_at FROM notifications
-      WHERE user_id=:uid AND sent_at IS NOT NULL AND read_at IS NULL
+      WHERE user_id=:uid AND sent_at IS NOT NULL AND read_at IS NULL AND hidden_at IS NULL
       ORDER BY sent_at DESC,notification_id DESC LIMIT 5
     """),
             values,

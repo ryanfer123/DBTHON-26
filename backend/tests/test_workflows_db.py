@@ -658,7 +658,7 @@ def test_overview_exact_scoped_role_counts_and_private_projection(workflow, uid)
             == c.execute(
                 text("""
             SELECT count(*) FROM notifications WHERE user_id=:uid
-              AND sent_at IS NOT NULL AND read_at IS NULL
+              AND sent_at IS NOT NULL AND read_at IS NULL AND hidden_at IS NULL
         """),
                 {"uid": uid},
             ).scalar_one()
@@ -950,3 +950,32 @@ def test_public_impact_only_aggregates_and_report_median_matches_sql(workflow):
     for key in ["delivered_kg", "picked_up_kg", "expired_kg", "cancelled_listing_kg"]:
         assert Decimal(row[key]) == Decimal(report.json()["data"][0][key])
     assert client(204).get("/api/v1/admin/impact", params={"zone_id": 1}).status_code == 404
+
+
+def test_cleared_inbox_is_excluded_from_overview_and_preserves_other_users(workflow):
+    db, client, worker = workflow
+    with db.begin() as c:
+        c.execute(text("""
+            INSERT INTO notifications(user_id,event_id,message,type,sent_at)
+            VALUES (101,'inbox-regression-1','Synthetic inbox update','InApp',clock_timestamp()),
+                   (102,'inbox-regression-2','Other member update','InApp',clock_timestamp())
+        """))
+    member = client(101)
+    other = client(102)
+    initial = member.get("/api/v1/workspace/overview").json()["data"]
+    assert initial["unread_count"] > 0 and initial["updates"]
+    other_initial = other.get("/api/v1/workspace/overview").json()["data"]
+    assert post(member, "/notifications/clear", {}).status_code == 200
+    assert member.get("/api/v1/notifications").json()["data"] == []
+    result = member.get("/api/v1/workspace/overview").json()["data"]
+    assert result["unread_count"] == 0 and result["updates"] == []
+    assert other.get("/api/v1/workspace/overview").json()["data"] == other_initial
+    assert post(member, "/notifications/clear", {}).json()["cleared"] == 0
+    with db.begin() as c:
+        c.execute(text("""
+            INSERT INTO notifications(user_id,event_id,message,type,sent_at)
+            VALUES (101,'inbox-regression-3','Fresh visible update','InApp',clock_timestamp())
+        """))
+    fresh = member.get("/api/v1/workspace/overview").json()["data"]
+    assert fresh["unread_count"] == 1
+    assert [item["message"] for item in fresh["updates"]] == ["Fresh visible update"]
