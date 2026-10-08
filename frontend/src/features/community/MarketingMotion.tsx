@@ -27,7 +27,11 @@ export function MarketingMotion() {
       const section = document.querySelector<HTMLElement>(".marketing-story");
       const track = section?.querySelector<HTMLElement>(".story-track");
 
+      let revealContext: ReturnType<typeof gsap.context> | null = null;
+
       const reset = () => {
+        revealContext?.revert();
+        revealContext = null;
         section?.classList.remove("story-scrolling");
         trigger?.kill();
         trigger = null;
@@ -75,6 +79,46 @@ export function MarketingMotion() {
           trigger = tween.scrollTrigger as typeof trigger;
         }
 
+        revealContext = gsap.context(() => {
+          for (const selector of [
+            ".public-impact-panel",
+            ".close-intro",
+            ".close-paths",
+          ]) {
+            const element = document.querySelector(selector);
+            if (!element) continue;
+            gsap.from(element, {
+              y: 32,
+              opacity: 0,
+              duration: 0.7,
+              ease: "power2.out",
+              scrollTrigger: { trigger: element, start: "top 92%", once: true },
+            });
+          }
+          if (document.querySelector(".public-impact"))
+            gsap.from(".public-impact-metrics > div", {
+              y: 20,
+              opacity: 0,
+              duration: 0.6,
+              stagger: 0.12,
+              scrollTrigger: {
+                trigger: ".public-impact",
+                start: "top 85%",
+                once: true,
+              },
+            });
+          gsap.from(".close-paths > a", {
+            y: 24,
+            duration: 0.65,
+            stagger: 0.12,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".close-paths",
+              start: "top 90%",
+              once: true,
+            },
+          });
+        });
         ScrollTrigger.refresh();
       };
 

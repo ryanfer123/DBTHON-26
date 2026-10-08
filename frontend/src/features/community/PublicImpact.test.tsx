@@ -41,7 +41,9 @@ describe("public community impact", () => {
     ).toBeVisible();
     expect(screen.getByText("Estimated meal equivalents")).toBeVisible();
     expect(screen.getByText(/0.4 kg per meal equivalent/)).toBeVisible();
-    expect(screen.getByText("0")).toBeVisible();
+    expect(screen.getByText("Live listings").closest("div")).toHaveTextContent(
+      "0",
+    );
   });
   it("does not invent totals while data is unavailable", () => {
     query.data = undefined;

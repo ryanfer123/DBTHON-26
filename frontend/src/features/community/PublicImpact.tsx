@@ -1,3 +1,4 @@
+import { AnimatedStat } from "./AnimatedStat";
 import { useEffect } from "react";
 import { useQuery } from "../workflows/data";
 type Impact = {
@@ -23,7 +24,13 @@ export function PublicImpact() {
 
   // Keep the marketing stage clean while live totals are loading or unavailable.
   // The query continues refreshing so the impact panel appears once data is ready.
-  if (!impact) return null;
+  if (
+    !impact ||
+    !Number.isFinite(Number(impact.delivered_kg)) ||
+    !Number.isFinite(Number(impact.estimated_meals)) ||
+    !Number.isFinite(impact.active_listings)
+  )
+    return null;
 
   return (
     <section className="public-impact" aria-labelledby="public-impact-heading">
@@ -36,16 +43,27 @@ export function PublicImpact() {
           <div>
             <dt>Food delivered</dt>
             <dd>
-              {Number(impact.delivered_kg).toFixed(1)} <span>kg</span>
+              <AnimatedStat
+                value={Number(impact.delivered_kg)}
+                decimals={1}
+                unit="kg"
+              />
             </dd>
           </div>
           <div>
             <dt>Estimated meal equivalents</dt>
-            <dd>{Number(impact.estimated_meals).toFixed(1)}</dd>
+            <dd>
+              <AnimatedStat
+                value={Number(impact.estimated_meals)}
+                decimals={1}
+              />
+            </dd>
           </div>
           <div>
             <dt>Live listings</dt>
-            <dd>{impact.active_listings}</dd>
+            <dd>
+              <AnimatedStat value={impact.active_listings} />
+            </dd>
           </div>
         </dl>
         <p className="public-impact-label">

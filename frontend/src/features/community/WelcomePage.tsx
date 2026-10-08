@@ -59,19 +59,19 @@ export function WelcomePage() {
             >
               {[
                 {
-                  to: "/community/donor",
+                  to: "/donations/new",
                   title: "Share your surplus",
                   text: "Give good food a second home.",
                   number: "01",
                 },
                 {
-                  to: "/community/receiver",
+                  to: "/food",
                   title: "Find food nearby",
                   text: "Connect with food in your community.",
                   number: "02",
                 },
                 {
-                  to: "/community/volunteer",
+                  to: "/deliveries",
                   title: "Lend a helping hand",
                   text: "Help a meal reach its next table.",
                   number: "03",

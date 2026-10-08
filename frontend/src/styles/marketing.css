@@ -1563,7 +1563,7 @@ body:has(.marketing-home) .site-footer {
   letter-spacing: -0.06em;
   line-height: 1;
 }
-.public-impact-metrics dd span {
+.public-impact-metrics dd .stat-unit {
   font-size: 24px;
   letter-spacing: -0.03em;
 }
@@ -1688,5 +1688,31 @@ body:has(.marketing-home) .marketing-close :is(h2, h3) {
   .close-art .brand-mark {
     width: 400px;
     height: 400px;
+  }
+}
+
+.close-paths > a {
+  transition: transform 220ms ease, box-shadow 220ms ease, background 180ms ease, border-color 180ms ease;
+}
+.close-path-top > span:last-child,
+.marketing-close .button > span {
+  display: inline-block;
+  transition: transform 220ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .close-paths > a:is(:hover, :focus-visible) {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgb(0 0 0 / 0.12);
+  }
+  .close-paths > a:is(:hover, :focus-visible) .close-path-top > span:last-child {
+    transform: translate(3px, -3px);
+  }
+  .marketing-close .button:is(:hover, :focus-visible) > span {
+    transform: translateX(5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .close-paths > a, .close-path-top > span:last-child, .marketing-close .button > span {
+    transition: none;
   }
 }
