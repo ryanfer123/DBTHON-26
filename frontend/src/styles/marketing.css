@@ -1056,7 +1056,7 @@ body:has(.marketing-home) .site-footer {
     gap: 8px;
   }
 
-  .marketing-header nav > .marketing-nav-pill {
+  .marketing-header .header-content nav > .marketing-nav-pill {
     display: inline-flex;
   }
 

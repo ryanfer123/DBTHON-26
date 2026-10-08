@@ -800,13 +800,13 @@ function ExchangeProgress({ exchange }: { exchange: Exchange }) {
                 key={label}
                 aria-current={index === step ? "step" : undefined}
               >
-                <span className="step-number" aria-hidden="true">
+                <span className="exchange-step-number" aria-hidden="true">
                   {index < step ? "✓" : index + 1}
                 </span>
-                <span className="step-copy">
+                <span className="exchange-step-copy">
                   {label}
                   {index === step && (
-                    <strong className="step-current">Current</strong>
+                    <strong className="exchange-step-current">Current</strong>
                   )}
                 </span>
               </li>

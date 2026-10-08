@@ -66,3 +66,15 @@ restore it. New direct links without a trail offer Back to first page. Breadcrum
 on food/exchange/editor/audit screens provide parent destinations; food/exchange
 links retain the originating filter URL. Help searches the existing FAQs and offers
 role-specific working tools. Forest/sage styling and persistent dark mode remain.
+
+## NomNom shared visual system (2026-10-08)
+
+The product name is **NomNom**. Aritra's frontend branch supplies the visual source
+of truth in `frontend/src/styles/tokens.css`, `nomnom.css`, and `marketing.css`:
+cream/forest-green surfaces, orange accents, display headings, rounded controls and
+panels, with token-based dark mode. Shared role layouts carry this system through
+identity/settings, dashboard, food and exchange workflows, requests and updates,
+inbox/trust, impact and administration. Marketing animation remains on public pages;
+role screens prioritize readable labels, usable controls and clear task states.
+Existing routes, role visibility, CSRF headers, stored theme preferences and API
+contracts are retained. The integration does not mark any design as user-approved.

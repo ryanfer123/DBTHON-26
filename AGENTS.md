@@ -34,11 +34,13 @@ unrequested polish. If the requested change cannot be made without touching some
 outside that scope, explain the specific dependency and ask before making that extra
 change. Treat each new user instruction as the scope for that step.
 
-For every UI design change, first inspect and use the provided [More Nutrition website
-reference](<references/More Nutrition - Matcha meets Protein.html>) and its supporting
+For every UI design change, first inspect and use the provided local More Nutrition website
+reference at `references/More Nutrition - Matcha meets Protein.html` and its supporting
 assets in `references/More Nutrition - Matcha meets Protein_files/`. Consult
 `references/Frontend Architecture & UIUX Assessment Report.md` for the accompanying
-analysis. Match the requested reference's visual structure and styling while adapting
+analysis. These reference files are local-only and are not included in Git; their
+absence is a known handoff limitation for reference-based landing-page changes.
+Match the requested reference's visual structure and styling while adapting
 its content to NomNom. Do not substitute a generic treatment or infer a different
 design without the user's direction. If the referenced material is missing or unclear,
 identify that specific gap before proceeding.

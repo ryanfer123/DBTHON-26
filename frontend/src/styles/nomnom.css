@@ -250,8 +250,8 @@ h2,
 }
 
 .curved-marquee-text {
-  font-family: "Arial Narrow", "Roboto Condensed", "Aptos Display", Arial,
-    sans-serif;
+  font-family:
+    "Arial Narrow", "Roboto Condensed", "Aptos Display", Arial, sans-serif;
   font-stretch: condensed;
   font-size: 8rem;
   font-weight: 700;
@@ -713,5 +713,83 @@ h2,
   .food-row,
   .member-row {
     transition: none;
+  }
+}
+
+/* Carry the NomNom surface system through every role's newer tools. */
+.site-header:not(.marketing-header) .wordmark,
+.site-footer:not(.marketing-footer) .wordmark {
+  align-items: center;
+  gap: 8px;
+}
+.workspace-content .recurring-reminder-form,
+.workspace-content .saved-schedules,
+.workspace-content .personal-impact-totals,
+.workspace-content .experience-card,
+.workspace-content .community-cards > li,
+.workspace-content .settings-section,
+.workspace-content .trust-summary {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+}
+.workspace-content .settings-section,
+.workspace-content .trust-summary {
+  padding: 24px;
+  margin-block: 0 24px;
+}
+.saved-schedules .settings-section {
+  box-shadow: none;
+  border-radius: var(--radius-control);
+  margin-top: 24px;
+}
+.workspace-content .impact-score,
+.workspace-content .community-summary,
+.workspace-content .pickup-agreement {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--sage);
+  box-shadow: var(--shadow-panel);
+}
+.impact-score-heading h2,
+.impact-score-value {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+.impact-score .badge {
+  background: var(--surface);
+}
+.workspace-content .deadline-strip {
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.workspace-content .status-stepper li {
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.workspace-content .status-stepper li[aria-current="step"] {
+  background: var(--sage);
+}
+.workspace-sidebar .nav-disclosure summary {
+  font-family: var(--font-body);
+  font-size: 14px;
+  border-radius: var(--radius-control);
+}
+.workspace-content .notice-error {
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+.marketing-footer .footer-content {
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.marketing-footer .footer-content > span {
+  max-width: 100%;
+}
+@media (max-width: 480px) {
+  .workspace-content .settings-section,
+  .workspace-content .trust-summary {
+    padding: 20px 16px;
   }
 }

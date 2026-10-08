@@ -967,3 +967,40 @@ The untracked `scratch/` preview/debug files were left out of the commit.
 After the merge, `npm run build` passed with 180,795 initial JavaScript bytes gzip,
 within the 204,800-byte budget. Vite reports the existing GSAP mixed import and
 large uncompressed chunk advisories. The test suite was not run for this Git sync.
+
+### 2026-10-08 - Complete NomNom frontend integration
+
+Merged Aritra Ghosh's `origin/frontend` revision
+`72c332562d11e9a04ede64857fdfa50cf1c289ed` (redesign commit `b363a47`) using merge
+commit `811b91a`, preserving the published main features and the new exchange
+alignment commit `41bd23c`. The only content conflict was appended STATUS notes;
+both histories remain. A stale copied Git multi-pack index was rebuilt; object
+connectivity passed. No backend, database or deployment source changes occur in
+this merge. The original workspace's AWS drafts remain untouched.
+
+NomNom is now the current UI/README product name. Extended the shared theme to
+schedules, impact score/statistics, community cards, settings, trust and exchange
+panels; retained Aritra's landing-page structure. Fixed mobile marketing nav
+specificity and footer wrapping. Scoped exchange step-number classes avoid an
+existing marketing class collision. The local-only reference mentioned by the
+new contributor instructions is not in Git; its path is documented without a
+broken repository link. No new design approval was invented.
+
+Final combined checks: lint and TypeScript passed; build passed with initial JS
+180,856 bytes gzip (204,800 budget); 31 frontend tests across 7 files passed;
+13 migration-source checks, handoff validator and diff checks passed. Existing
+GSAP mixed-import/large-chunk build advisories remain. There are no API/schema
+changes to validate against PostgreSQL for this frontend iteration.
+
+Chrome fixture-session checks: 28 main/role routes at 1440 px/light and 390 px/dark
+all rendered headings and NomNom branding without horizontal overflow or page
+errors. Separate checks passed for exchange spacing/steps/contact directions at
+1440/1000/390 px, score period/rounding/failure recovery, donor/receiver listing
+alignment and View food navigation, and public homepage section/sign-in navigation
+at desktop/mobile. These presentation fixtures are not new backend workflow or
+pilot evidence. QA scripts and screenshots remain outside Git under `/private/tmp`:
+`check-nomnom-pages.mjs`, `check-merged-home.mjs`, `check-exchange-alignment.mjs`,
+`check-impact-score.mjs`, `check-food-row.mjs`, and their referenced screenshot paths.
+After a refreshed remote fetch, every currently existing remote branch head was
+an ancestor of the integrated tree; `git branch -r --no-merged HEAD` returned empty.
+P11 performance and P12 actual stakeholder/pilot evidence remain open.

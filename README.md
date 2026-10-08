@@ -1,6 +1,6 @@
 # DBTHON-26
 
-**Second Table: community-operated, zone-partitioned food redistribution**
+**NomNom: community-operated, zone-partitioned food redistribution**
 
 The course brief retains its original title, “Decentralized Surplus Food &
 Perishable Redistribution Platform”. The implementation uses one shared PostgreSQL

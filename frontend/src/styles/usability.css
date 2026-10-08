@@ -244,6 +244,7 @@
 }
 
 /* Exchange content follows a consistent vertical rhythm. */
+.exchange-detail { max-width: 960px; }
 .exchange-detail .deadline-strip {
   flex-wrap: wrap;
   justify-content: space-between;
@@ -272,14 +273,21 @@
   font-size: 15px;
   line-height: 1.4;
 }
-.step-number {
+.exchange-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sage);
   flex: none;
   font-weight: 700;
 }
-.step-copy {
+.exchange-step-copy {
   min-width: 0;
 }
-.step-current {
+.exchange-step-current {
   display: block;
   margin-top: 6px;
   font-size: 13px;
@@ -327,13 +335,13 @@
   .status-stepper li {
     align-items: center;
   }
-  .step-copy {
+  .exchange-step-copy {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 8px 16px;
   }
-  .step-current {
+  .exchange-step-current {
     margin: 0;
   }
   .exchange-detail .exchange-facts {
