@@ -7,6 +7,7 @@ from sqlalchemy import text
 from app.core.access import Access
 from app.core.config import Settings
 from app.workflows.alerts import deliver_external
+from app.workflows.browser_push import deliver_push
 
 
 class InAppAdapter(Protocol):
@@ -68,4 +69,5 @@ def tick(
             if completed:
                 counts["notifications_delivered" if success else "notifications_retried"] += 1
     counts.update(deliver_external(access, settings or Settings()))
+    counts.update(deliver_push(access, settings or Settings()))
     return counts

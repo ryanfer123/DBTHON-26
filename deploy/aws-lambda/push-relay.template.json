@@ -1,0 +1,202 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Opt-in browser push relay. Private worker database bridge; no NAT gateway, database login or public URL.",
+  "Parameters": {
+    "WorkerArn": {
+      "Type": "String",
+      "AllowedPattern": "arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:[a-zA-Z0-9_-]+"
+    },
+    "CodeBucket": {
+      "Type": "String"
+    },
+    "CodeKey": {
+      "Type": "String"
+    },
+    "VapidSecretArn": {
+      "Type": "String",
+      "AllowedPattern": "arn:aws:secretsmanager:.*",
+      "Description": "Existing approved secret; JSON field private_key. No secret created by this template."
+    },
+    "PushEnabled": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "false",
+        "true"
+      ]
+    },
+    "FrontendOrigin": {
+      "Type": "String",
+      "Default": "https://dbthon-26.onrender.com",
+      "AllowedPattern": "https://[^/]+"
+    }
+  },
+  "Resources": {
+    "Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "PushDelivery",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "lambda:InvokeFunction",
+                  "Resource": {
+                    "Ref": "WorkerArn"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-push:*"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "LogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${AWS::StackName}-push"
+        },
+        "RetentionInDays": 7
+      }
+    },
+    "Function": {
+      "Type": "AWS::Lambda::Function",
+      "DependsOn": "LogGroup",
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "${AWS::StackName}-push"
+        },
+        "Runtime": "python3.13",
+        "Handler": "app.lambda_push.handle",
+        "Role": {
+          "Fn::GetAtt": [
+            "Role",
+            "Arn"
+          ]
+        },
+        "MemorySize": 256,
+        "Timeout": 60,
+        "ReservedConcurrentExecutions": 1,
+        "Code": {
+          "S3Bucket": {
+            "Ref": "CodeBucket"
+          },
+          "S3Key": {
+            "Ref": "CodeKey"
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "PYTHONPATH": "/var/task/backend",
+            "PUSH_WORKER_ARN": {
+              "Ref": "WorkerArn"
+            },
+            "PUSH_DELIVERY_ENABLED": {
+              "Ref": "PushEnabled"
+            },
+            "PUSH_SUBJECT": {
+              "Ref": "FrontendOrigin"
+            },
+            "PUSH_PRIVATE_KEY": {
+              "Fn::Sub": "{{resolve:secretsmanager:${VapidSecretArn}:SecretString:private_key}}"
+            }
+          }
+        }
+      }
+    },
+    "Schedule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "rate(1 minute)",
+        "State": {
+          "Fn::If": [
+            "Enabled",
+            "ENABLED",
+            "DISABLED"
+          ]
+        },
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "Function",
+                "Arn"
+              ]
+            },
+            "Id": "Push",
+            "RetryPolicy": {
+              "MaximumRetryAttempts": 0,
+              "MaximumEventAgeInSeconds": 60
+            }
+          }
+        ]
+      }
+    },
+    "Permission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Function"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "Schedule",
+            "Arn"
+          ]
+        },
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        }
+      }
+    },
+    "NoAsyncRetry": {
+      "Type": "AWS::Lambda::EventInvokeConfig",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Function"
+        },
+        "Qualifier": "$LATEST",
+        "MaximumRetryAttempts": 0,
+        "MaximumEventAgeInSeconds": 60
+      }
+    }
+  },
+  "Conditions": {
+    "Enabled": {
+      "Fn::Equals": [
+        {
+          "Ref": "PushEnabled"
+        },
+        "true"
+      ]
+    }
+  }
+}

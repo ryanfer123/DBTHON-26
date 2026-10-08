@@ -1,4 +1,5 @@
 import { DeleteAccountForm } from "./DeleteAccountForm";
+import { BrowserPushSettings } from "./BrowserPushSettings";
 import { InstallApp } from "../../components/InstallApp";
 import { useState } from "react";
 import { api, ApiError } from "../../lib/identity";
@@ -143,24 +144,10 @@ export function SettingsPage() {
               ? "WhatsApp alerts are enabled for the approved phone number. Delivery confirmation depends on the messaging provider."
               : "Save your preference now. WhatsApp needs provider setup, a registered phone number and an approved notification template."}
           </p>
-          <label className="review-check">
-            <input
-              type="checkbox"
-              checked={query.data.data.push_enabled}
-              disabled={saving}
-              onChange={(event) =>
-                void save("push_enabled", event.target.checked)
-              }
-            />
-            Push alerts
-          </label>
-          <p className="field-help">
-            You can save this preference now. External push delivery is not
-            available in this build yet.
-          </p>
           <Feedback error={error} notice={notice} />
         </section>
       )}
+      <BrowserPushSettings onChange={query.refresh} />
       <InstallApp />
       {auth.session && (
         <section

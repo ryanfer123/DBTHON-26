@@ -14,6 +14,7 @@ dependencies = [
   "email-validator>=2.2,<3",
   "mangum==0.21.0",
   "pillow>=12,<13",
+  "pywebpush==2.3.0",
 ]
 
 [dependency-groups]
@@ -49,3 +50,7 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["pywebpush", "requests", "boto3", "botocore.*"]
+ignore_missing_imports = true

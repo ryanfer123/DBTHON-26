@@ -1182,3 +1182,43 @@ Actual checks:
 - `git diff --check`: passed.
 
 No application/browser/PostgreSQL tests were added or run. No database migration, cloud resource change, merge or deployment was performed. Next: exercise deletion and concurrent workflow/admin guards against real PostgreSQL, then migrate/deploy API before frontend after deployment review. A provider message already dispatched cannot be recalled.
+## Browser push implementation - 2026-10-08
+
+Feature checkout `/private/tmp/dbthon-browser-push`, branch `feat/browser-push`,
+based on main `330b747`. Original local AWS drafts preserved. Added Settings browser
+opt-in/status/disable, logout cleanup, service-worker push/click handlers, own-account
+CSRF subscription APIs, migration 0013, transactional per-browser delivery, official
+pywebpush transport, IAM worker bridge and disabled optional AWS relay template.
+Updated API/ER/requirements, existing endpoint inventory and disposable fixture cleanup for new tables.
+
+No signing keys created, cloud resources changed, migration applied, or browser
+receipt verified. The exact `aws-secrets-manager` skill required by AGENTS.md was
+unavailable; credential handling remains pending. New resources require the existing
+Deploy-after-review gate. No application/database/browser tests were added or run
+for this feature; static check results are recorded below when complete.
+Next: approve the documented activation review, resolve the required secret workflow,
+deploy migration 0013 and disabled relay, configure keys, enable and demonstrate a
+real consenting browser receiving a notification with the tab closed.
+
+Static checks on 2026-10-08:
+
+- `backend/.venv/bin/ruff check backend/app backend/alembic/versions/0013_browser_push.py`: passed.
+- `backend/.venv/bin/mypy --config-file backend/pyproject.toml backend/app`: passed, 35 files.
+- `npm run build --prefix frontend`: passed; initial JavaScript 182,775 bytes gzip under 204,800-byte budget. Existing GSAP import/chunk-size warnings remain.
+- `npm run typecheck --prefix frontend` and `npm run lint --prefix frontend`: passed.
+- `PYTHONPATH=backend backend/.venv/bin/python scripts/export_openapi.py --check`: passed.
+- `python3 scripts/validate_handoff.py`: passed; this is documentation/fixture integrity only.
+- `git diff --check`: passed.
+
+Read-only AWS DescribeRouteTables/DescribeNatGateways confirmed the retained VPC
+has a local-only route and no NAT gateways. Direct provider delivery from the private
+worker would fail; the disabled relay template supplies the separate internet sender.
+The frontend dependency installation's first approval review timed out; the allowed
+retry completed successfully without altering the original checkout's dependencies.
+
+
+## 2026-10-09: Combined feature merge prepared for main
+
+At the user's request, combined `feat/compact-recorded-actions` (compact history, rounded navigation, themed dropdown menus, live prefix search/time/filter controls, account deletion) and `feat/browser-push`, while retaining the latest `origin/main` changes through `b2a3e86`. Resolved shared Settings/error/API/docs/bootstrap conflicts by preserving both features. Corrected the previously undeployed deletion migration dependency: the combined chain is `0012 -> 0013 -> 0014`, with one `0014` head. Account deletion removes all browser subscriptions and their queued deliveries; self deletion also attempts local browser unsubscribe after the server commit. Push subscribe/unsubscribe rechecks the actor after its user lock so deletion cannot be bypassed by a stale session. Earlier account-only single-head notes describe the pre-merge state and are superseded by this paragraph.
+
+Combined checks: frontend production build and ESLint passed (184903 initial JavaScript gzip bytes, budget 204800); backend Ruff passed; mypy passed for 35 source files; OpenAPI export check passed; Alembic heads reports only 0014; handoff and whitespace checks passed. No application/browser/PostgreSQL tests were run for this merge. Cloud/database state is unchanged by these local checks. Browser push remains disabled until its signing-key and reviewed AWS relay setup are configured; merge/push alone does not enable real notification delivery. The original checkout's untracked AWS drafts are excluded and preserved. Deploy/review migrations 0013/0014 and API before relying on the new frontend controls.

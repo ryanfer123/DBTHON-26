@@ -99,6 +99,22 @@
         "title": "Empty",
         "type": "object"
       },
+      "Endpoint": {
+        "additionalProperties": false,
+        "properties": {
+          "endpoint": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Endpoint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "title": "Endpoint",
+        "type": "object"
+      },
       "Evidence": {
         "properties": {
           "body": {
@@ -940,6 +956,27 @@
           "meta"
         ],
         "title": "IssuesResponse",
+        "type": "object"
+      },
+      "Keys": {
+        "additionalProperties": false,
+        "properties": {
+          "auth": {
+            "maxLength": 30,
+            "title": "Auth",
+            "type": "string"
+          },
+          "p256dh": {
+            "maxLength": 100,
+            "title": "P256Dh",
+            "type": "string"
+          }
+        },
+        "required": [
+          "p256dh",
+          "auth"
+        ],
+        "title": "Keys",
         "type": "object"
       },
       "LedgerEntry": {
@@ -2877,6 +2914,37 @@
           "data"
         ],
         "title": "SessionSnapshotResponse",
+        "type": "object"
+      },
+      "Subscription": {
+        "additionalProperties": false,
+        "properties": {
+          "endpoint": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Endpoint",
+            "type": "string"
+          },
+          "expirationTime": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expirationtime"
+          },
+          "keys": {
+            "$ref": "#/components/schemas/Keys"
+          }
+        },
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "title": "Subscription",
         "type": "object"
       },
       "Suggestion": {
@@ -7659,6 +7727,158 @@
         "summary": "Public Impact",
         "tags": [
           "Community"
+        ]
+      }
+    },
+    "/api/v1/push/config": {
+      "get": {
+        "operationId": "config_api_v1_push_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Config Api V1 Push Config Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Config",
+        "tags": [
+          "Browser push"
+        ]
+      }
+    },
+    "/api/v1/push/status": {
+      "post": {
+        "operationId": "status_api_v1_push_status_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Endpoint"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Status Api V1 Push Status Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Status",
+        "tags": [
+          "Browser push"
+        ]
+      }
+    },
+    "/api/v1/push/subscribe": {
+      "post": {
+        "operationId": "subscribe_api_v1_push_subscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Subscription"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Subscribe Api V1 Push Subscribe Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subscribe",
+        "tags": [
+          "Browser push"
+        ]
+      }
+    },
+    "/api/v1/push/unsubscribe": {
+      "post": {
+        "operationId": "unsubscribe_api_v1_push_unsubscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Endpoint"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Unsubscribe Api V1 Push Unsubscribe Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unsubscribe",
+        "tags": [
+          "Browser push"
         ]
       }
     },

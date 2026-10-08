@@ -302,4 +302,17 @@ No migration is needed.
 - `DELETE_CONFIRMATION_REQUIRED` is 422; `PROTECTED_ACCOUNT`, `LAST_ZONE_ADMIN`, `ACCOUNT_ACTIVE_EXCHANGES` and `ACCOUNT_DELETED` are 409. Cross-zone targets return 404 and non-admin member deletion returns 403.
 - Deletion permanently removes login/profile details, role approvals, preferences, schedules, receiver capacity, saved/hidden listing preferences, sessions and private idempotency responses. Open food requests are closed; inbox rows are hidden and pending/processing notification work is invalidated. Already dispatched provider messages cannot be recalled.
 - A pseudonymous inactive `users` row remains to preserve foreign keys and the append-only hash chain. Completed exchanges, listings, messages, reports, reviews and audit content remain; this is not a purge of every historical mention or user-written text. Deleted accounts disappear from member management and cannot be reactivated.
-- Deploy migration `0014` before the API and frontend. The separate undeployed push branch's `0013` must be rebased onto this migration before combining branches, including removal of push subscriptions on deletion.
+- Deploy migration `0014` before the API and frontend. The combined migration chain is `0012 -> 0013 -> 0014`; deletion also removes browser subscriptions and queued delivery rows.
+## Browser push (revision 0013)
+
+| Method/path | Contract | Authorization |
+| --- | --- | --- |
+| GET `/push/config` | `{data:{configured,public_key}}`; public VAPID key only | Signed-in active account |
+| POST `/push/status` | `{endpoint}` → `{data:{enabled}}` | Own browser; CSRF |
+| POST `/push/subscribe` | Browser `PushSubscription.toJSON()`: endpoint, keys p256dh/auth, nullable expirationTime → enabled | Own account; CSRF; five-device cap; configured transport required |
+| POST `/push/unsubscribe` | `{endpoint}` → disabled | Own account; CSRF; idempotent |
+
+Subscription URLs and browser keys are never returned by server reads. Existing
+notification-preference responses expose actual push configuration. The worker
+leases per-device deliveries independently of inbox acceptance. See [browser push](BROWSER_PUSH.md)
+for privacy, expiry, provider acceptance and deployment gates.

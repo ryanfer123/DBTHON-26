@@ -1,5 +1,5 @@
 -- Remove account access/profile data while preserving exchange and hash-chain references.
--- 0013 is reserved by the separate, undeployed browser-push branch.
+-- Follows browser-push revision 0013.
 ALTER TABLE users ADD COLUMN deleted_at timestamptz;
 ALTER TABLE users ALTER COLUMN phone TYPE varchar(30);
 GRANT SELECT(deleted_at) ON users TO dbthon_runtime;
@@ -65,6 +65,7 @@ BEGIN
   PERFORM public.dbthon_record_event(ARRAY[actor,target],'identity.account_deleted','users',target,NULL,
     jsonb_build_object('actor_id',actor,'target_id',target,'admin_action',actor<>target),moment);
   -- No contact information or free-text deletion reasons enter the immutable ledger.
+  DELETE FROM public.browser_push_subscriptions WHERE user_id=target;
   DELETE FROM public.sessions WHERE user_id=target;
   DELETE FROM public.idempotency_keys WHERE actor_id=target;
   DELETE FROM public.saved_listings WHERE user_id=target;

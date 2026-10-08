@@ -73,3 +73,36 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+// Keep push payloads generic even if a provider sends unexpected private data.
+self.addEventListener("push", (event) => {
+  event.waitUntil(
+    self.registration.showNotification("NomNom", {
+      body: "You have a new community update. Open your inbox to see it.",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: "second-table-inbox",
+      data: { path: "/inbox" },
+    }),
+  );
+});
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL("/inbox", self.location.origin).href;
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      for (const client of windows) {
+        if (new URL(client.url).origin === self.location.origin) {
+          await client.navigate(target);
+          await client.focus();
+          return;
+        }
+      }
+      await self.clients.openWindow(target);
+    })(),
+  );
+});

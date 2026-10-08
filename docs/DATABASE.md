@@ -368,8 +368,28 @@ are restricted runtime reads, with no new grants or write routines.
 
 ## Account deletion (revision 0014)
 
-Revision `0014` follows `0012` in this branch; `0013` is reserved by the separate, undeployed browser-push branch. A combined branch must form a single forward migration chain before deployment. `users.deleted_at` records irreversible deletion, with a check requiring inactive/unverified status and an empty login hash. Phone storage widens to 30 characters for unique internal deleted-account identifiers; registration still requires a real E.164 phone.
+The combined migration chain is `0012 -> 0013 -> 0014`; account deletion also removes browser subscriptions and cascades their delivery rows. `users.deleted_at` records irreversible deletion, with a check requiring inactive/unverified status and an empty login hash. Phone storage widens to 30 characters for unique internal deleted-account identifiers; registration still requires a real E.164 phone.
 
 `dbthon_delete_account(bigint,text)` is owned by the NOLOGIN guard and only executable by runtime. It authorizes scope before acquiring domain locks, locks listing/claim/pickup/schedule/request rows before sorted users, then rechecks actor, scope and typed email. Main-admin, last-area-admin and active-exchange guards protect operational continuity. Deletion records a minimal hash-chain event and removes private account state in the same transaction. Contact/profile fields become pseudonymous placeholders; historical identity keys and records remain unchanged. A trigger rejects updates to already deleted users. No direct deletion permissions are added to runtime.
 
 Profile erasure is not complete historical-content erasure: participant messages, donor-written details, review reasons and immutable payloads remain. No downgrade can recover removed information. No PostgreSQL runtime or concurrency tests were run for this change.
+## Browser push - revision 0013
+
+`browser_push_subscriptions(subscription_id PK,user_id FK,endpoint UNIQUE,p256dh,auth,created_at)`
+holds private browser capabilities. `browser_push_deliveries(delivery_id PK,notification_id FK,
+subscription_id FK,status,lease_token,locked_until)` has UNIQUE(notification_id,subscription_id).
+Subscriptions are capped at five per user under the user-row lock. Forced RLS allows
+only the NOLOGIN guard; runtime receives EXECUTE on own-browser routines rather than
+SELECT on capability columns. Worker-only lease/finalize routines avoid network calls
+inside transactions. New inbox inserts atomically create per-device deliveries.
+
+```mermaid
+erDiagram
+    users ||--o{ browser_push_subscriptions : opts_in
+    notifications ||--o{ browser_push_deliveries : enqueues
+    browser_push_subscriptions ||--o{ browser_push_deliveries : receives
+```
+
+Expired/revoked subscriptions may be deleted along with transport records; domain
+notifications and trust records remain. Details and live activation gates:
+[Browser push](BROWSER_PUSH.md).

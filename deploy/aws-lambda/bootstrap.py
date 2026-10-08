@@ -82,6 +82,7 @@ def handle(event: dict[str, Any], context: Any) -> dict[str, object]:
                     "0010",
                     "0011",
                     "0012",
+                    "0013",
                     "0014",
                 }:
                     raise ValueError(

@@ -45,6 +45,8 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
             409,
             "Finish or cancel this account's active donations and exchanges before deleting it.",
         ),
+        "PUSH_BROWSER_IN_USE": (409, "Reconnect browser alerts from Settings."),
+        "PUSH_DEVICE_LIMIT": (409, "Five browsers are already enabled. Disable one first."),
         "SAVE_LIMIT": (409, "You can save up to 100 listings. Remove one to save another."),
         "ISSUE_EXISTS": (409, "You already have an open report for this item."),
         "RATE_LIMITED": (429, "Too many messages or reports. Try again later."),

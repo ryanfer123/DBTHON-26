@@ -58,6 +58,20 @@
     "BootstrapCodeKey": {
       "Type": "String",
       "AllowedPattern": "[a-zA-Z0-9/_.-]+"
+    },
+    "PushEnabled": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "false",
+        "true"
+      ],
+      "Description": "Enable only after migration 0013 and relay configuration succeed"
+    },
+    "PushPublicKey": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Public VAPID P-256 application server key; never the private key"
     }
   },
   "Conditions": {
@@ -242,6 +256,12 @@
             "DB_RUNTIME_USER": "dbthon_app",
             "DB_RUNTIME_PASSWORD": {
               "Fn::Sub": "{{resolve:secretsmanager:${RuntimeSecret}:SecretString:password}}"
+            },
+            "PUSH_DELIVERY_ENABLED": {
+              "Ref": "PushEnabled"
+            },
+            "PUSH_PUBLIC_KEY": {
+              "Ref": "PushPublicKey"
             }
           }
         },
@@ -360,6 +380,12 @@
             "DB_WORKER_USER": "dbthon_jobs",
             "DB_WORKER_PASSWORD": {
               "Fn::Sub": "{{resolve:secretsmanager:${WorkerSecret}:SecretString:password}}"
+            },
+            "PUSH_DELIVERY_ENABLED": {
+              "Ref": "PushEnabled"
+            },
+            "PUSH_PUBLIC_KEY": {
+              "Ref": "PushPublicKey"
             }
           }
         },

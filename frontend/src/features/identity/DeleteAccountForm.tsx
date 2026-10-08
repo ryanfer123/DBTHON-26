@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { api, ApiError, type User } from "../../lib/identity";
+import { currentPushSubscription } from "../../lib/browserPush";
 import { invalidateOverview } from "../workflows/OverviewContext";
 import { useAuth } from "./AuthContext";
 
@@ -36,6 +37,10 @@ export function DeleteAccountForm({
       invalidateOverview();
       if (admin) onDeleted?.();
       else {
+        // Server deletion has committed; local browser cleanup cannot undo it.
+        await currentPushSubscription()
+          .then((subscription) => subscription?.unsubscribe())
+          .catch(() => undefined);
         auth.expire();
         navigate("/", { replace: true });
       }

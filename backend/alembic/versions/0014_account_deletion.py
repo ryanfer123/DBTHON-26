@@ -1,7 +1,7 @@
 """Permanent account deletion with retained audit identity.
 
 Revision ID: 0014
-Revises: 0012 (0013 reserved by the undeployed browser-push branch).
+Revises: 0013
 """
 
 from alembic import op
@@ -9,7 +9,7 @@ from alembic import op
 from app.core.config import ROOT
 
 revision = "0014"
-down_revision = "0012"
+down_revision = "0013"
 branch_labels = None
 depends_on = None
 
