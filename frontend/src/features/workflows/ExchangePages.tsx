@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { ExchangeProgress } from "./ExchangeProgress";
 import { ExchangeChat, ReportIssue, PickupCalendar } from "./Experience";
 import { PickupAgreement } from "./PickupAgreement";
@@ -199,7 +200,7 @@ function ExchangeActions({
             </h3>
             <div className="field">
               <label htmlFor={`score-${exchange.claim_id}`}>Rating</label>
-              <select
+              <ThemedSelect
                 id={`score-${exchange.claim_id}`}
                 name="score"
                 required
@@ -213,7 +214,7 @@ function ExchangeActions({
                     {score} / 5
                   </option>
                 ))}
-              </select>
+              </ThemedSelect>
             </div>
             <div className="field">
               <label htmlFor={`comments-${exchange.claim_id}`}>
@@ -370,11 +371,11 @@ export function ExchangesPage({ admin = false }: { admin?: boolean }) {
         <div className="workspace-toolbar">
           <div className="field">
             <label htmlFor="claim-filter">Claim status</label>
-            <select
+            <ThemedSelect
               id="claim-filter"
               value={status}
-              onChange={(event) => {
-                list.setFilters({ status: event.target.value });
+              onValueChange={(event) => {
+                list.setFilters({ status: event });
               }}
             >
               <option value="">All exchanges</option>
@@ -383,7 +384,7 @@ export function ExchangesPage({ admin = false }: { admin?: boolean }) {
                   <option key={status}>{status}</option>
                 ),
               )}
-            </select>
+            </ThemedSelect>
           </div>
           <button
             className="text-button"
@@ -574,40 +575,40 @@ export function DeliveriesPage() {
         <div className="workspace-toolbar">
           <div className="field">
             <label htmlFor="delivery-view">Show deliveries</label>
-            <select
+            <ThemedSelect
               id="delivery-view"
               value={tab}
-              onChange={(event) => {
-                list.setFilters({ view: event.target.value, status: "" });
+              onValueChange={(event) => {
+                list.setFilters({ view: event, status: "" });
               }}
             >
               <option value="tasks">Available tasks</option>
               <option value="mine">My assignments</option>
-            </select>
+            </ThemedSelect>
           </div>
           {tab === "tasks" ? (
             <div className="field">
               <label htmlFor="delivery-radius">Search radius</label>
-              <select
+              <ThemedSelect
                 id="delivery-radius"
                 value={radius}
-                onChange={(event) => {
-                  list.setFilters({ radius_m: event.target.value });
+                onValueChange={(event) => {
+                  list.setFilters({ radius_m: event });
                 }}
               >
                 <option value="1000">1 km</option>
                 <option value="3000">3 km</option>
                 <option value="5000">5 km</option>
-              </select>
+              </ThemedSelect>
             </div>
           ) : (
             <div className="field">
               <label htmlFor="pickup-filter">Assignment status</label>
-              <select
+              <ThemedSelect
                 id="pickup-filter"
                 value={status}
-                onChange={(event) => {
-                  list.setFilters({ status: event.target.value });
+                onValueChange={(event) => {
+                  list.setFilters({ status: event });
                 }}
               >
                 <option value="">All assignments</option>
@@ -621,7 +622,7 @@ export function DeliveriesPage() {
                 ].map((s) => (
                   <option key={s}>{s}</option>
                 ))}
-              </select>
+              </ThemedSelect>
             </div>
           )}
         </div>

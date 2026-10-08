@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router";
 import { useListLocation } from "../workflows/useListLocation";
@@ -241,11 +242,11 @@ export function AdminPage() {
         <div className="admin-toolbar">
           <div className="field">
             <label htmlFor="member-filter">Show members</label>
-            <select
+            <ThemedSelect
               id="member-filter"
               value={filter}
-              onChange={(event) => {
-                list.setFilters({ filter: event.target.value });
+              onValueChange={(event) => {
+                list.setFilters({ filter: event });
                 setReviewing(null);
                 setNotice("");
               }}
@@ -253,7 +254,7 @@ export function AdminPage() {
               <option value="pending">Awaiting verification</option>
               <option value="verified">Verified</option>
               <option value="all">All members</option>
-            </select>
+            </ThemedSelect>
           </div>
           <button
             className="text-button"

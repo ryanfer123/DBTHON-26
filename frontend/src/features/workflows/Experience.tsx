@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { ImpactScore } from "./ImpactScore";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
@@ -123,7 +124,7 @@ export function ReportIssue({
           <fieldset className="form-fields" disabled={command.busy}>
             <label>
               Issue type
-              <select
+              <ThemedSelect
                 name="category"
                 defaultValue={messageId ? "AbusiveMessage" : "FoodSafety"}
               >
@@ -134,7 +135,7 @@ export function ReportIssue({
                   <option value="AbusiveMessage">Abusive message</option>
                 )}
                 <option value="Other">Other</option>
-              </select>
+              </ThemedSelect>
             </label>
             <label>
               What happened?
@@ -223,11 +224,11 @@ function IssueCard({
             <fieldset className="form-fields" disabled={command.busy}>
               <label>
                 Review outcome
-                <select name="status" defaultValue="Reviewing">
+                <ThemedSelect name="status" defaultValue="Reviewing">
                   <option value="Reviewing">Reviewing</option>
                   <option value="Resolved">Resolved</option>
                   <option value="Dismissed">Dismissed</option>
-                </select>
+                </ThemedSelect>
               </label>
               <label>
                 Note for the reporter
@@ -267,10 +268,10 @@ export function IssuesPage({ admin = false }: { admin?: boolean }) {
       {admin && (
         <label className="control-filter">
           Status{" "}
-          <select
+          <ThemedSelect
             value={status}
-            onChange={(event) => {
-              setStatus(event.target.value);
+            onValueChange={(event) => {
+              setStatus(event);
               setCursor(null);
             }}
           >
@@ -278,7 +279,7 @@ export function IssuesPage({ admin = false }: { admin?: boolean }) {
             {["Open", "Reviewing", "Resolved", "Dismissed"].map((s) => (
               <option key={s}>{s}</option>
             ))}
-          </select>
+          </ThemedSelect>
         </label>
       )}
       <QueryStatus {...query} />
@@ -503,15 +504,15 @@ export function PersonalImpactPage() {
       <div className="personal-impact">
         <div className="field impact-period">
           <label htmlFor="impact-period">Period</label>
-          <select
+          <ThemedSelect
             id="impact-period"
             value={days}
-            onChange={(event) => setDays(event.target.value)}
+            onValueChange={(event) => setDays(event)}
           >
             <option value="30">Last 30 days</option>
             <option value="90">Last 90 days</option>
             <option value="365">Last year</option>
-          </select>
+          </ThemedSelect>
         </div>
         <QueryStatus {...query} />
         {impact &&

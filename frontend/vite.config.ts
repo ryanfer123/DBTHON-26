@@ -7,6 +7,7 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       output: {
+        onlyExplicitManualChunks: true,
         manualChunks(id) {
           if (id.includes("/node_modules/leaflet/")) return "maps-vendor";
         },

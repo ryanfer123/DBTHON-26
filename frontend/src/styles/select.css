@@ -1,0 +1,119 @@
+/* App-rendered option menus share the rounded theme on every platform. */
+.themed-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control, 16px);
+  background: var(--surface);
+  color: var(--green);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.themed-select-trigger > span:first-child {
+  overflow-wrap: anywhere;
+}
+.themed-select-trigger > span:last-child {
+  flex-shrink: 0;
+  display: flex;
+}
+.themed-select-trigger:hover:not(:disabled),
+.themed-select-trigger[data-state="open"] {
+  border-color: var(--muted);
+}
+.themed-select-trigger:focus-visible {
+  outline: 3px solid var(--muted);
+  outline-offset: 3px;
+}
+.themed-select-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.themed-select-trigger[aria-invalid="true"] {
+  border-color: var(--error-text, #a64124);
+}
+.themed-select-menu {
+  z-index: 1100;
+  min-width: var(--radix-select-trigger-width);
+  max-width: calc(100vw - 24px);
+  max-height: min(340px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control, 16px);
+  background: var(--surface);
+  color: var(--green);
+  box-shadow: var(--shadow-panel);
+  font-family: var(--font-body, sans-serif);
+}
+.themed-select-options {
+  padding: 6px;
+}
+.themed-select-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px 10px 36px;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+}
+.themed-select-option[data-state="checked"] {
+  background: var(--sage);
+  font-weight: 650;
+}
+.themed-select-option[data-highlighted] {
+  background: var(--sage);
+  outline: 2px solid var(--muted);
+  outline-offset: -2px;
+}
+.themed-select-option[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.themed-select-check {
+  position: absolute;
+  left: 13px;
+}
+.themed-select-scroll {
+  display: flex;
+  justify-content: center;
+  height: 26px;
+  background: var(--surface);
+}
+.themed-select-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+@media (forced-colors: active) {
+  .themed-select-trigger,
+  .themed-select-menu {
+    background: Canvas;
+    color: CanvasText;
+    border-color: ButtonText;
+  }
+  .themed-select-option[data-highlighted] {
+    outline-color: Highlight;
+  }
+}
+
+.themed-select-error {
+  display: block;
+  margin-top: 6px;
+  color: var(--error-text, #a64124);
+  font-size: 0.875rem;
+}

@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useAuth } from "../identity/AuthContext";
@@ -108,26 +109,26 @@ export function RequestsPage() {
           </div>
           <div className="field">
             <label htmlFor="need-status">Request status</label>
-            <select
+            <ThemedSelect
               id="need-status"
               value={status}
-              onChange={(e) => list.setFilters({ status: e.target.value })}
+              onValueChange={(e) => list.setFilters({ status: e })}
             >
               {statuses.map((s) => (
                 <option key={s}>{s}</option>
               ))}
-            </select>
+            </ThemedSelect>
           </div>
           <div className="field">
             <label htmlFor="need-owner">Show requests</label>
-            <select
+            <ThemedSelect
               id="need-owner"
               value={mine}
-              onChange={(e) => list.setFilters({ mine: e.target.value })}
+              onValueChange={(e) => list.setFilters({ mine: e })}
             >
               <option value="false">Community requests</option>
               <option value="true">My requests</option>
-            </select>
+            </ThemedSelect>
           </div>
           <button className="button button-small" type="submit">
             Search requests
@@ -215,10 +216,10 @@ export function NewRequestPage() {
             <div className="form-grid">
               <div className="field">
                 <label htmlFor="need-category">Category</label>
-                <select id="need-category" name="category">
+                <ThemedSelect id="need-category" name="category">
                   <option value="Veg">Vegetarian</option>
                   <option value="NonVeg">Non-vegetarian</option>
-                </select>
+                </ThemedSelect>
               </div>
               <div className="field">
                 <label htmlFor="need-quantity">Target quantity (kg)</label>
@@ -428,7 +429,7 @@ function OfferListing({
         <form onSubmit={(e) => void submit(e)}>
           <div className="field">
             <label htmlFor="offer-listing">Listing to offer</label>
-            <select
+            <ThemedSelect
               key={`${q}:${search.get("new_listing")}`}
               id="offer-listing"
               name="listing_id"
@@ -440,7 +441,7 @@ function OfferListing({
                   {l.food_type} · {l.quantity_kg} kg
                 </option>
               ))}
-            </select>
+            </ThemedSelect>
           </div>
           <button
             className="button button-small"
@@ -484,15 +485,15 @@ export function UpdatesPage() {
       <div className="workspace-toolbar">
         <div className="field">
           <label htmlFor="update-kind-filter">Show updates</label>
-          <select
+          <ThemedSelect
             id="update-kind-filter"
             value={kind}
-            onChange={(e) => list.setFilters({ kind: e.target.value })}
+            onValueChange={(e) => list.setFilters({ kind: e })}
           >
             <option value="">All updates</option>
             <option value="Announcement">Announcements</option>
             <option value="PartnerResource">Partner resources</option>
-          </select>
+          </ThemedSelect>
         </div>
       </div>
       <QueryStatus {...query} />
@@ -639,10 +640,10 @@ function UpdateForm({
       <fieldset className="form-fields" disabled={command.busy}>
         <div className="field">
           <label htmlFor={`${prefix}-kind`}>Update type</label>
-          <select id={`${prefix}-kind`} name="kind">
+          <ThemedSelect id={`${prefix}-kind`} name="kind">
             <option value="Announcement">Announcement</option>
             <option value="PartnerResource">Partner resource</option>
-          </select>
+          </ThemedSelect>
         </div>
         <div className="field">
           <label htmlFor={`${prefix}-title`}>Title</label>
@@ -716,15 +717,15 @@ export function AdminCommunityPage() {
         <h2>Member suggestions</h2>
         <div className="field community-form">
           <label htmlFor="suggestion-filter">Review status</label>
-          <select
+          <ThemedSelect
             id="suggestion-filter"
             value={status}
-            onChange={(e) => list.setFilters({ status: e.target.value })}
+            onValueChange={(e) => list.setFilters({ status: e })}
           >
             <option>Pending</option>
             <option>Published</option>
             <option>Rejected</option>
-          </select>
+          </ThemedSelect>
         </div>
         <QueryStatus {...query} />
         <ul className="community-cards">

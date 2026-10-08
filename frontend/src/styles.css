@@ -7,6 +7,7 @@
 @import "./styles/usability.css";
 @import "./styles/nomnom.css";
 @import "./styles/marketing.css";
+@import "./styles/select.css";
 
 .experience-card {
   padding: 1.5rem;

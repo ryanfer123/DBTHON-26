@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { BrandMark } from "../../components/BrandMark";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
@@ -149,7 +150,12 @@ export function RegisterPage() {
                     </button>
                   </div>
                 ) : (
-                  <select id="zone" name="zone_id" required defaultValue="">
+                  <ThemedSelect
+                    id="zone"
+                    name="zone_id"
+                    required
+                    defaultValue=""
+                  >
                     <option value="" disabled>
                       Choose your area
                     </option>
@@ -158,7 +164,7 @@ export function RegisterPage() {
                         {zone.zone_name} · {zone.city}
                       </option>
                     ))}
-                  </select>
+                  </ThemedSelect>
                 )}
               </div>
               <fieldset className="role-options">

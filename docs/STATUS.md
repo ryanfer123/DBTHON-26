@@ -1117,3 +1117,23 @@ Removed the straight left border from expanded `.nav-disclosure > div` groups in
 `frontend/src/styles/workspace.css`, preserving rounded navigation panels and active
 link shapes. Included on `feat/compact-recorded-actions`. CSS diff and handoff checks
 passed; no browser tests or live deployment performed for this styling adjustment.
+
+### Themed dropdown menus follow-up - 2026-10-08
+
+Replaced all visible native select controls across ten feature files with the shared
+`ThemedSelect`/`ThemedSelectControl`, retaining option sets and filter/form values.
+Added Radix Select 2.3.8 and locked dependencies, shared dropdown CSS, and the ESLint
+custom-control accessibility mapping. Menus use rounded theme tokens and portalled,
+viewport-bounded option lists; a native form field preserves empty values, required
+validation and reset, with visible validation errors and focus on the trigger.
+No backend changes or migration. Existing push work stays on its separate branch.
+
+The first static build exceeded the initial JavaScript budget because dropdown
+code and a shared bundler helper pulled in the map vendor chunk. Loading dropdown
+implementation separately and setting Rollup `onlyExplicitManualChunks: true` keeps
+Leaflet isolated; the subsequent production build passed at 182,568 bytes gzip against
+204,800. TypeScript and ESLint passed. Existing GSAP/chunk-size warnings remain.
+No application/browser tests added or run, and no live deployment claimed. Existing
+native-select-specific test interactions need adaptation during a requested browser
+verification pass. Next: merge this UI branch and publish through Render, then review
+real dropdown keyboard/form/mobile behavior when browser verification is authorized.

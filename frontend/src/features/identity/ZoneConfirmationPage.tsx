@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { AppLayout } from "../../components/AppLayout";
@@ -60,10 +61,10 @@ export function ZoneConfirmationPage() {
         <form className="form-fields" onSubmit={submit}>
           <div className="field">
             <label htmlFor="community-zone">Community area</label>
-            <select
+            <ThemedSelect
               id="community-zone"
               value={zoneId}
-              onChange={(event) => setZoneId(event.target.value)}
+              onValueChange={(event) => setZoneId(event)}
               required
             >
               {zones.map((zone) => (
@@ -71,7 +72,7 @@ export function ZoneConfirmationPage() {
                   {zone.zone_name} · {zone.city}
                 </option>
               ))}
-            </select>
+            </ThemedSelect>
           </div>
           <p className="field-help">
             Changing areas is paused while you have an active listing, claim, or

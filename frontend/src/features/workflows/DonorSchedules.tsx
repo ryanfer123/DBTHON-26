@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router";
 import { api, ApiError } from "../../lib/identity";
@@ -74,7 +75,7 @@ export function DonorSchedulesPage() {
                 <label htmlFor="schedule-listing">
                   Use a previous donation
                 </label>
-                <select
+                <ThemedSelect
                   id="schedule-listing"
                   name="listing"
                   defaultValue={search.get("listing") ?? ""}
@@ -86,7 +87,7 @@ export function DonorSchedulesPage() {
                       {l.food_type} · #{l.listing_id}
                     </option>
                   ))}
-                </select>
+                </ThemedSelect>
               </div>
               <div className="field">
                 <label htmlFor="schedule-time">Every day at (India time)</label>

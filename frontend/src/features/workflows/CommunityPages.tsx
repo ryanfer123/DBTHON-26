@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useEffect, useState } from "react";
 import { ImpactCharts } from "./ImpactCharts";
 import { useParams } from "react-router";
@@ -322,17 +323,15 @@ export function ImpactPage() {
           </div>
           <div className="field">
             <label htmlFor="report-group">Group by</label>
-            <select
+            <ThemedSelect
               id="report-group"
               value={grouping}
-              onChange={(event) =>
-                list.setFilters({ grouping: event.target.value })
-              }
+              onValueChange={(event) => list.setFilters({ grouping: event })}
             >
               <option value="day">Day</option>
               <option value="zone">Zone</option>
               <option value="city">City</option>
-            </select>
+            </ThemedSelect>
           </div>
         </div>
         {valid ? (

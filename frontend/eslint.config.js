@@ -16,6 +16,7 @@ export default tseslint.config(
       "react-refresh": refresh,
       "jsx-a11y": a11y,
     },
+    settings: { "jsx-a11y": { components: { ThemedSelect: "select" } } },
     rules: {
       ...hooks.configs.recommended.rules,
       ...a11y.configs.recommended.rules,

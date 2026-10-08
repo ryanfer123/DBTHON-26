@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { lazy, Suspense, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Freshness } from "../../components/Freshness";
@@ -91,11 +92,11 @@ export function FoodPage({ own = false }: { own?: boolean }) {
           {own ? (
             <div className="field">
               <label htmlFor="food-status">Listing status</label>
-              <select
+              <ThemedSelect
                 id="food-status"
                 value={status}
-                onChange={(e) => {
-                  list.setFilters({ status: e.target.value });
+                onValueChange={(e) => {
+                  list.setFilters({ status: e });
                 }}
               >
                 <option value="">All listings</option>
@@ -109,37 +110,37 @@ export function FoodPage({ own = false }: { own?: boolean }) {
                 ].map((s) => (
                   <option key={s}>{s}</option>
                 ))}
-              </select>
+              </ThemedSelect>
             </div>
           ) : (
             <>
               <div className="field">
                 <label htmlFor="radius">Search radius</label>
-                <select
+                <ThemedSelect
                   id="radius"
                   value={radius}
-                  onChange={(e) => {
-                    list.setFilters({ radius_m: e.target.value });
+                  onValueChange={(e) => {
+                    list.setFilters({ radius_m: e });
                   }}
                 >
                   <option value="1000">1 km</option>
                   <option value="3000">3 km</option>
                   <option value="5000">5 km</option>
-                </select>
+                </ThemedSelect>
               </div>
               <div className="field">
                 <label htmlFor="category">Category</label>
-                <select
+                <ThemedSelect
                   id="category"
                   value={category}
-                  onChange={(e) => {
-                    list.setFilters({ category: e.target.value });
+                  onValueChange={(e) => {
+                    list.setFilters({ category: e });
                   }}
                 >
                   <option value="">All food</option>
                   <option value="Veg">Vegetarian</option>
                   <option value="NonVeg">Non-vegetarian</option>
-                </select>
+                </ThemedSelect>
               </div>
             </>
           )}
@@ -147,35 +148,33 @@ export function FoodPage({ own = false }: { own?: boolean }) {
             <>
               <div className="field">
                 <label htmlFor="diet-filter">Diet tag</label>
-                <select
+                <ThemedSelect
                   id="diet-filter"
                   value={diet}
-                  onChange={(e) =>
-                    list.setFilters({ diet_tags: e.target.value })
-                  }
+                  onValueChange={(e) => list.setFilters({ diet_tags: e })}
                 >
                   <option value="">Any diet</option>
                   {diets.map((tag) => (
                     <option key={tag}>{tag}</option>
                   ))}
-                </select>
+                </ThemedSelect>
               </div>
               <div className="field">
                 <label htmlFor="allergen-filter">
                   Exclude declared allergen
                 </label>
-                <select
+                <ThemedSelect
                   id="allergen-filter"
                   value={excluded}
-                  onChange={(e) =>
-                    list.setFilters({ exclude_allergens: e.target.value })
+                  onValueChange={(e) =>
+                    list.setFilters({ exclude_allergens: e })
                   }
                 >
                   <option value="">No exclusion</option>
                   {allergens.map((tag) => (
                     <option key={tag}>{tag}</option>
                   ))}
-                </select>
+                </ThemedSelect>
               </div>
             </>
           )}

@@ -88,3 +88,20 @@ returns to the first page. “Hide history” collapses the list and pagination,
 history. Individual audit payloads remain inside expandable details. No audit records
 are deleted or changed; ledger verification remains available. Changing member resets
 the view and cursor. Browser-push work remains on its separate feature branch.
+
+## Themed dropdown option menus
+
+All application selects now use `ThemedSelect`, including exchange status, food
+filters, registration/community areas, donor handling, recurring schedules and admin
+review forms. The trigger and portalled menu use shared surface/green/sage tokens,
+rounded corners, checkmarks and visible focus, including dark mode. Radix Select
+supplies managed focus, keyboard navigation, typeahead and outside/Escape dismissal:
+[official component reference](https://www.radix-ui.com/primitives/docs/components/select).
+
+A visually hidden native select preserves actual submitted option values (including
+empty “All…” filters), required-field validation and form reset. Missing required
+choices focus the visible trigger and display a field error. Disabled placeholders
+stay disabled. The menu implementation loads separately; a disabled loading trigger
+appears until it is ready. Only the shared component contains native select elements;
+application pages use the themed control. Native-select-specific browser automation
+must use the new combobox/option interaction when future browser checks are requested.

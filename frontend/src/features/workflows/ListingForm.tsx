@@ -1,3 +1,4 @@
+import { ThemedSelect } from "../../components/ThemedSelect";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../identity/AuthContext";
@@ -139,17 +140,17 @@ export function ListingForm({
           <div className="field-row">
             <div className="field">
               <label htmlFor="food-category">Category</label>
-              <select
+              <ThemedSelect
                 id="food-category"
                 name="category"
                 value={category}
-                onChange={(event) =>
-                  setCategory(event.target.value as Listing["category"])
+                onValueChange={(event) =>
+                  setCategory(event as Listing["category"])
                 }
               >
                 <option value="Veg">Vegetarian</option>
                 <option value="NonVeg">Non-vegetarian</option>
-              </select>
+              </ThemedSelect>
             </div>
             <div className="field">
               <label htmlFor="quantity">Whole quantity (kg)</label>
@@ -203,7 +204,7 @@ export function ListingForm({
             </p>
             <div className="field">
               <label htmlFor="storage-handling">How has it been stored?</label>
-              <select
+              <ThemedSelect
                 id="storage-handling"
                 name="storage_handling"
                 defaultValue={editing ? (food?.storage_handling ?? "") : ""}
@@ -213,11 +214,11 @@ export function ListingForm({
                 <option value="Hot">Hot</option>
                 <option value="Cold">Cold / refrigerated</option>
                 <option value="Ambient">At room temperature</option>
-              </select>
+              </ThemedSelect>
             </div>
             <div className="field">
               <label htmlFor="packed">Packed for collection?</label>
-              <select
+              <ThemedSelect
                 id="packed"
                 name="packed"
                 defaultValue={
@@ -232,7 +233,7 @@ export function ListingForm({
                 <option value="">Choose packing</option>
                 <option value="yes">Yes</option>
                 <option value="no">No — receiver needs containers</option>
-              </select>
+              </ThemedSelect>
             </div>
             <fieldset>
               <legend>Known allergens</legend>
