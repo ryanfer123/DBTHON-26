@@ -1441,34 +1441,27 @@ body:has(.marketing-home) .site-footer {
   }
 }
 
-/* Header CTA Button Hover */
+/* Keep the two rounded CTA surfaces crisp; never transform or shadow their rectangular wrapper. */
 .marketing-header-cta {
-  transition:
-    translate 0.725s var(--elastic-ease-out),
-    rotate 0.725s var(--elastic-ease-out),
-    scale 0.35s var(--default-ease),
-    transform 0.35s var(--default-ease),
-    box-shadow 0.35s var(--smooth-ease);
+  background: transparent;
+  box-shadow: none;
+  border-radius: 999px;
 }
-
-@media (hover: hover) and (pointer: fine) {
-  .marketing-header-cta:is(:hover, :focus-visible) {
-    translate: 0.125em -0.25em 0;
-    rotate: 2deg;
-    scale: 0.945 0.915;
-    transform: scale(1.0582, 1.0928);
-    box-shadow: 0 8px 24px rgb(28 77 37 / 0.24);
-    transition:
-      translate 0.725s 0.1s var(--elastic-ease-out),
-      rotate 0.725s 0.1s var(--elastic-ease-out),
-      scale 0.15s 0.1s var(--default-ease),
-      transform 0.35s 0.25s var(--bouncy-ease),
-      box-shadow 0.35s var(--smooth-ease);
+.marketing-cta-arrow,
+.marketing-cta-label {
+  transition: transform 220ms ease-out, box-shadow 220ms ease-out, background-color 220ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .marketing-header-cta:is(:hover, :focus-visible) .marketing-cta-arrow,
+  .marketing-header-cta:is(:hover, :focus-visible) .marketing-cta-label {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgb(28 77 37 / 0.15);
   }
-
-  .marketing-header-cta:is(:hover, :focus-visible) .marketing-cta-arrow {
-    transform: rotate(45deg);
-    transition: transform 0.35s var(--bouncy-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marketing-cta-arrow,
+  .marketing-cta-label {
+    transition: none;
   }
 }
 
