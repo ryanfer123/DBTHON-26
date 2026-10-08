@@ -538,3 +538,67 @@ details.community-form {
     gap: 0 16px;
   }
 }
+
+.impact-score {
+  padding: 24px;
+  margin: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--sage);
+}
+.impact-score-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.impact-score-heading h2 {
+  margin: 0;
+  font-size: 28px;
+}
+.impact-score .impact-score-value {
+  font-size: clamp(44px, 6vw, 64px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 24px 0 16px;
+}
+.impact-score-value span {
+  font-size: 18px;
+  font-weight: 400;
+}
+.impact-score p {
+  line-height: 1.6;
+}
+.impact-score label {
+  display: block;
+  font-size: 15px;
+  margin: 24px 0 12px;
+}
+.impact-score progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border: none;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--line);
+  accent-color: var(--green);
+}
+.impact-score progress::-webkit-progress-bar {
+  background: var(--line);
+}
+.impact-score progress::-webkit-progress-value {
+  background: var(--green);
+}
+.impact-score progress::-moz-progress-bar {
+  background: var(--green);
+}
+.impact-score .field-help {
+  margin: 16px 0 0;
+}
+@media (max-width: 480px) {
+  .impact-score {
+    padding: 20px 16px;
+  }
+}

@@ -1,3 +1,4 @@
+import { ImpactScore } from "./ImpactScore";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../identity/AuthContext";
@@ -513,8 +514,13 @@ export function PersonalImpactPage() {
           </select>
         </div>
         <QueryStatus {...query} />
-        {impact && (
+        {impact && !query.loading && !query.error && (
           <>
+            <ImpactScore
+              deliveredKg={impact.delivered_kg}
+              days={days}
+              includesDemoData={impact.includes_demo_data}
+            />
             {impact.includes_demo_data && (
               <p className="notice">
                 This database includes demo fixtures. These totals are not pilot

@@ -833,3 +833,28 @@ rows and working listing/period dropdowns. No page errors were observed. Reprodu
 with `node /private/tmp/check-workspace-spacing.mjs` against local Vite port 5175;
 screenshots are `/private/tmp/workspace-{impact,schedules}-{1440,1000,390}.png`.
 The newer remote dropdown and backend release evidence above is preserved.
+
+
+### 2026-10-08 - Personal impact score
+
+Added an Impact score card to My impact using the existing authenticated API's
+unique delivered weight. Formula: round(delivered_kg * 10), for the selected
+30/90/365-day period. Overlapping role subtotals and uncompleted pickups do not
+add points. The card explains the formula, shows the next 100-point milestone,
+and labels demo activity. Score/statistics are hidden during loading or errors
+rather than showing stale or misleading zero values. No stored score, API change
+or migration is required; this does not modify trust or introduce rewards/ranking.
+
+Restored the lost temporary checkout into `/private/tmp/dbthon-impact-finish` from
+published revision `3b306e9`, preserving the original workspace's AWS drafts.
+Changed ImpactScore.tsx, PersonalImpactPage in Experience.tsx, workspace.css and
+the domain/requirements documentation. Frontend lint, type and production build
+passed (124,500 initial JS bytes gzip); all 25 existing frontend tests and the
+handoff validator also passed. Chrome fixture-session checks passed at
+1440 px/light and 390 px/dark: unique-total scoring despite overlapping role data,
+fractional rounding, period change, milestone progress, hidden loading/error score,
+retry recovery, zero state and no overflow/page errors. This is presentation
+validation; existing backend aggregation is reused without database changes.
+Reproduce with `node /private/tmp/check-impact-score.mjs` against Vite port 5175;
+screenshots are `/private/tmp/impact-score-{1440,390}.png`.
+P11 performance and P12 real stakeholder/pilot evidence remain separate work.

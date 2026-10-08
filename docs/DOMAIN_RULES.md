@@ -172,3 +172,15 @@ visible to scoped administrators. Reports have no automatic allocation, trust-sc
 or safety-certification side effect. Own impact counts unique delivered listings;
 role subtotals may overlap. Calendar files are user-downloaded snapshots and do not
 replace the current pickup agreement.
+
+
+## Personal impact score
+
+My impact displays a contribution score for the selected 30, 90 or 365-day period:
+`round(delivered_kg * 10)` points. It uses the authenticated personal-impact API's
+unique delivered-listing total in the current zone, never a sum of overlapping role
+subtotals. Picked-up but undelivered food earns no points. Progress shows the next
+100-point milestone; changing period recalculates both score and milestone.
+This is a presentation metric, not a stored balance, trust score, ranking, reward
+or independently measured social impact. Demo activity stays explicitly labelled.
+Scores are hidden while a fresh period loads or the API returns an error.
