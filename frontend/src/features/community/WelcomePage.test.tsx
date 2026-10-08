@@ -39,7 +39,7 @@ describe("public community flow", () => {
           ? { ok: true, status: 200, json: async () => ({ data: null }) }
           : {
               ok: true,
-              json: async () => ({ data: { name: "Second Table", roles } }),
+              json: async () => ({ data: { name: "NomNom", roles } }),
             },
       ),
     );
@@ -99,7 +99,7 @@ describe("public community flow", () => {
       screen.getByRole("heading", { name: "That table isn’t here." }),
     ).toBeVisible();
     expect(
-      screen.getByRole("link", { name: "Back to Second Table" }),
+      screen.getByRole("link", { name: "Back to NomNom" }),
     ).toHaveAttribute("href", "/");
   });
 });

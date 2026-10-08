@@ -15,7 +15,7 @@ it("prepares a handover message for an international number without sending it",
   expect(destination.origin).toBe("https://wa.me");
   expect(destination.pathname).toBe("/12025550101");
   expect(destination.searchParams.get("text")).toContain(
-    "Second Table exchange #501",
+    "NomNom exchange #501",
   );
   expect(link).toHaveAttribute("rel", "noopener noreferrer");
 });

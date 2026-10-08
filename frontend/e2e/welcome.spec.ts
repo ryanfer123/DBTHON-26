@@ -16,7 +16,7 @@ test("public screen uses the real API and its role navigation survives refresh",
   expect(readiness.status()).toBe(200);
   expect((await readiness.json()).data.status).toBe("ready");
   await page.goto("/");
-  await expect(page).toHaveTitle("Second Table · Food shared locally");
+  await expect(page).toHaveTitle("NomNom · Food shared locally");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Good food.Better shared.",
   );

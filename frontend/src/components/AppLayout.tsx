@@ -214,7 +214,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               ...administration,
             ])}
             <Link to="/" onClick={close}>
-              Second Table home
+              NomNom home
             </Link>
           </nav>
         </div>

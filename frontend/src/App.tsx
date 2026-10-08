@@ -47,17 +47,20 @@ function NavigationEffects() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      if (hash)
-        document.getElementById(hash.slice(1))?.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-            .matches
-            ? "instant"
-            : "smooth",
-        });
-      else if (!pathname.startsWith("/community/"))
+      if (hash) {
+        const target = document.getElementById(hash.slice(1));
+        if (target && window.nomNomScrollTo) window.nomNomScrollTo(target);
+        else
+          target?.scrollIntoView({
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+              .matches
+              ? "instant"
+              : "smooth",
+          });
+      } else if (!pathname.startsWith("/community/"))
         window.scrollTo({ top: 0, behavior: "instant" });
       const matched = matchRoutes(routes, pathname)?.at(-1);
-      document.title = `${matched?.route.handle?.title ?? "Second Table"} · Food shared locally`;
+      document.title = `${matched?.route.handle?.title ?? "NomNom"} · Food shared locally`;
     });
     return () => cancelAnimationFrame(frame);
   }, [pathname, hash]);
@@ -101,7 +104,7 @@ const routes = [
       </AccountGate>
     ),
   },
-  { path: "/", handle: { title: "Second Table" }, element: <WelcomePage /> },
+  { path: "/", handle: { title: "NomNom" }, element: <WelcomePage /> },
   {
     path: "/community/:role",
     handle: { title: "Your community" },
@@ -357,7 +360,7 @@ const routes = [
           <h1>That table isn’t here.</h1>
           <p>The page you’re looking for couldn’t be found.</p>
           <Link className="button" to="/">
-            Back to Second Table
+            Back to NomNom
           </Link>
         </main>
       </PageShell>

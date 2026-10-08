@@ -56,7 +56,7 @@ test("dashboard menus, help, search and browser history provide working destinat
     ).toBeFocused();
     await page.keyboard.press("Shift+Tab");
     await expect(
-      page.getByRole("dialog").getByRole("link", { name: "Second Table home" }),
+      page.getByRole("dialog").getByRole("link", { name: "NomNom home" }),
     ).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(more).toBeFocused();

@@ -6,7 +6,7 @@ export type Auth = {
   loading: boolean;
   error: string | null;
   refresh: () => void;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<Session>;
   logout: () => Promise<void>;
   update: (user: User) => void;
   expire: () => void;

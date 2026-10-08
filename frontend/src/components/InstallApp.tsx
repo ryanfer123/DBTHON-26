@@ -32,15 +32,15 @@ export function InstallApp() {
   }
   return (
     <section className="settings-section">
-      <h2>Use Second Table on your phone</h2>
+      <h2>Use NomNom on your phone</h2>
       {install && (
         <button className="button button-outline" onClick={() => void prompt()}>
-          Install Second Table
+          Install NomNom
         </button>
       )}
       <p>
         {installed
-          ? "Installed. Open Second Table from your home screen."
+          ? "Installed. Open NomNom from your home screen."
           : "On iPhone, open in Safari and choose Share → Add to Home Screen. Other browsers may offer Install in their menu."}
       </p>
       <p className="field-help">

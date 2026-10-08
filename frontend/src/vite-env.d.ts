@@ -6,3 +6,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+interface Window {
+  nomNomScrollTo?: (element: HTMLElement) => void;
+}

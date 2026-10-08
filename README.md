@@ -45,6 +45,7 @@ searchable `/help` preserve useful destinations. See [usability details](docs/de
 | State transitions, claims, expiry, matching, impact definitions | [Domain rules](docs/DOMAIN_RULES.md) |
 | REST contract, errors, idempotency and authorization | [API specification](docs/API.md) |
 | Role screens and end-to-end demo | [UX specification](docs/UX.md), [demo script](docs/DEMO.md) |
+| High-end frontend redesign and migration plan | [Frontend migration plan](docs/FRONTEND_MIGRATION_PLAN.md) |
 | Synthetic data and missing real-world evidence | [Data guide](data/README.md), [fixtures](data/fixtures/demo.json) |
 | Tests and course evidence templates | [Testing plan](docs/TESTING.md), [deliverables](docs/deliverables/README.md) |
 | Local prerequisites and commands | [Development](docs/DEVELOPMENT.md) |
