@@ -1589,3 +1589,104 @@ body:has(.marketing-home) .site-footer {
     border: 0;
   }
 }
+
+/* A complete invitation, with readable headings and practical community paths. */
+.marketing-close {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(56px, 7vw, 100px);
+  text-align: left;
+}
+.marketing-close .container {
+  position: relative;
+  max-width: var(--page-max);
+}
+.close-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 80px);
+  align-items: center;
+}
+body:has(.marketing-home) .marketing-close :is(h2, h3) {
+  color: #f1f5eb;
+}
+.marketing-close h2 {
+  font-size: clamp(52px, 6vw, 88px);
+  margin-bottom: 0;
+  text-wrap: initial;
+}
+.marketing-close .close-invitation p {
+  margin: 0 0 24px;
+}
+.close-paths {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 48px;
+}
+.close-paths > a {
+  display: block;
+  min-width: 0;
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px solid #70936e;
+  border-radius: 24px;
+  background: #254f2c;
+  color: #f1f5eb;
+  text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+.close-paths > a:is(:hover, :focus-visible) {
+  background: #315f39;
+  border-color: #c7d5c8;
+}
+.close-path-top {
+  display: flex;
+  justify-content: space-between;
+  color: #b6cba5;
+  margin-bottom: 28px;
+  font-size: 20px;
+}
+.close-paths h3 {
+  font-size: clamp(25px, 2.5vw, 34px);
+  margin: 0 0 8px;
+}
+.marketing-close .close-paths p {
+  margin: 0;
+  font-size: 17px;
+}
+.close-art {
+  position: absolute;
+  right: -100px;
+  top: -120px;
+  color: #b6cba5;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.close-art .brand-mark {
+  width: 600px;
+  height: 600px;
+}
+.impact-preview-label {
+  display: inline-block;
+  margin: -16px 0 24px;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .close-intro, .close-paths {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .close-paths {
+    margin-top: 32px;
+  }
+  .close-path-top {
+    margin-bottom: 16px;
+  }
+  .close-art .brand-mark {
+    width: 400px;
+    height: 400px;
+  }
+}

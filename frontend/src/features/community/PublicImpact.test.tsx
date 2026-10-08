@@ -10,7 +10,7 @@ vi.mock("../workflows/data", () => ({ useQuery: () => query }));
 afterEach(cleanup);
 
 describe("public community impact", () => {
-  it("does not advertise sample totals as community results", () => {
+  it("keeps the stats bar available and identifies illustrative totals", () => {
     query.data = {
       data: {
         includes_demo_data: true,
@@ -20,7 +20,11 @@ describe("public community impact", () => {
       },
     };
     render(<PublicImpact />);
-    expect(screen.queryByRole("region")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Shared this month" }),
+    ).toBeVisible();
+    expect(screen.getByText("Preview totals")).toBeVisible();
+    expect(screen.getByText(/Illustrative activity/)).toBeVisible();
   });
   it("shows recorded totals with the meal estimate explained", () => {
     query.data = {

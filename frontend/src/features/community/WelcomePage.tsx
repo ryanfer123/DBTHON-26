@@ -8,6 +8,7 @@ import { useAuth } from "../identity/AuthContext";
 import { roleLanding } from "../../lib/session-routing";
 import { MarketingMotion } from "./MarketingMotion";
 import { CurvedMarquee } from "./CurvedMarquee";
+import { BrandMark } from "../../components/BrandMark";
 import { StageHero } from "./StageHero";
 
 export function WelcomePage() {
@@ -25,20 +26,67 @@ export function WelcomePage() {
         <CommunityPanel />
         <HomeGuidance />
         <section className="marketing-close" aria-labelledby="close-heading">
+          <div className="close-art" aria-hidden="true">
+            <BrandMark />
+          </div>
           <div className="container">
-            <p className="section-eyebrow">Better things happen together</p>
-            <h2 id="close-heading">There’s room at the table.</h2>
-            <p>
-              Join the people making good food go a little further in their
-              neighbourhood.
-            </p>
-            <Link
-              className="button"
-              to={session ? roleLanding(session) : "/register"}
+            <div className="close-intro">
+              <div>
+                <p className="section-eyebrow">Better things happen together</p>
+                <h2 id="close-heading">
+                  There’s room
+                  <br />
+                  at the table.
+                </h2>
+              </div>
+              <div className="close-invitation">
+                <p>
+                  Good food. Nearby people. A little less waste. Find your way
+                  to make a difference in your neighbourhood.
+                </p>
+                <Link
+                  className="button"
+                  to={session ? roleLanding(session) : "/register"}
+                >
+                  {session ? "Go to my workspace" : "Find your place"}{" "}
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+            <nav
+              className="close-paths"
+              aria-label="Ways to join the community"
             >
-              {session ? "Go to my workspace" : "Find your place"}{" "}
-              <span aria-hidden="true">→</span>
-            </Link>
+              {[
+                {
+                  to: "/community/donor",
+                  title: "Share your surplus",
+                  text: "Give good food a second home.",
+                  number: "01",
+                },
+                {
+                  to: "/community/receiver",
+                  title: "Find food nearby",
+                  text: "Connect with food in your community.",
+                  number: "02",
+                },
+                {
+                  to: "/community/volunteer",
+                  title: "Lend a helping hand",
+                  text: "Help a meal reach its next table.",
+                  number: "03",
+                },
+              ].map((item) => (
+                <Link key={item.to} to={item.to}>
+                  <span className="close-path-top" aria-hidden="true">
+                    <span>{item.number}</span>
+                    <span>↗</span>
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </Link>
+              ))}
+            </nav>
           </div>
         </section>
       </main>

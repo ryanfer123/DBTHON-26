@@ -23,12 +23,15 @@ export function PublicImpact() {
 
   // Keep the marketing stage clean while live totals are loading or unavailable.
   // The query continues refreshing so the impact panel appears once data is ready.
-  if (!impact || impact.includes_demo_data) return null;
+  if (!impact) return null;
 
   return (
     <section className="public-impact" aria-labelledby="public-impact-heading">
       <div className="container public-impact-panel">
         <h2 id="public-impact-heading">Shared this month</h2>
+        {impact.includes_demo_data && (
+          <span className="impact-preview-label">Preview totals</span>
+        )}
         <dl className="public-impact-metrics">
           <div>
             <dt>Food delivered</dt>
@@ -46,6 +49,7 @@ export function PublicImpact() {
           </div>
         </dl>
         <p className="public-impact-label">
+          {impact.includes_demo_data && "Illustrative activity. "}
           This month in UTC. Meal estimate: 0.4 kg per meal equivalent.
         </p>
       </div>
