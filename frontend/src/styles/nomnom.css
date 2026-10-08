@@ -817,3 +817,118 @@ h4 {
   background: var(--button-bg);
   color: var(--button-text);
 }
+
+/* Authentication belongs to the same matcha community as the landing page. */
+:root:has(.auth-layout):not([data-theme="dark"]) {
+  --bg: #e8efe4;
+  --surface: #eef4e9;
+  --green: #1c4d25;
+  --button-bg: #1c4d25;
+  --button-text: #f1f5eb;
+  --sage: #d6e5ce;
+  --muted: #52744f;
+  --line: #bdcfb7;
+  --orange: #91bb68;
+}
+.auth-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  padding-block: clamp(32px, 5vw, 64px);
+}
+.auth-layout .account-intro {
+  top: 104px;
+  position: sticky;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(28px, 4vw, 52px);
+  border-radius: 32px;
+  background: #1c4d25;
+  color: #f1f5eb;
+}
+.auth-layout .account-intro h1 {
+  color: #f1f5eb;
+  font-size: clamp(48px, 5vw, 76px);
+  line-height: 1.04;
+  margin: 0 0 28px;
+}
+.auth-layout .account-intro .intro-detail {
+  color: #d6e5ce;
+  max-width: 40ch;
+}
+.auth-layout .account-intro .auth-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 32px;
+  color: #b6cba5;
+}
+.auth-layout .account-intro .text-link {
+  color: #f1f5eb;
+  display: inline-block;
+  padding-block: 8px;
+  text-underline-offset: 6px;
+}
+.auth-art {
+  position: absolute;
+  z-index: -1;
+  top: -55px;
+  right: -100px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.auth-art .brand-mark {
+  width: 380px;
+  height: 380px;
+}
+.auth-layout .form-section {
+  max-width: none;
+  padding: clamp(24px, 3vw, 40px);
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+}
+.auth-layout .form-section h2 {
+  font-size: 36px;
+  line-height: 1.1;
+}
+.auth-layout .form-submit {
+  background: #91bb68;
+  color: #173d2d;
+}
+.auth-layout .form-submit:is(:hover, :focus-visible) {
+  background: #a8cc84;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .auth-layout .account-intro,
+  .auth-layout .form-section {
+    animation: auth-arrive 550ms ease-out both;
+  }
+  .auth-layout .form-section {
+    animation-delay: 100ms;
+  }
+}
+@keyframes auth-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 800px) {
+  .auth-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-layout .account-intro {
+    position: relative;
+    top: auto;
+  }
+  .auth-layout .account-intro,
+  .auth-layout .form-section {
+    border-radius: 24px;
+  }
+}

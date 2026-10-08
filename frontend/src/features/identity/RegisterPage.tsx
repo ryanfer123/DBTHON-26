@@ -1,3 +1,4 @@
+import { BrandMark } from "../../components/BrandMark";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { PageShell } from "../../components/PageShell";
@@ -93,6 +94,10 @@ export function RegisterPage() {
     <PageShell>
       <main id="main" className="container account-page auth-layout">
         <section className="account-intro">
+          <div className="auth-art" aria-hidden="true">
+            <BrandMark />
+          </div>
+          <p className="auth-eyebrow">Good food. Better together.</p>
           <h1>
             Make room
             <br />
