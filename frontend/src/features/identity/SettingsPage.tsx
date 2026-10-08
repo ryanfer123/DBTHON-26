@@ -52,9 +52,9 @@ export function SettingsPage() {
           !result.data.whatsapp_configured
           ? "Your WhatsApp preference is saved. Provider setup and an approved notification template are still required."
           : field === "sms_enabled" && value && !result.data.sms_configured
-            ? "Your SMS preference is saved. External SMS delivery needs provider setup and a verified demo number."
+            ? "Your SMS preference is saved. External SMS delivery needs provider setup and a verified phone number."
             : field === "push_enabled" && value && !result.data.push_configured
-              ? "Your push preference is saved. External push delivery is not available in this build yet."
+              ? "Your push preference is saved. Push alerts are currently unavailable."
               : "Notification preferences saved.",
       );
     } catch (cause) {
@@ -123,8 +123,8 @@ export function SettingsPage() {
           </label>
           <p className="field-help">
             {query.data.data.sms_configured
-              ? "Provider setup is present. Demo alerts use one approved number with a daily cap."
-              : "Save your preference now. External SMS needs provider setup and a verified demo number."}
+              ? "SMS alerts are enabled for an approved phone number, subject to a daily limit."
+              : "Save your preference now. External SMS needs provider setup and a verified phone number."}
           </p>
           <label className="review-check">
             <input
@@ -139,8 +139,8 @@ export function SettingsPage() {
           </label>
           <p className="field-help">
             {query.data.data.whatsapp_configured
-              ? "Provider setup is present. Demo delivery is limited to the approved number; a provider receipt is needed to confirm delivery."
-              : "Save your preference now. WhatsApp needs provider setup, a joined demo number and an approved notification template."}
+              ? "WhatsApp alerts are enabled for the approved phone number. Delivery confirmation depends on the messaging provider."
+              : "Save your preference now. WhatsApp needs provider setup, a registered phone number and an approved notification template."}
           </p>
           <label className="review-check">
             <input

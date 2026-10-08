@@ -1,10 +1,9 @@
 type Props = {
   deliveredKg: string;
   days: string;
-  includesDemoData: boolean;
 };
 
-export function ImpactScore({ deliveredKg, days, includesDemoData }: Props) {
+export function ImpactScore({ deliveredKg, days }: Props) {
   const points = Math.round(Number(deliveredKg) * 10);
   const milestone = (Math.floor(points / 100) + 1) * 100;
   return (
@@ -28,11 +27,6 @@ export function ImpactScore({ deliveredKg, days, includesDemoData }: Props) {
       {points === 0 && (
         <p className="field-help">
           Your score grows when a food exchange you participate in is delivered.
-        </p>
-      )}
-      {includesDemoData && (
-        <p className="field-help">
-          Includes demo activity, not pilot evidence.
         </p>
       )}
     </section>

@@ -23,7 +23,7 @@ export function PublicImpact() {
 
   // Keep the marketing stage clean while live totals are loading or unavailable.
   // The query continues refreshing so the impact panel appears once data is ready.
-  if (!impact) return null;
+  if (!impact || impact.includes_demo_data) return null;
 
   return (
     <section className="public-impact" aria-labelledby="public-impact-heading">
@@ -46,9 +46,6 @@ export function PublicImpact() {
           </div>
         </dl>
         <p className="public-impact-label">
-          {impact.includes_demo_data
-            ? "Prototype totals include synthetic demo data."
-            : "Prototype totals; not independently verified pilot evidence."}{" "}
           This month in UTC. Meal estimate: 0.4 kg per meal equivalent.
         </p>
       </div>

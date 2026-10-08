@@ -514,44 +514,42 @@ export function PersonalImpactPage() {
           </select>
         </div>
         <QueryStatus {...query} />
-        {impact && !query.loading && !query.error && (
-          <>
-            <ImpactScore
-              deliveredKg={impact.delivered_kg}
-              days={days}
-              includesDemoData={impact.includes_demo_data}
-            />
-            {impact.includes_demo_data && (
-              <p className="notice">
-                This database includes demo fixtures. These totals are not pilot
-                evidence.
+        {impact &&
+          !impact.includes_demo_data &&
+          !query.loading &&
+          !query.error && (
+            <>
+              <ImpactScore deliveredKg={impact.delivered_kg} days={days} />
+              <dl className="detail-list personal-impact-totals">
+                <dt>Collected</dt>
+                <dd>{kg(impact.picked_up_kg)}</dd>
+                <dt>Successfully delivered</dt>
+                <dd>{kg(impact.delivered_kg)}</dd>
+                <dt>Delivered exchanges</dt>
+                <dd>{impact.delivered_exchanges}</dd>
+                <dt>Donated and delivered</dt>
+                <dd>{kg(impact.donated_kg)}</dd>
+                <dt>Received and delivered</dt>
+                <dd>{kg(impact.received_kg)}</dd>
+                <dt>Transported and delivered</dt>
+                <dd>{kg(impact.transported_kg)}</dd>
+                <dt>Estimated meals</dt>
+                <dd>{impact.estimated_meals.toLocaleString()}</dd>
+              </dl>
+              <p>
+                Meals are estimated at 0.4 kg per meal. Role totals may overlap;
+                the overall delivered total counts each listing once. Collection
+                alone does not count as delivery.
               </p>
-            )}
-            <dl className="detail-list personal-impact-totals">
-              <dt>Collected</dt>
-              <dd>{kg(impact.picked_up_kg)}</dd>
-              <dt>Successfully delivered</dt>
-              <dd>{kg(impact.delivered_kg)}</dd>
-              <dt>Delivered exchanges</dt>
-              <dd>{impact.delivered_exchanges}</dd>
-              <dt>Donated and delivered</dt>
-              <dd>{kg(impact.donated_kg)}</dd>
-              <dt>Received and delivered</dt>
-              <dd>{kg(impact.received_kg)}</dd>
-              <dt>Transported and delivered</dt>
-              <dd>{kg(impact.transported_kg)}</dd>
-              <dt>Estimated meals</dt>
-              <dd>{impact.estimated_meals.toLocaleString()}</dd>
-            </dl>
-            <p>
-              Meals are estimated at 0.4 kg per meal. Role totals may overlap;
-              the overall delivered total counts each listing once. Collection
-              alone does not count as delivery.
-            </p>
-            <p className="field-help">
-              {date(impact.period_start)} – {date(impact.period_end)}
-            </p>
-          </>
+              <p className="field-help">
+                {date(impact.period_start)} – {date(impact.period_end)}
+              </p>
+            </>
+          )}
+        {impact?.includes_demo_data && !query.loading && !query.error && (
+          <p className="notice">
+            Impact reporting is currently unavailable for this community area.
+          </p>
         )}
         <button className="text-button" onClick={query.refresh}>
           Refresh my impact
