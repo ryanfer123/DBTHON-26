@@ -645,8 +645,8 @@ def overview(connection: Connection) -> OverviewResponse:
     if "Admin" in roles:
         summaries["pending_reviews"] = connection.execute(
             text("""
-          SELECT count(*) FROM users WHERE zone_id=dbthon_actor_zone()
-            AND NOT verified_status
+          SELECT count(*) FROM users WHERE dbthon_zone_admin(zone_id)
+            AND verification_status='Pending' AND active AND deleted_at IS NULL
         """)
         ).scalar_one()
     upcoming = (

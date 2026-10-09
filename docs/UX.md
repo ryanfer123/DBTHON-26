@@ -130,3 +130,9 @@ client-side subset of loaded listings. Donor declarations do not certify safety.
 ## Account deletion
 
 Settings includes Delete account. Community members includes Delete account for other members. The action opens a rounded inline confirmation form that explains permanence, retained historical records and active-exchange/admin guards. The user types the account email; the final button stays disabled until it matches. Cancel clears confirmation and errors. Successful self deletion clears account state and returns home; successful admin deletion refreshes members and announces completion. The main administrator receives a protected-account explanation.
+
+## Rejection and administrator-access requests
+
+Community member review includes Reject application for unverified members; the existing required review reason is shown to the applicant. Separate Pending/Verified/Rejected/Revoked filters prevent rejected accounts appearing as unanswered reviews. Account and dashboard show rejection/revocation status and full reason.
+
+Settings includes Administrator access: approved members explain why they want access, see Pending and the latest full decision note, and refresh request/session status. Community members includes a separate paginated request queue with themed status filter, applicant identity, full reason and approve/reject form with a required visible decision reason. Requests and decisions also produce inbox notifications.

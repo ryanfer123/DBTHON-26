@@ -60,7 +60,7 @@ def seeded_db(db_engine):
     with db_engine.begin() as c:
         c.execute(
             text("""
-          TRUNCATE browser_push_deliveries,browser_push_subscriptions,saved_listings,exchange_messages,community_issues,
+          TRUNCATE admin_access_requests,browser_push_deliveries,browser_push_subscriptions,saved_listings,exchange_messages,community_issues,
             donor_schedules,external_alert_budget,
             pickup_confirmations,pickup_proposals,food_request_offers,food_requests,
             hidden_listings,notification_preferences,admin_grants,

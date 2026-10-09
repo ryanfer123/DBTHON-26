@@ -1,3 +1,4 @@
+import { AdminAccessQueue } from "./AdminAccessRequests";
 import { DeleteAccountForm } from "./DeleteAccountForm";
 import { ThemedSelect } from "../../components/ThemedSelect";
 import { useEffect, useState, type FormEvent } from "react";
@@ -40,22 +41,28 @@ function ReviewForm({
     const action = (event.nativeEvent as SubmitEvent).submitter?.getAttribute(
       "value",
     );
-    if (action !== "revoke" && !roles.length) {
+    if (action !== "revoke" && action !== "reject" && !roles.length) {
       setError("Select at least one requested role to approve.");
       return;
     }
     setBusy(true);
     setError("");
     try {
-      await api<{ data: User }>(`/admin/users/${user.user_id}/verify`, {
-        method: "POST",
-        csrf: auth.session!.csrf_token,
-        body: {
-          verified: action !== "revoke",
-          roles: action === "revoke" ? [] : roles,
-          reason: String(form.get("reason")).trim(),
+      await api<{ data: User }>(
+        `/admin/users/${user.user_id}/${action === "reject" ? "reject" : "verify"}`,
+        {
+          method: "POST",
+          csrf: auth.session!.csrf_token,
+          body:
+            action === "reject"
+              ? { reason: String(form.get("reason")).trim() }
+              : {
+                  verified: action !== "revoke",
+                  roles: action === "revoke" ? [] : roles,
+                  reason: String(form.get("reason")).trim(),
+                },
         },
-      });
+      );
       invalidateOverview();
       onComplete();
     } catch (error) {
@@ -101,8 +108,8 @@ function ReviewForm({
             rows={3}
           />
           <small>
-            Record why the roles are approved or revoked. Required for every
-            review.
+            Explain approval, rejection or revocation. The applicant can read
+            the reason. Required for every review.
           </small>
         </div>
         {error && (
@@ -114,6 +121,15 @@ function ReviewForm({
           <button className="button button-small" type="submit" value="approve">
             {busy ? "Saving review…" : "Save approval"}
           </button>
+          {!user.verified_status && (
+            <button
+              className="button button-outline button-small"
+              type="submit"
+              value="reject"
+            >
+              Reject application
+            </button>
+          )}
           {user.verified_status && (
             <button
               className="button button-outline button-small"
@@ -198,6 +214,8 @@ export function AdminPage() {
   const filter = list.value("filter", "pending", [
     "pending",
     "verified",
+    "rejected",
+    "revoked",
     "all",
   ]);
   const { cursor, setCursor } = list;
@@ -211,7 +229,10 @@ export function AdminPage() {
       .catch(() => setZones([]));
     return () => controller.abort();
   }, []);
-  const suffix = filter === "all" ? "" : `&verified=${filter === "verified"}`;
+  const suffix =
+    filter === "all"
+      ? ""
+      : `&verification_status=${({ pending: "Pending", verified: "Approved", rejected: "Rejected", revoked: "Revoked" } as Record<string, string>)[filter]}`;
   const query = useQuery<Page<User>>(
     `/admin/users?limit=20&cursor=${cursor ?? 0}${suffix}`,
   );
@@ -240,6 +261,7 @@ export function AdminPage() {
             Back to your account
           </Link>
         </div>
+        <AdminAccessQueue onChange={reload} />
         <div className="admin-toolbar">
           <div className="field">
             <label htmlFor="member-filter">Show members</label>
@@ -254,6 +276,8 @@ export function AdminPage() {
             >
               <option value="pending">Awaiting verification</option>
               <option value="verified">Verified</option>
+              <option value="rejected">Rejected applications</option>
+              <option value="revoked">Verification revoked</option>
               <option value="all">All members</option>
             </ThemedSelect>
           </div>
@@ -308,7 +332,13 @@ export function AdminPage() {
                     </p>
                   </div>
                   <span className="member-status">
-                    {user.verified_status ? "Verified" : "Awaiting review"}
+                    {user.verified_status
+                      ? "Verified"
+                      : user.verification_status === "Rejected"
+                        ? "Rejected"
+                        : user.verification_status === "Revoked"
+                          ? "Verification revoked"
+                          : "Awaiting review"}
                     <br />
                     <Link
                       className="text-link"

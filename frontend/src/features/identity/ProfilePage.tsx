@@ -84,22 +84,43 @@ export function ProfilePage() {
               />
               {user.verified_status
                 ? "Account verified"
-                : "Awaiting verification"}
+                : user.verification_status === "Rejected"
+                  ? "Application rejected"
+                  : user.verification_status === "Revoked"
+                    ? "Verification revoked"
+                    : "Awaiting verification"}
             </p>
             <ul className="role-status-list">
               {user.roles.map((item) => (
                 <li key={item.role}>
                   <strong>{item.role}</strong>
-                  <span>{item.approved ? "Approved" : "Pending review"}</span>
+                  <span>
+                    {item.approved
+                      ? "Approved"
+                      : user.verification_status === "Rejected"
+                        ? "Rejected"
+                        : "Pending review"}
+                  </span>
                 </li>
               ))}
             </ul>
-            {!user.verified_status && (
-              <p className="field-help">
-                Your zone administrator will review your requested roles. Your
-                approval status appears here.
+            {user.verification_reason && (
+              <p
+                className="notice notice-error"
+                role="status"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
+                Administrator’s reason: {user.verification_reason}
               </p>
             )}
+            {!user.verified_status &&
+              user.verification_status !== "Rejected" &&
+              user.verification_status !== "Revoked" && (
+                <p className="field-help">
+                  Your zone administrator will review your requested roles. Your
+                  approval status appears here.
+                </p>
+              )}
             <dl className="account-details">
               <dt>Email address</dt>
               <dd>{user.email}</dd>

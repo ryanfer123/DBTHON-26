@@ -102,3 +102,7 @@ lock-screen previews, inbox click navigation and opt-out/sign-out cleanup. Migra
 0013 and the optional AWS relay are not deployed. Actual browser receipt and current
 AWS allowance review remain mandatory before treating FR08 as fully demonstrated.
 See [browser push activation](BROWSER_PUSH.md).
+
+### Membership-review extension
+
+Scoped administrators can reject applications with visible reasons/inbox notifications. Approved members can request administrator access from Settings with a reason; a scoped administrator queue exposes it and supports audited approve/reject decisions with visible outcomes. Migration 0015, API and frontend flows are implemented; PostgreSQL/browser runtime acceptance evidence remains pending.

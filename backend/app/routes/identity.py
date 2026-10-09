@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query, Request, Response
 from sqlalchemy import Connection, text
@@ -11,6 +11,11 @@ from app.core.errors import DomainError
 from app.identity import service
 from app.identity.models import (
     AccountDeletion,
+    AdminAccessApplication,
+    AdminAccessDecision,
+    AdminAccessRequestData,
+    AdminAccessRequestResponse,
+    AdminAccessRequestsResponse,
     AdminGrant,
     Login,
     NotificationPreferences,
@@ -19,6 +24,7 @@ from app.identity.models import (
     PageMeta,
     ProfileUpdate,
     Registration,
+    ReviewReason,
     RoleData,
     SessionData,
     SessionResponse,
@@ -250,6 +256,7 @@ def confirm_zone(body: ZoneSelection, request: Request) -> UserResponse:
 def admin_users(
     request: Request,
     verified: bool | None = None,
+    verification_status: Literal["Pending", "Approved", "Rejected", "Revoked"] | None = None,
     zone_id: Annotated[int | None, Query(gt=0)] = None,
     cursor: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -274,12 +281,14 @@ def admin_users(
                     "SELECT user_id FROM users WHERE user_id>:cursor AND deleted_at IS NULL "
                     "AND (CAST(:zone_id AS bigint) IS NULL OR zone_id=:zone_id) "
                     "AND (CAST(:verified AS boolean) IS NULL OR verified_status=:verified) "
+                    "AND (CAST(:status AS text) IS NULL OR verification_status=:status) "
                     "ORDER BY user_id LIMIT :limit"
                 ),
                 {
                     "cursor": cursor,
                     "zone_id": zone_id,
                     "verified": verified,
+                    "status": verification_status,
                     "limit": limit + 1,
                 },
             )
@@ -339,4 +348,105 @@ def delete_member(user_id: int, body: AccountDeletion, request: Request) -> None
         c.execute(
             text("SELECT dbthon_delete_account(:uid,:email)"),
             {"uid": user_id, "email": body.confirmation_email},
+        )
+
+
+@router.post("/admin/users/{user_id}/reject", response_model=UserResponse, tags=["Administration"])
+def reject_user(user_id: int, body: ReviewReason, request: Request) -> UserResponse:
+    with context(request, write=True) as c:
+        uid = c.execute(
+            text("SELECT dbthon_reject_user(:uid,:reason)"), {"uid": user_id, "reason": body.reason}
+        ).scalar_one()
+        return UserResponse(data=service.user_data(c, uid))
+
+
+def access_request_data(c: Connection, request_id: int) -> AdminAccessRequestData:
+    row = (
+        c.execute(
+            text("""
+        SELECT a.request_id,a.user_id,u.name,u.email,u.zone_id,a.reason,a.status,
+          a.created_at,a.reviewed_at,a.review_note
+        FROM admin_access_requests a JOIN users u USING(user_id) WHERE a.request_id=:id
+    """),
+            {"id": request_id},
+        )
+        .mappings()
+        .first()
+    )
+    if row is None:
+        raise DomainError("NOT_FOUND", 404, "The requested resource was not found.")
+    return AdminAccessRequestData(**row)
+
+
+@router.post("/account/admin-requests", response_model=AdminAccessRequestResponse, status_code=201)
+def request_admin_access(
+    body: AdminAccessApplication, request: Request
+) -> AdminAccessRequestResponse:
+    with context(request, write=True) as c:
+        ref = c.execute(
+            text("SELECT dbthon_request_admin(:reason)"), {"reason": body.reason}
+        ).scalar_one()
+        return AdminAccessRequestResponse(data=access_request_data(c, ref))
+
+
+@router.get("/account/admin-requests", response_model=AdminAccessRequestsResponse)
+def my_admin_requests(
+    request: Request,
+    cursor: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=50)] = 10,
+) -> AdminAccessRequestsResponse:
+    with context(request) as c:
+        ids = (
+            c.execute(
+                text("""
+            SELECT request_id FROM admin_access_requests WHERE user_id=dbthon_actor_id()
+              AND (:cursor=0 OR request_id<:cursor) ORDER BY request_id DESC LIMIT :limit
+        """),
+                {"cursor": cursor, "limit": limit + 1},
+            )
+            .scalars()
+            .all()
+        )
+        return AdminAccessRequestsResponse(
+            data=[access_request_data(c, ref) for ref in ids[:limit]],
+            meta=PageMeta(next_cursor=ids[limit - 1] if len(ids) > limit else None),
+        )
+
+
+@router.get(
+    "/admin/access-requests", response_model=AdminAccessRequestsResponse, tags=["Administration"]
+)
+def admin_access_requests(
+    request: Request,
+    cursor: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
+    status: Literal["Pending", "Approved", "Rejected", "Cancelled"] = "Pending",
+) -> AdminAccessRequestsResponse:
+    with context(request) as c:
+        if not c.execute(text("SELECT dbthon_has_role('Admin')")).scalar_one():
+            raise DomainError("ADMIN_REQUIRED", 403, "Zone administrator access is required.")
+        ids = (
+            c.execute(
+                text("""
+            SELECT a.request_id FROM admin_access_requests a JOIN users u USING(user_id)
+            WHERE a.request_id>:cursor AND a.status=:status AND u.deleted_at IS NULL
+              AND dbthon_zone_admin(u.zone_id) ORDER BY a.request_id LIMIT :limit
+        """),
+                {"cursor": cursor, "status": status, "limit": limit + 1},
+            )
+            .scalars()
+            .all()
+        )
+        return AdminAccessRequestsResponse(
+            data=[access_request_data(c, ref) for ref in ids[:limit]],
+            meta=PageMeta(next_cursor=ids[limit - 1] if len(ids) > limit else None),
+        )
+
+
+@router.post("/admin/access-requests/{request_id}/review", status_code=204, tags=["Administration"])
+def review_admin_access(request_id: int, body: AdminAccessDecision, request: Request) -> None:
+    with context(request, write=True) as c:
+        c.execute(
+            text("SELECT dbthon_review_admin_request(:id,:approved,:reason)"),
+            {"id": request_id, "approved": body.approved, "reason": body.reason},
         )

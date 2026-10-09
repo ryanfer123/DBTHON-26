@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Literal, Self
 
@@ -113,6 +114,34 @@ class NotificationPreferencesResponse(BaseModel):
     data: NotificationPreferencesData
 
 
+class ReviewReason(Input):
+    reason: str = Field(min_length=3, max_length=300)
+
+    @field_validator("reason")
+    @classmethod
+    def trim_reason(cls, value: str) -> str:
+        value = value.strip()
+        if len(value) < 3:
+            raise ValueError("Explain the decision")
+        return value
+
+
+class AdminAccessApplication(Input):
+    reason: str = Field(min_length=10, max_length=500)
+
+    @field_validator("reason")
+    @classmethod
+    def trim_reason(cls, value: str) -> str:
+        value = value.strip()
+        if len(value) < 10:
+            raise ValueError("Explain why you want administrator access")
+        return value
+
+
+class AdminAccessDecision(ReviewReason):
+    approved: bool
+
+
 class AccountDeletion(Input):
     confirmation_email: str = Field(min_length=3, max_length=100)
 
@@ -148,6 +177,8 @@ class UserData(BaseModel):
     capabilities: list[Role]
     capacity_kg: str | None
     zone_review_required: bool = False
+    verification_status: Literal["Pending", "Approved", "Rejected", "Revoked"] = "Pending"
+    verification_reason: str | None = None
 
 
 class UserResponse(BaseModel):
@@ -184,4 +215,26 @@ class ZoneData(BaseModel):
 
 class ZonesResponse(BaseModel):
     data: list[ZoneData]
+    meta: PageMeta
+
+
+class AdminAccessRequestData(BaseModel):
+    request_id: int
+    user_id: int
+    name: str
+    email: str
+    zone_id: int
+    reason: str
+    status: Literal["Pending", "Approved", "Rejected", "Cancelled"]
+    created_at: datetime
+    reviewed_at: datetime | None
+    review_note: str | None
+
+
+class AdminAccessRequestResponse(BaseModel):
+    data: AdminAccessRequestData
+
+
+class AdminAccessRequestsResponse(BaseModel):
+    data: list[AdminAccessRequestData]
     meta: PageMeta

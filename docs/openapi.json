@@ -17,6 +17,155 @@
         "title": "AccountDeletion",
         "type": "object"
       },
+      "AdminAccessApplication": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "AdminAccessApplication",
+        "type": "object"
+      },
+      "AdminAccessDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "approved"
+        ],
+        "title": "AdminAccessDecision",
+        "type": "object"
+      },
+      "AdminAccessRequestData": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "integer"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "status": {
+            "enum": [
+              "Pending",
+              "Approved",
+              "Rejected",
+              "Cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "zone_id": {
+            "title": "Zone Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "request_id",
+          "user_id",
+          "name",
+          "email",
+          "zone_id",
+          "reason",
+          "status",
+          "created_at",
+          "reviewed_at",
+          "review_note"
+        ],
+        "title": "AdminAccessRequestData",
+        "type": "object"
+      },
+      "AdminAccessRequestResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AdminAccessRequestData"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "AdminAccessRequestResponse",
+        "type": "object"
+      },
+      "AdminAccessRequestsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AdminAccessRequestData"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "AdminAccessRequestsResponse",
+        "type": "object"
+      },
       "AdminGrant": {
         "additionalProperties": false,
         "properties": {
@@ -2748,6 +2897,22 @@
         "title": "ReviewInput",
         "type": "object"
       },
+      "ReviewReason": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ReviewReason",
+        "type": "object"
+      },
       "RoleData": {
         "properties": {
           "approved": {
@@ -3382,6 +3547,28 @@
             "title": "User Id",
             "type": "integer"
           },
+          "verification_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Reason"
+          },
+          "verification_status": {
+            "default": "Pending",
+            "enum": [
+              "Pending",
+              "Approved",
+              "Rejected",
+              "Revoked"
+            ],
+            "title": "Verification Status",
+            "type": "string"
+          },
           "verified_status": {
             "title": "Verified Status",
             "type": "boolean"
@@ -3819,6 +4006,101 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/account/admin-requests": {
+      "get": {
+        "operationId": "my_admin_requests_api_v1_account_admin_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAccessRequestsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Admin Requests",
+        "tags": [
+          "Identity"
+        ]
+      },
+      "post": {
+        "operationId": "request_admin_access_api_v1_account_admin_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAccessApplication"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAccessRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Request Admin Access",
+        "tags": [
+          "Identity"
+        ]
+      }
+    },
     "/api/v1/account/confirm-zone": {
       "post": {
         "operationId": "confirm_zone_api_v1_account_confirm_zone_post",
@@ -3857,6 +4139,125 @@
         "summary": "Confirm Zone",
         "tags": [
           "Identity"
+        ]
+      }
+    },
+    "/api/v1/admin/access-requests": {
+      "get": {
+        "operationId": "admin_access_requests_api_v1_admin_access_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "Pending",
+              "enum": [
+                "Pending",
+                "Approved",
+                "Rejected",
+                "Cancelled"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAccessRequestsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Access Requests",
+        "tags": [
+          "Identity",
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/access-requests/{request_id}/review": {
+      "post": {
+        "operationId": "review_admin_access_api_v1_admin_access_requests__request_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAccessDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Admin Access",
+        "tags": [
+          "Identity",
+          "Administration"
         ]
       }
     },
@@ -4761,6 +5162,28 @@
           },
           {
             "in": "query",
+            "name": "verification_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "Pending",
+                    "Approved",
+                    "Rejected",
+                    "Revoked"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification Status"
+            }
+          },
+          {
+            "in": "query",
             "name": "zone_id",
             "required": false,
             "schema": {
@@ -4922,6 +5345,59 @@
           }
         },
         "summary": "Grant Admin",
+        "tags": [
+          "Identity",
+          "Administration"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}/reject": {
+      "post": {
+        "operationId": "reject_user_api_v1_admin_users__user_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewReason"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reject User",
         "tags": [
           "Identity",
           "Administration"

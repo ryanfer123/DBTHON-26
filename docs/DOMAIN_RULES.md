@@ -190,3 +190,9 @@ Scores are hidden while a fresh period loads or the API returns an error.
 Users may delete their own account, including before verification. Approved admins may delete members under their existing area permissions; the named main admin retains global scope. Require the current account email as explicit confirmation and CSRF/Origin validation. Protect the main administrator and the last active approved admin in each area. Reject deletion while donor listings are Available/Claimed/PickedUp, receiver claims Confirmed or volunteer attempts Scheduled/PickedUp; finish, cancel or expire these first.
 
 Deletion removes personal profile and login details and private preferences permanently. Retain a pseudonymous inactive identity for historical exchanges and immutable audit references; do not cascade away another participant's records or rewrite ledger hashes. Close open requests and invalidate pending alerts. Historical user-written content remains. Deleted identities cannot regain access; registering again creates a new identity requiring ordinary verification.
+
+## Membership rejection and administrator requests
+
+A scoped admin may reject an unverified application with a required reason. The applicant can still sign in and read the explicit Rejected status/reason in their account and inbox, but receives no verified-role capabilities. Revocation of a previously approved account is a separate decision.
+
+Only an approved active member with an approved community role and without Admin access can apply for administrator access. Require a 10–500-character reason, only one Pending request and at most one submission per 24 hours. Notify active area admins and the main global admin. Existing admins read the full reason and either approve through normal guarded delegation or reject with a visible 3–300-character reason. Rejecting an admin-access request does not revoke the member's public roles. Approval never occurs through public registration.

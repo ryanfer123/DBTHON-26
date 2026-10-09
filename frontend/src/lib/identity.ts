@@ -13,6 +13,8 @@ export type User = {
   capabilities: (PublicRole | "Admin")[];
   capacity_kg: string | null;
   zone_review_required?: boolean;
+  verification_status?: "Pending" | "Approved" | "Rejected" | "Revoked";
+  verification_reason?: string | null;
 };
 export type Session = { user: User; csrf_token: string };
 export type Zone = { zone_id: number; zone_name: string; city: string };

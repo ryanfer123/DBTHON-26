@@ -1,3 +1,4 @@
+import { RequestAdminAccess } from "./AdminAccessRequests";
 import { DeleteAccountForm } from "./DeleteAccountForm";
 import { BrowserPushSettings } from "./BrowserPushSettings";
 import { InstallApp } from "../../components/InstallApp";
@@ -147,6 +148,7 @@ export function SettingsPage() {
           <Feedback error={error} notice={notice} />
         </section>
       )}
+      <RequestAdminAccess />
       <BrowserPushSettings onChange={query.refresh} />
       <InstallApp />
       {auth.session && (

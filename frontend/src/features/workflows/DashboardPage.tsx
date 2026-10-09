@@ -1,3 +1,4 @@
+import { useAuth } from "../identity/AuthContext";
 import { Freshness } from "../../components/Freshness";
 import { Link } from "react-router";
 import { useOverview } from "./OverviewContext";
@@ -11,6 +12,7 @@ const metricNames: Record<string, string> = {
 };
 export function DashboardPage() {
   const query = useOverview();
+  const user = useAuth().session?.user;
   const data = query.data?.data;
   const roles = data?.capabilities ?? [];
   return (
@@ -23,8 +25,11 @@ export function DashboardPage() {
             <div className="notice">
               <h2>Your community starts here.</h2>
               <p>
-                Your requested roles are awaiting review. Keep your details
-                current and check your verification status.
+                {user?.verification_status === "Rejected"
+                  ? `Your account application was rejected. ${user.verification_reason ?? "Open your account for the administrator’s reason."}`
+                  : user?.verification_status === "Revoked"
+                    ? `Your verification was revoked. ${user.verification_reason ?? "Open your account for details."}`
+                    : "Your requested roles are awaiting review. Keep your details current and check your verification status."}
               </p>
               <Link className="text-link" to="/account">
                 Check verification status

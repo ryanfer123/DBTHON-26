@@ -37,6 +37,9 @@ async def database_error_handler(request: Request, error: Exception) -> JSONResp
     diagnostic = getattr(error.orig, "diag", None) if isinstance(error, DBAPIError) else None
     code = str(getattr(diagnostic, "message_primary", "")).strip()
     mappings = {
+        "ADMIN_REQUEST_PENDING": (409, "Your administrator request is already awaiting review."),
+        "ADMIN_REQUEST_CLOSED": (409, "This request has already been reviewed. Refresh the list."),
+        "ADMIN_REQUEST_COOLDOWN": (429, "Wait 24 hours between administrator access requests."),
         "DELETE_CONFIRMATION_REQUIRED": (422, "Type the account email to confirm deletion."),
         "PROTECTED_ACCOUNT": (409, "The main administrator account cannot be deleted."),
         "LAST_ZONE_ADMIN": (409, "Grant another member administrator access in this area first."),

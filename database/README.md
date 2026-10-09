@@ -57,3 +57,5 @@ reports and personal impact routines. Its guarded mutation/SELECT boundaries fol
 [comparison and rollout notes](../docs/COMPETITOR_GAP_ANALYSIS.md).
 
 Revision `0014_account_deletion.sql` follows `0013` in the merged branch and adds guarded account/profile erasure with retained pseudonymous audit identity. Apply through Alembic. The merged forward chain is `0012 -> 0013 -> 0014`.
+
+Revision `0015_membership_requests.sql` follows 0014 and adds explicit membership rejection and private, scoped administrator-access requests/review commands. Apply through Alembic; current chain ends at 0015.

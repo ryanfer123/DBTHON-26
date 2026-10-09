@@ -316,3 +316,15 @@ Subscription URLs and browser keys are never returned by server reads. Existing
 notification-preference responses expose actual push configuration. The worker
 leases per-device deliveries independently of inbox acceptance. See [browser push](BROWSER_PUSH.md)
 for privacy, expiry, provider acceptance and deployment gates.
+
+## Membership decisions and administrator applications (0015)
+
+`UserData` adds `verification_status` (Pending/Approved/Rejected/Revoked) and optional `verification_reason`. Applicants can read their latest rejection/revocation reason through `/auth/me`; approved status still uses approved roles, active status and existing RLS rules. `/admin/users` accepts optional `verification_status` for explicit review filters.
+
+- `POST /admin/users/{user_id}/reject`: `{ "reason": "3–300 characters" }`; returns updated UserResponse. This rejects an unverified application, preserving login access to account status/inbox while withholding community capabilities. A full reason notification commits atomically with the review/ledger rows. Approval/revocation continue through `/verify`.
+- `POST /account/admin-requests`: `{ "reason": "10–500 characters" }`; approved active non-admin members only, returns 201 with request data. One Pending request per member and one submission per 24 hours. Creates inbox notifications for active approved area admins and the global main admin; no automatic grant.
+- `GET /account/admin-requests?cursor=0&limit=10`: the actor's applications, newest first; later pages use a smaller request ID cursor. Includes original reason/status/created_at/reviewed_at/review_note.
+- `GET /admin/access-requests?status=Pending&cursor=0&limit=20`: scoped review queue; supports Pending/Approved/Rejected/Cancelled status and ascending request-ID pagination. Includes member identity and full submitted reason.
+- `POST /admin/access-requests/{request_id}/review`: `{ "approved": true, "reason": "3–300 characters" }`, returns 204. Approval uses the guarded grant routine; rejection retains existing public roles and sends the decision reason. Review notes are visible to the requester. Direct admin grants also resolve outstanding Pending requests.
+
+Writes require session, Origin and CSRF validation. Main admin can review all areas; delegated admins remain scoped to the applicant's current area. Access-request RLS allows only its owner or a scoped admin to read the reason. Deleted identities' pending requests become Cancelled. ADMIN_REQUEST_PENDING/CLOSED are 409; ADMIN_REQUEST_COOLDOWN is 429. Inbox is the delivery evidence; external browser/SMS/WhatsApp still depends on provider configuration.

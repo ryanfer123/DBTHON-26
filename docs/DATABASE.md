@@ -393,3 +393,9 @@ erDiagram
 Expired/revoked subscriptions may be deleted along with transport records; domain
 notifications and trust records remain. Details and live activation gates:
 [Browser push](BROWSER_PUSH.md).
+
+## Membership decisions and admin-access applications (0015)
+
+`users.verification_status` and `verification_reviews.decision` make rejection explicit in both current and historical decisions; verified fixture/import rows normalize to Approved. Full rejection/revocation reasons remain in `verification_reviews`, projected only via existing scoped reads. Notifications widen to 500 characters so a complete 300-character decision reason fits. `admin_access_requests` relates each user to reason, status, created_at, reviewer FK, reviewed_at and review_note, with a unique Pending-request partial index and pending/review metadata checks. It is under forced RLS: own requests or current-area admins/global main admin only.
+
+Guard-owned membership/request/review commands recheck session and scope after sorted user locks. Creating a request locks known notification recipients in sorted order with the requester to avoid inversion against grants/reviews. Domain decisions, immutable events and inbox/outbox notifications share a transaction. A request review cannot grant outside existing admin scope or grant an inactive/unverified target. Direct grants resolve pending requests; account deletion cancels them. Reasons are stored as text in request/review rows, while immutable event payloads retain minimal decision metadata. No deployed migrations were modified.
