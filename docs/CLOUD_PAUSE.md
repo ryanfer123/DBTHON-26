@@ -1,5 +1,10 @@
 # AWS pause and restart; Render stays hosted
 
+**Current status, 10 October 2026: AWS restored.** RDS is available, API/worker
+reserved concurrency is 5/1, bootstrap has no reservation, and the one-minute
+worker rule is enabled. Backend readiness and Render both returned HTTP 200.
+The pause details below are historical; no new feature code/migrations were deployed.
+
 2026-10-09 (Asia/Kolkata): the user explicitly selected **AWS only**. Render has not
 been changed and `https://dbthon-26.onrender.com` returned HTTP 200 after the AWS
 pause. Its frontend remains hosted, but AWS-backed application features are
@@ -35,7 +40,7 @@ Stopping RDS removes instance-hour usage, but storage/backups and retained resou
 such as artifacts and configured secret storage can still incur charges. This is
 not a zero-cost shutdown of every AWS resource.
 
-RDS automatically restarts after at most seven stopped days. AWS reports the next
+RDS automatically restarts after at most seven stopped days. While paused, AWS reported the
 automatic restart as **16 October 2026, 7:19 PM IST** (2026-10-16T13:49:30.365Z). No recurring re-stop
 infrastructure was created. Lambda executions and the worker rule remain disabled
 until manually restored. See [AWS RDS stop/start documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_StopInstance.html)
